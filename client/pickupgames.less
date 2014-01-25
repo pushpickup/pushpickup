@@ -1,0 +1,321 @@
+@import "/packages/bootstrap3-less/bootstrap.lessimport";
+// from root directory, execute the following at the command line:
+// cd public && ln -s ../packages/bootstrap3-less/lib/fonts ./
+// as described at https://github.com/eprochasson/bootstrap3-less
+
+// I'd like it to stretch out on "large" devices like my laptop
+// @media (min-width: @screen-lg-min) {
+//     .container{
+//         min-width: 100%;
+//     }
+// }
+
+//body { padding-top: 70px; }
+body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.navbar {
+  margin-bottom: 20px;
+}
+
+.col-centered {
+  float: none;
+  margin: 0 auto;
+}
+
+a {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+#map-wrapper {
+  //.make-lg-column(12);
+}
+#map-canvas {
+  width: auto;
+  height: 400px;
+}
+
+// #map-wrapper {
+//   //width: 100%;
+//   padding-bottom: 75%; //56.25%; /* 16:9 aspect ratio */
+//   position: relative;
+// }
+// #map-wrapper > div {
+//   position: absolute;
+//   top: 0; right: 0; bottom: 0; left: 0;
+// }
+
+.game-header, a {
+  cursor: pointer;
+}
+
+div .progress {
+  margin-bottom: 0;
+}
+
+/* http://stackoverflow.com/a/1101678/1820042 */
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+}
+
+.game-header .location {
+  max-width: 20em;
+}
+
+.login {
+  .pull-right();
+}
+
+#manipulate {
+  .make-lg-column(6);
+}
+
+#map-interaction {
+  .make-lg-column(6);
+}
+
+#accounts-actions {
+  .make-lg-column(12);
+}
+
+#alerts {
+  .make-lg-column(12);
+}
+
+.span-row, .fromFooterContent, .headerContent {
+  .make-lg-column(12);
+}
+
+.game-type-slot {
+  .make-xs-column(1);
+  .make-sm-column(1);
+}
+.game-time-slot {
+  .make-xs-column(4);
+  .make-sm-column(4);
+}
+.game-loc-slot {
+  .make-xs-column(5);
+  .make-sm-column(5);
+}
+.game-status-slot {
+  .make-xs-column(2);
+  .make-sm-column(2);
+}
+
+@media (max-width: @screen-xs) {
+  .game-type-slot { .make-xs-column(12); }
+  .game-time-slot { .make-xs-column(12); }
+  .game-loc-slot { .make-xs-column(12); }
+  .game-status-slot { .make-xs-column(12); }
+}
+
+.spinner {
+  height: 300px;
+}
+
+#addGame {
+  .panel-success;
+}
+
+#addGame button[type="submit"] {
+  .btn-success;
+}
+
+#editGame {
+  .panel-warning;
+}
+
+#editGame button[type="submit"] {
+  .btn-warning;
+}
+
+button {
+  .btn;
+  .btn-default;
+  &.add {
+    .btn-success;
+  }
+  &.ok {
+    .btn-success;
+  }
+  &.cancel {
+    .btn-default;
+  }
+  &.remove {
+    .btn-danger;
+    float: right;
+  }
+  &#getAddGameForm {
+    .btn-success;
+    .btn-lg;
+    .btn-block;
+  }
+  &.addUserSub {
+    .btn-lg;
+    .btn-block;
+    .btn-default;
+  }
+}
+
+.singleton-button-container {
+  max-width: 300px; // not 330px b/c no 15px margins
+  .center-block();
+}
+
+#addGameForm, #editGameForm {
+  .make-lg-column(12);
+  //    .make-lg-column-offset(2);
+}
+
+.game-details > div > p:first-child {
+  margin-top: 1em;
+}
+
+
+// derived from http://lea.verou.me/2011/01/styling-children-based-on-their-number-with-css3/
+.form-horizontal .form-group {
+  label:first-child {
+    .make-lg-column(2);
+  }
+  /* one item */
+  label + div:nth-of-type(1):nth-last-of-type(1) {
+    .make-lg-column(10);
+  }
+  /* two items */
+  label + div:nth-of-type(1):nth-last-of-type(2),
+  label ~ div:nth-of-type(2):nth-last-of-type(1) {
+	  .make-lg-column(5);
+  }
+  /* two items plus a small item */
+  label + div:nth-of-type(1):nth-last-of-type(3),
+  label ~ div:nth-of-type(2):nth-last-of-type(2) {
+    .make-lg-column(4, @grid-gutter-width / 2);
+  }
+  label ~ div:nth-of-type(3):nth-last-of-type(1) {
+    .make-lg-column(2, @grid-gutter-width / 2);
+  }
+  > div:first-child {
+    .make-lg-column-offset(2);
+    .make-lg-column(10);
+  }
+}
+
+
+input[type="checkbox"] + label {
+  font-weight: normal;
+  margin-right: 1em;
+  cursor: pointer;
+}
+input:checked + label {
+  text-decoration: line-through;
+}
+
+#gameFilters {
+  .panel-body > div:not(:first-child) {
+    margin-top: 1em;
+  }
+}
+
+.gameLink > div {
+  .make-lg-column(12);
+}
+
+
+.form-accounts {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+  .form-control {
+    position: relative;
+    font-size: 16px;
+    height: auto;
+    padding: 10px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    &:focus {
+      z-index: 2;
+    }
+  }
+  .form-heading {
+    margin-bottom: 10px;
+  }
+  /* two items */
+  input:nth-of-type(1):nth-last-of-type(2) {
+    margin-bottom: -1px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  input:nth-of-type(2):nth-last-of-type(1) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  input:nth-last-of-type(1) {
+    margin-bottom: 10px;
+  }
+  .signInLink {
+    text-align: center;
+  }
+}
+
+.drop-out {
+  .text-danger;
+}
+
+footer {
+  .make-lg-column(12);
+  > div {
+    margin-top: 2.5%;
+    border-top: 1px solid #eaeaea;
+    color: #999;
+    text-align: center;
+  }
+  a {
+    color: #555;
+    &:hover {
+      color: #222;
+    }
+  }
+  small {
+    float: left;
+  }
+  ul {
+    float: right;
+    list-style: none;
+    li {
+      float: left;
+      margin-left: 30px;
+    }
+  }
+}
+
+.fromFooterContent {
+  text-align: left;
+  h1 {
+    text-align: center;
+  }
+}
+
+h1 {
+    font-size: 3em;
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.7em;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+    font-weight: normal;
+    color: #999;
+}
+h1, h2 {
+  line-height: 1;
+}

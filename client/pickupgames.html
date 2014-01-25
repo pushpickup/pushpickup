@@ -1,0 +1,622 @@
+<head>
+  <title>Push Pickup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Make this load asynchronously. -->
+  <!-- Use Google's HTTP REST API for geocoding. -->
+  <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyChKXycbNNk9Hzuh41Fwv1YivFUwsBQYNk&sensor=true">
+  </script>
+</head>
+
+<body>
+</body>
+
+<template name="layout">
+  <div class="container">
+    {{> navbar}}
+    <div class="row">
+      <div id="alerts">
+        {{{alerts}}}
+      </div>
+    </div>
+    <div class="row">
+      <div id="manipulate">
+        {{yield}}
+      </div>
+      <div id="map-interaction">
+        {{> map}}
+      </div>
+    </div>
+    <div class="row">
+      <footer class="footer">
+        <div>
+          <small> You can do it!</small>
+          <ul>
+            <li>{{#link route="help"}}Help{{/link}}</li>
+            <li>{{#link route="about"}}About{{/link}}</li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+  </div>
+</template>
+
+<template name="navbar">
+  <div class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{pathFor 'home'}}">
+        Push Pickup
+        <span class="label label-info">BETA</span>
+      </a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        {{> userDropdown}}
+      </ul>
+    </div>
+  </div>
+</template>
+
+<template name="userDropdown">
+  {{#if currentUser}}
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown">
+        {{userIdentifier}} <!-- username or email address -->
+        <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li>{{#link route="change-password"}}Change Password{{/link}}</li>
+        <li>{{#link route="get-verify-link"}}Add Email Address{{/link}}</li>
+        <li>{{#link route="manage-subscriptions"}}Manage Subscriptions{{/link}}</li>
+        <li class="divider"></li>
+        <li>{{#link route="signOut"}}Sign Out{{/link}}</li>
+      </ul>
+    </li>
+  {{else}}
+    <li>{{#link route="signIn"}}Sign In{{/link}}</li>
+  {{/if}}
+</template>
+
+<template name="oneGame">
+  <div class="panel panel-success">
+    <div class="panel-heading">A beautiful game</div>
+    <div class="games list-group">
+    {{> game}}
+    <div class="panel-body">
+      <a href="{{pathFor 'home'}}">
+        <button type="button"
+                class="btn btn-default center-block">
+          Find other nearby games</button></a>
+    </div>
+  </table>
+</template>
+
+<template name="home">
+  <div class="row"><div class="span-row">{{> filter}}</div></div>
+    <div class="row"><div class="span-row">
+        {{> games}}
+    </div></div>
+</template>
+
+<template name="filter">
+  <div id="gameFilters" class="panel panel-info">
+    <div class="panel-heading">
+      Find games by location, type, and day
+    </div>
+    <div class="panel-body">
+      {{> locationFinder}}
+      {{> typeFilter}}
+      {{> dayFilter}}
+      {{> addUserSub}}
+    </div>
+  </div>
+</template>
+
+<template name="addUserSub">
+  <div class="addUserSub singleton-button-container">
+    <button type="button"
+            class="btn addUserSub">
+      Subscribe to this region</button>
+  </div>
+  {{{alerts}}}
+</template>
+
+<template name="games">
+  {{#if gamesReady}}
+    <div class="panel panel-success">
+      <div class="panel-heading">Upcoming games</div>
+      <div class="games list-group">
+        {{#each games}}
+          {{> game}}
+        {{/each}}
+      </ul>
+      {{#if fewerThan 10}}
+        <div class="panel-body">
+          <div class="singleton-button-container">
+            {{#link route="addGame"}}
+              <button type="button"
+                      id="getAddGameForm"
+                      class="btn">
+                Add a game</button>
+            {{/link}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
+    <ul class="pager">
+      <li id="previous" class="{{previous}}"><a>Previous</a></li>
+      <li id="next" class="{{next}}"><a>Next</a></li>
+    </ul>
+  {{else}}
+    {{> loading}}
+  {{/if}}
+</template>
+
+<template name="game">
+  <a class="game list-group-item {{context}}">
+    <div class="row game-header">
+      <div class="game-type-slot">
+        <img class="game-type" src="/game_types/{{type}}-26.png"
+             alt="{{type}}" data-toggle="tooltip" title="{{type}}"></div>
+      <div class="game-time-slot">{{quickHumanTime startsAt}}</div>
+      <div class="game-loc-slot location ellipsis">{{location.name}}</div>
+      <div class="game-status-slot">
+        {{#if equal status "on"}}
+          <div><span class="label label-success">Game on!</span></div>
+        {{else}}
+          <div class="progress" data-toggle="tooltip"
+               title="{{players.length}} out of {{requested.players}} players requested">
+            <div class="progress-bar progress-bar-info"
+                 role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                 aria-valuenow="{{progress}}" style="width: {{progress}}%">
+              <span class="sr-only">{{progress}}% Complete </span>
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+    {{#if selectedGame}}
+      <div class="row game-details">
+        <div class="span-row">
+          <p>{{{alerts}}}</p>
+          <p>{{{note}}}</p>
+          <p>Who's in: {{{listNames players}}}
+            <span class="badge">{{players.length}}</span>
+          </p>
+          {{{editPlayer}}}
+          {{{addPlayer}}}
+          <ul class="list-inline">
+            <li><span class="glyphicon glyphicon-plus"></span>
+              <a class="addPlayer">Add yourself or a friend</a></li>
+            {{#if userCanEdit}}
+              <li><span class="glyphicon glyphicon-edit"></span>
+                {{#link route="editGame"}}Edit game{{/link}}</li>
+            {{/if}}
+          </ul>
+          <p><div class="row gameLink">
+              <div>
+                <span class="glyphicon glyphicon-link"></span>
+                <a class="show-share-link">Share</a>
+                {{#if showShareLink}}<p>{{baseURL}}{{pathFor 'oneGame'}}</p>{{/if}}
+              </div>
+          </div></p>
+        </div>
+      </div>
+    {{/if}}
+  </li>
+</template>
+
+<template name="editablePlayer">
+  <div class="panel panel-success">
+    <div class="panel-heading">{{title}}</div>
+    <div class="panel-body">
+      <form class="form-accounts" role="form" id="{{which}}Player">
+        <div class="form-group {{error}}">
+          {{#if addingPlayer}}
+            {{#unless currentUser}}
+              <div class="signInLink">
+                {{#link route="signIn"}}Sign In{{/link}}
+              </div>
+            {{/unless}}
+          {{/if}}
+          <label class="sr-only" for="name">Name</label>
+          <input type="text" class="form-control" id="name"
+                 placeholder="Name"
+                 value="{{#if name}}{{name}}{{else}}{{user.profile.name}}{{/if}}"
+                 autofocus required />
+          {{{alerts}}}
+        </div>
+        <div class="btn-group btn-group-lg">
+          <button class="btn ok" type="submit">{{action}}</button>
+          <button class="btn cancel" type="button">Cancel</button>
+        </div>
+        {{#unless addingPlayer}}
+          <a class="drop-out">Drop out</a>
+        {{/unless}}
+      </form>
+    </div>
+    <!-- <p> -->
+    <!--     An email address is optional, hidden from the organizer and other -->
+    <!--     players, and, if verified by the player, used only to notify the -->
+    <!--     player of updates to this game. -->
+    <!-- </p> -->
+  </div>
+</template>
+
+<template name="selectLocation">
+  <div class="form-group {{locationError}}">
+    <label for="locationSearchBox" class="control-label">Where</label>
+    <div>
+      {{> locationSearchBox}}
+      <span class="help-block">
+        {{#if markerPresent}}
+          Be sure your location has a name that others will recognize.
+          You can adjust the location marker by clicking on the map.
+        {{else}}
+          You can also click on the map to mark the location.
+        {{/if}}
+      </span>
+    </div>
+  </div>
+</template>
+
+<template name="selectForm">
+  {{#if includeLabel}}
+    <label for="{{id}}" class="control-label">{{label}}</label>
+  {{/if}}
+  <div><select class="form-control" id="{{id}}">
+      {{#each options}}
+        <option value={{value}} {{#if selected}}selected{{/if}}>
+          {{text}}
+        </option>
+      {{/each}}
+  </select></div>
+</template>
+
+<template name="editableGame">
+  <div id="{{id}}" class="panel">
+    <div class="panel-heading">
+      <h3 class="panel-title">{{title}}</h3>
+    </div>
+    <div class="panel-body">
+      <form class="form-horizontal" id="{{id}}Form" role="form">
+        <div class="form-group">
+          {{{selectType}}}
+          {{{selectStatus}}}
+        </div>
+        <div class="form-group">
+          {{{selectDay}}}
+          {{{selectTime}}}
+        </div>
+        {{> selectLocation}}
+        {{#if atLeastOnePlayer}}
+          <div class="form-group gamePlayers">
+            <label class="control-label">Who</label>
+            <div>
+              <p class="form-control-static">
+                {{#each players}}
+                  <input type="checkbox" class="hidden" id="{{name}}"
+                         value="{{name}}">
+                  <label for="{{name}}">
+                    {{name}}{{#if verified}} (verified) {{/if}}
+                    &times;
+                  </label>
+                {{/each}}
+              </p>
+              <span class="help-block">
+                Click names to mark players for removal.
+              </span>
+            </div>
+          </div>
+        {{/if}}
+        <div class="form-group">
+          <label for="gameNote" class="control-label">Details</label>
+          <div>
+            <textarea class="form-control" id="gameNote"
+                      maxlength="1000">{{note}}</textarea>
+          </div>
+        </div>
+        <div class="form-group requested">
+          <label for="requests" class="control-label">Requested</label>
+          <div>
+            <div class="input-group">
+              <span class="input-group-addon">Players</span>
+              <input type="number" class="form-control players" min="0"
+                     value="{{#if requested.players}}{{requested.players}}{{else}}10{{/if}}"
+                     required>
+            </div>
+            <span class="help-block">A "proposed" game will automatically
+              become "on" if enough players join it. Players will be
+              notified by email.</span>
+          </div>
+        </div>
+        <!-- <p class="form-control-static"> -->
+        <!--   Please let players contact you (your email address -->
+        <!--   will not be visible to them; we will forward messages -->
+        <!--   to you). Your game will not be visible to others until -->
+        <!--   you verify your email address (confirmation sent from -->
+        <!--   support@pushpickup.com). Thanks! -->
+        <!-- </p> -->
+        <div class="form-group">
+          <div class="no-label">
+            <div class="btn-group">
+              <button for="{{id}}Form" type="submit" class="btn">
+                {{submit}}</button>
+              <button for="{{id}}Form" class="btn cancel cancelAll">
+                Cancel
+              </button>
+            </div>
+            {{#if editingGame}}
+              <button for="{{id}}Form" class="btn remove">Cancel game</button>
+            {{/if}}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<template name="locationFinder">
+  <div class="input-group">
+    <label class="sr-only" for="locationSearchBox">Location</label>
+    {{> locationSearchBox}}
+    <div class="input-group-btn">
+      <button type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-screenshot"></span>
+      </button>
+    </div>
+  </div>
+</template>
+
+<template name="locationSearchBox">
+  <input type="text" class="form-control" id="locationSearchBox"
+         placeholder="Location" value="{{location.name}}" required>
+</template>
+
+<template name="alertDanger">
+  <div class="alert alert-danger">
+    <strong>{{beginWith}}</strong> {{message}}.
+  </div>
+</template>
+
+<template name="alertDangerOfferSignIn">
+  <div class="alert alert-danger">
+    <strong>{{beginWith}}</strong> {{message}}.
+    <a href="{{pathFor 'signIn'}}" class="alert-link">Sign in?</a>
+  </div>
+</template>
+
+<template name="alertWarning">
+  <div class="alert alert-warning">
+    <strong>{{beginWith}}</strong> {{message}}.
+  </div>
+</template>
+
+
+<template name="typeFilter">
+  <div id="typeFilter">
+    {{#each typeOptions}}
+      <label class="checkbox-inline">
+        <input type="checkbox" value="{{value}}">
+        <img class="game-type" src="/game_types/{{value}}-26.png"
+             alt="{{value}}" data-toggle="tooltip" title="{{value}}">
+      </label>
+    {{/each}}
+  </div>
+</template>
+
+<template name="dayFilter">
+  <div id="dayFilter">
+    {{#each dayOptions}}
+      <label class="checkbox-inline">
+        <input type="checkbox" value="{{name}}"> {{name}}
+      </label>
+    {{/each}}
+  </div>
+</template>
+
+<template name="map">
+  {{#constant}}
+    <div id="map-wrapper">
+      <div id="map-canvas"></div>
+    </div>
+  {{/constant}}
+</template>
+
+<template name="signIn">
+  <form class="form-accounts sign-in" role="form">
+    <h2 class="form-heading">Please sign in</h2>
+    <div class="form-group {{error}}">
+      <input type="text" class="login form-control"
+             placeholder="Username or Email" required autofocus>
+      <input type="password" class="password form-control"
+             placeholder="Password" required>
+    </div>
+    {{{alerts}}}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+  <p class="text-center">{{#link route="get-reset-link"}}Forgot password?{{/link}}</p>
+</template>
+
+<template name="changePassword">
+  {{#if currentUser}}
+    <form class="form-accounts change-password" role="form">
+      <h3 class="form-heading">Change password</h3>
+      <div class="form-group {{error}}">
+        <!-- strangePassword only supplied during first session -->
+        <input type="password" class="old-password password form-control"
+               value="{{strangePassword}}"
+               placeholder="Current Password" required autofocus>
+        <input type="password" class="new-password password form-control"
+               placeholder="New Password" required>
+      </div>
+      {{{alerts}}}
+      <button class="btn btn-lg btn-primary btn-block" type="submit">OK</button>
+    </form>
+  {{else}}
+    <p class="lead">You must {{#link route="signIn"}}sign in{{/link}}
+      to change your password.</p>
+  {{/if}}
+</template>
+
+<template name="setPassword">
+  <div class="accounts-actions">
+    {{#if badToken}}
+      {{> sendResetPasswordEmail}}
+    {{else}}
+      <form class="form-accounts set-password" role="form">
+        <h3 class="form-heading">Please set password</h3>
+        <div class="form-group {{error}}">
+          <input type="password" class="password form-control"
+                 placeholder="Password" required autofocus>
+        </div>
+        {{{alerts}}}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">OK</button>
+      </form>
+    {{/if}}
+  </div>
+</template>
+
+<template name="sendResetPasswordEmail">
+  <form class="form-accounts get-reset-link" role="form">
+    <h3 class="form-heading">Get link to set password</h3>
+    <div class="form-group {{error}}">
+      <input type="email" class="email form-control"
+             placeholder="Email address" required autofocus>
+    </div>
+    {{{alerts}}}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">OK</button>
+  </form>
+</template>
+
+<template name="sendVerificationEmail">
+  <form class="form-accounts get-verify-link" role="form">
+    <h3 class="form-heading">Add email address</h3>
+    <div class="form-group {{error}}">
+      <span class="help-block">Check for an email from
+        support@pushpickup.com to verify your email address</span>
+      <input type="email" class="email form-control"
+             placeholder="Email address" required autofocus>
+    </div>
+    {{{alerts}}}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">OK</button>
+  </form>
+</template>
+
+<template name="manageUserSubs">
+  <div class="panel panel-info">
+    <div class="panel-heading">Manage subscriptions</div>
+    <div class="panel-body">
+      {{#if hasSubs}}
+        <p> You have {{subsCount}} subscriptions.</p>
+        <p>
+          Unsubscribe completely:
+          <button class="btn btn-danger unsubscribeAll">
+            Remove all
+          </button>
+        </p>
+      {{else}}
+        You have no subscriptions.
+      {{/if}}
+      <p>
+        This page will get fancier soon, enabling you to view and edit subscriptions.
+      </p>
+    </div>
+</template>
+
+<template name="helpBlock">
+  <span class="help-block">{{this}}</span>
+</template>
+
+<template name="about">
+  <div class="fromFooterContent">
+    <h1>About Push Pickup</h1>
+    <p class="lead">
+      Push Pickup helps you push for pickup games when you want,
+      where you want.
+    </p>
+    <h2>
+      Already part of a regular pickup game with an email list?
+    </h2>
+    <p>
+      Push Pickup helps reduce unnecessary group messages such as
+      "Who's in today?", "Can we start a bit earlier?", "I'm in.",
+      "I'm in.", "I'm in but I'll be late today.", "We need more
+      people. Anyone?", and "Is the game on?".
+    </p>
+    <h2>
+      Having trouble scheduling occasional games with friends?
+    </h2>
+    <p> Push Pickup helps you all pool together your availabilities
+      and commit to games. You may also meet new friends who happen to
+      be available to play when you are. :)
+    </p>
+    <h2>Can't make a regular pickup game?</h2>
+    <p>
+      <a href="http://pickupultimate.com" target="_blank">
+        Pickupultimate.com</a>, for example, is great for finding established,
+      regularly scheduled pickup ultimate games.  But if you can't play in an
+      existing regular game, Push Pickup helps you connect with people
+      who live or work near a field and who want to play pickup
+      ultimate frisbee, even if everyone's individual availabilities
+      vary from week to week. Please be patient; because this site is
+      just getting started, there are not many users, and it may take
+      you a while to get your first "game on" email. Tell your
+      friends! :)
+    </p>
+    <h2>Questions? Suggestions? Compliments?</h2>
+    <p>
+      Let me know what you think at
+      <a href="mailto:donny@pushpickup.com">donny@pushpickup.com</a>.
+      Thanks.
+    </p>
+    <p>
+      Donny
+    </p>
+  </div>
+</template>
+
+<template name="help">
+  <div class="fromFooterContent">
+    <h1>Help</h1>
+    <h2>Pushing Proposals</h2>
+    <p>
+      If you add yourself to a proposed game and enough other
+      people do too (quorum is set by the organizer, and a progress bar
+      shows how close a game is to quorum), then the
+      game is on, and you get an email if you gave and verified your
+      email address. The first time you give your email address,
+      support@pushpickup.com will email you to verify it.
+    </p>
+    <p>
+      An organizer can also just call "game on" at any time, which
+      sends an email to all players with verified email addresses.
+      The organizer can also send updates to players
+      (even before "game on").
+    </p>
+    <h2>What about ...?</h2>
+    <p>
+      Push Pickup is just getting started, so it's hard to predict
+      what a new user will have trouble doing.  If you need help,
+      email me at
+      <a href="mailto:donny@pushpickup.com">donny@pushpickup.com</a>.
+    <p>
+      Together, we can build a great "Help" section with answers to
+      frequently asked questions, or, better yet, improve the site to
+      keep this section small. :) Thanks for your patience.
+    </p>
+    <p>
+      Donny
+    </p>
+  </div>
+</template>
+
+<template name="loading">
+  {{> spinner}}
+</template>

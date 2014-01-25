@@ -1,0 +1,13 @@
+<template name="meteorAlerts">
+  {{#each alerts where}}
+    {{> meteorAlert}}
+  {{/each}}
+</template>
+
+<template name="meteorAlert">
+  <div class="alert alert-{{type}} alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+      &times;</button>
+    {{{message}}}
+  </div>
+</template>
