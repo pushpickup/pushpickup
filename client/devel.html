@@ -1,0 +1,104 @@
+<template name="devLayout">
+  <div class="container">
+    <div class="row">
+      <div id="alerts">
+      </div>
+    </div>
+    {{yield}}
+  </div>
+</template>
+
+<template name="devMain">
+  <div class="options row">
+    {{> settings}}
+    {{#unless searching}}
+      {{> search}}
+      {{> addGame}}
+    {{else}}
+      {{> activeSearch}}
+      {{> exitSearch}}
+    {{/unless}}
+    {{> listOfGames}}
+</template>
+
+<template name="listOfGames">
+  <ul class="list-of-games list-group">
+    {{#each games}}
+      <li class="list-group-item listed-game">
+        {{> listedGame}}
+      </li>
+    {{/each}}
+  </ul>
+</template>
+
+<template name="listedGame">
+  {{> gameStatusIndicator}}
+  {{> gameSummary}}
+  {{#unless userInGame}}
+    {{> joinListedGame}}
+  {{else}}
+    {{> addFriends}}
+  {{/unless}}
+</template>
+
+<template name="gameStatusIndicator">
+  <div class="game-status-indicator">
+    {{#if userInGame}}<span class="glyphicon glyphicon-ok-sign"></span>{{/if}}
+  </div>
+</template>
+
+<template name="gameSummary">
+  <div class="game-summary">
+    <div class="game-type-day-time">{{type}} {{day}} {{time}}</div>
+    <div class="nums-playing-and-needed">
+      {{players.length}} playing ({{requested.players}} needed)
+    </div>
+    <div class="place">
+      <div class="place-name">{{placeName}}</div>
+      <div class-"place-location">{{placeLocation}}</div>
+    </div>
+  </div>
+</template>
+
+<template name="joinListedGame">
+  <div class="join-listed-game">
+    <a>Join</a>
+  </div>
+</template>
+
+<template name="addFriends">
+  <div class="add-friends">
+    <a><span class="glyphicon glyphicon-user"></span>
+      <span class="glyphicon glyphicon-plus"></span></a>
+  </div>
+</template>
+
+<template name="settings">
+  <div class="settings">
+    <span class="glyphicon glyphicon-cog"></span>
+  </div>
+</template>
+
+<template name="search">
+  <div class="search">
+    <input type="search" placeholder="Find games">
+  </div>
+</template>
+
+<template name="addGame">
+  <div class="add-game">
+    <a>Add game</a>
+  </div>
+</template>
+
+<template name="activeSearch">
+  <div class="active-search">
+    <input type="search">
+  </div>
+</template>
+
+<template name="exitSearch">
+  <div class="exit-search">
+    <span class="glyphicon glyphicon-remove"></span>
+  </div>
+</template>

@@ -101,8 +101,9 @@ Meteor.startup(function () {
     });
 
     this.route('dev', {
+      template: 'devMain',
       layoutTemplate: 'devLayout',
-      notFoundTemplate: 'dev'
+      notFoundTemplate: 'devMain'
     });
 
     this.route('home', {
