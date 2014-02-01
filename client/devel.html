@@ -18,7 +18,12 @@
       {{> activeSearch}}
       {{> exitSearch}}
     {{/unless}}
-    {{> listOfGames}}
+  </div>
+  {{#if searching}}
+    {{> selectGameTypes}}
+    {{> runSearch}}
+  {{/if}}
+  {{> listOfGames}}
 </template>
 
 <template name="listOfGames">
@@ -93,12 +98,31 @@
 
 <template name="activeSearch">
   <div class="active-search">
-    <input type="search">
+    <input type="search" placeholder="Enter Location"
+           value="{{location.name}}" autofocus required>
   </div>
 </template>
 
 <template name="exitSearch">
   <div class="exit-search">
     <span class="glyphicon glyphicon-remove"></span>
+  </div>
+</template>
+
+<template name="selectGameTypes">
+  <div class="select-game-types">
+    {{#each options}}
+      <div><label>
+        <input type="checkbox" value="{{value}}" checked>
+        {{value}}
+      </label></div>
+    {{/each}}
+  </div>
+</template>
+
+<template name="runSearch">
+  <div class="run-search">
+    <button type="button"
+            class="btn btn-primary center-block">Find games</button>
   </div>
 </template>

@@ -53,3 +53,33 @@ Template.gameSummary.helpers({
     }
   }
 });
+
+Template.selectGameTypes.helpers({
+  options: function () {
+    return GameOptions.find({option: "type"},{sort: {value: 1}});
+  }
+});
+
+var onPlaceChanged = function () {
+  var place = autocomplete.getPlace();
+  if (place.geometry) {
+    var latLng = place.geometry.location;
+    Session.set("selectedLocationPoint", geoUtils.toGeoJSONPoint(latLng));
+    Session.set("selectedLocationName",place.formatted_address);
+    //map.panTo(latLng);
+    //map.setZoom(12);
+  } else {
+    $('.active-search input').get(0).placeholder = 'Enter Location';
+  }
+};
+
+var autocomplete = null;
+Template.activeSearch.rendered = function () {
+  var template = this;
+  autocomplete && google.maps.event.clearListeners(autocomplete);
+  autocomplete = new google.maps.places.Autocomplete(
+    template.find('.active-search input'),
+    {types: ['(cities)']});
+  google.maps.event.addListener(
+    autocomplete, 'place_changed', onPlaceChanged); // call Meteor.method
+};
