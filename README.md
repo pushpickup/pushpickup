@@ -1,5 +1,5 @@
 # Push Pickup
-==========
+
 A passion project by (Donny Winston](http://www.linkedin.com/pub/donny-winston/8/951/552) and Stewart McCoy [@stewartmccoy](http://twitter.com/stewartmccoy).
 
 Stewart would love if you emailed him at mccoy dot stewart at gmail dot com.
