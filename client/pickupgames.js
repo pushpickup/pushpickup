@@ -639,7 +639,7 @@ var ppConjunction = function (array) {
 
 Template.addUserSubMessage.helpers({
   types: function () {
-    return ppConjunction(Session.get("gameTypes"));
+    return ppConjunction(Session.get("gameTypes") || []);
   },
   days: function () {
     return ppConjunction(
