@@ -9,21 +9,55 @@
 </template>
 
 <template name="devMain">
-  <div class="options row">
-    {{> settings}}
-    {{#unless searching}}
-      {{> search}}
+  {{> devNav}}
+  {{> devBody}}
+</template>
+
+<template name="devBody">
+  <div class="row">
+    {{#if SEql 'search-results' true}}
+      {{> findingsMap}}
+      {{> subscribe}}
+      {{> listOfGames}}
+    {{else}}
+      {{> listOfGames}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="devNav">
+  {{> optionsMain}}
+  {{> optionsExtended}}
+</template>
+
+<template name="optionsMain">
+  <div class="options-main row">
+    {{#if SEql 'searching' 'not'}}
+      {{> settings}}
+      {{> startSearch}}
       {{> addGame}}
     {{else}}
-      {{> activeSearch}}
-      {{> exitSearch}}
-    {{/unless}}
+      {{> searchBacktrack}}
+      {{> searchInput}}
+    {{/if}}
   </div>
-  {{#if searching}}
-    {{> selectGameTypes}}
-    {{> runSearch}}
+</template>
+
+<template name="searchBacktrack">
+  {{#if SEql 'searching' 'during'}}
+    {{> exitSearch}}
+  {{else}}
+    {{> back}}
   {{/if}}
-  {{> listOfGames}}
+</template>
+
+<template name="optionsExtended">
+  <div class="options-extended row">
+    {{#if SEql 'searching' 'during'}}
+        {{> selectGameTypes}}
+        {{> runSearch}}
+    {{/if}}
+  </div>
 </template>
 
 <template name="listOfGames">
@@ -84,9 +118,9 @@
   </div>
 </template>
 
-<template name="search">
-  <div class="search">
-    <input type="search" placeholder="Find games">
+<template name="startSearch">
+  <div class="start-search">
+    <span class="glyphicon glyphicon-search"></span>
   </div>
 </template>
 
@@ -96,10 +130,10 @@
   </div>
 </template>
 
-<template name="activeSearch">
-  <div class="active-search">
+<template name="searchInput">
+  <div class="search-input">
     <input type="search" placeholder="Enter Location"
-           value="{{location.name}}" autofocus required>
+           autofocus required>
   </div>
 </template>
 
@@ -125,4 +159,38 @@
     <button type="button"
             class="btn btn-primary center-block">Find games</button>
   </div>
+</template>
+
+<template name="back">
+  <div class="back">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+  </div>
+</template>
+
+<template name="clearSearch">
+  <div class="clear-search">
+    <span class="glyphicon glyphicon-remove"></span>
+  </div>
+</template>
+
+<template name="findingsMap">
+  <div class="findings-map">
+  {{#constant}}
+    <div class="findings-map-wrapper">
+      <div class="findings-map-canvas"></div>
+    </div>
+  {{/constant}}
+  </div>
+</template>
+
+<template name="subscribe">
+  {{#if SEql 'searching' 'after'}}
+    <div class="subscribe">
+      <div class="subscribe-detail">
+        {{detail}}
+      </div>
+      <button type="button"
+              class="btn btn-primary center-block">Subscribe</button>
+    </div>
+  {{/if}}
 </template>
