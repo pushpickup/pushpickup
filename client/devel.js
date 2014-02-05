@@ -141,13 +141,6 @@ var ppRegion = function (formatted_address) {
   return formatted_address;
 };
 
-Template.subscribe.helpers({
-  detail: function () {
-    return ppConjunction(Session.get('game-types')) +
-      " in " + ppRegion(Session.get('selectedLocationName'));
-  }
-});
-
 Template.findingsMap.rendered = function () {
   var self = this;
 
@@ -212,6 +205,7 @@ Template.findingsMap.rendered = function () {
     Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
     // asynchronous Session.set('selectedLocationName',...)
     locationName.sync();
+    Alerts.collection.remove({where: "subscribe"});
   });
 
   if (! self._syncMapWithSearch) {
@@ -274,4 +268,34 @@ Template.findingsMap.rendered = function () {
 Template.findingsMap.destroyed = function () {
   this._manageMapMarkers && this._manageMapMarkers.stop();
   this._syncMapWithSearch && this._syncMapWithSearch.stop();
+};
+
+Template.subscribe.helpers({
+  detail: function () {
+    return ppConjunction(Session.get('game-types')) +
+      " in " + ppRegion(Session.get('selectedLocationName'));
+  },
+  status: function () {
+    var alert = Alerts.collection.findOne({where: "subscribe"});
+    if (alert) {
+      return Template.meteorAlerts({where: "subscribe"});
+    } else {
+      return Template.subscribeButton();
+    }
+  }
+});
+
+Template.subscribeButton.events({
+  'click button': function () {
+    // for now, simply simulate subscribing user
+    Alerts.throw({
+      message: "**Subscribed!** We'll let you know when there are new games.",
+      type: "success",
+      where: "subscribe"
+    });
+  }
+});
+
+Template.subscribe.destroyed = function () {
+  Alerts.collection.remove({where: "subscribe"});
 };

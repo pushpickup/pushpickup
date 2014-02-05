@@ -15,7 +15,7 @@
 
 <template name="devBody">
   <div class="row">
-    {{#if SEql 'search-results' true}}
+    {{#if SEql 'searching' 'after'}}
       {{> findingsMap}}
       {{> subscribe}}
       {{> listOfGames}}
@@ -184,13 +184,17 @@
 </template>
 
 <template name="subscribe">
-  {{#if SEql 'searching' 'after'}}
-    <div class="subscribe">
-      <div class="subscribe-detail">
-        {{detail}}
-      </div>
-      <button type="button"
-              class="btn btn-primary center-block">Subscribe</button>
+  <div class="subscribe">
+    <div class="subscribe-detail">
+      {{detail}}
     </div>
-  {{/if}}
+    {{{status}}}
+  </div>
+</template>
+
+<template name="subscribeButton">
+  <button type="button"
+          class="btn btn-primary center-block">
+    <span class="glyphicon glyphicon-envelope"></span>
+    Subscribe</button>
 </template>
