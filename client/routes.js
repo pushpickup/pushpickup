@@ -110,8 +110,8 @@ Meteor.startup(function () {
       path: '/',
 
       load: function () {
-        Session.set("gameTypes", []);
-        Session.set("gameDays", []);
+        // TODO: load Session "gameTypes" and "gameDays"
+        // from user profile
         Session.set("need_location_set", undefined);
       },
 

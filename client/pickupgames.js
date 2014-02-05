@@ -1,5 +1,3 @@
-Meteor.subscribe("game_options");
-
 Session.toggle = function (key, val1, val2) {
   if (Session.equals(key, val1)) {
     Session.set(key, val2);
@@ -30,13 +28,22 @@ Session.setDefault("geoWithin", { // Berkeley!
                  [-122.134944,37.774920],
                  [-122.409603,37.774920],
                  [-122.409603,37.937563]]]});
-Session.setDefault("gameTypes", []);
-Session.setDefault("gameDays", []);
+Session.setDefault("gameDays", [0,1,2,3,4,5,6]);
 Session.setDefault("pageNum", 0);
 Session.setDefault("selectedLocationPoint", null);
 Session.setDefault("selectedLocationName", null);
 Session.setDefault("addingGame", false);
 Session.setDefault("editingGame", false);
+
+var gameOptionsHandle = Meteor.subscribe("game_options");
+Deps.autorun(function (c) {
+  if (gameOptionsHandle.ready()) {
+    Session.setDefault(
+      "gameTypes",
+      _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'));
+    c.stop();
+  }
+});
 
 var donnyId;
 Meteor.call("getDonnyId", function (error, result) {
@@ -609,10 +616,46 @@ Template.signIn.events({
 });
 
 Template.addUserSub.helpers({
-    alerts: function () {
-      var self = this;
-      return Template.meteorAlerts({where: "addUserSub"});
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "addUserSub"});
+  }
+});
+
+var ppConjunction = function (array) {
+  var out = "";
+  for (var i=0, l=array.length; i<l; i++) {
+    out = out + array[i];
+    if (i === l-2 && l === 2) {
+      out = out + " and ";
+    } else if (i === l-2) {
+      out = out + ", and ";
+    } else if (i < l-2) {
+      out = out + ", ";
     }
+  }
+  return out;
+};
+
+Template.addUserSubMessage.helpers({
+  types: function () {
+    return ppConjunction(Session.get("gameTypes"));
+  },
+  days: function () {
+    return ppConjunction(
+      _.map(Session.get("gameDays"), function (n) {
+        return moment().day(n).format('dddd');
+      }));
+  },
+
+  // assumes singular helpers are only invoked when Session.get("soloGame")
+  // returns a valid game id.
+  type: function () {
+    return Games.findOne(Session.get("soloGame")).type;
+  },
+  day: function () {
+    return moment(Games.findOne(Session.get("soloGame")).startAt).format('dddd');
+  }
 });
 
 Template.addUserSub.events({
@@ -630,28 +673,38 @@ Template.addUserSub.events({
     if (_.find(Meteor.user().emails, function (email) {
       return email.verified;
     })) {
-      Meteor.call("addUserSub",
-                  Session.get("gameTypes"),
-                  Session.get("gameDays"),
-                  Session.get("geoWithin"),
-                  function (error, result) {
-                    if (!error) {
-                      Alerts.throw({
-                        type: "success",
-                        message: "Thanks! Expect to be notified via email " +
-                          "about new games posted in this region.",
-                        where: "addUserSub"
-                      });
-                    } else {
-                      Alerts.throw({
-                        type: "danger",
-                        message: "Hmm, something went wrong. "+
-                          "You *do* appear to have a verified email address. "+
-                          "Try again?",
-                        where: "addUserSub"
-                      });
-                    }
-                  });
+      var methodCallback = function (error, result) {
+        if (!error) {
+          Alerts.throw({
+            type: "success",
+            message: "Thanks! Expect to be notified via email " +
+              "about new games posted in this region.",
+            where: "addUserSub"
+          });
+        } else {
+          Alerts.throw({
+            type: "danger",
+            message: "Hmm, something went wrong. "+
+              "You *do* appear to have a verified email address. "+
+              "Try again?",
+            where: "addUserSub"
+          });
+        }
+      };
+      if (Session.get("soloGame")) {
+        var game = Games.findOne(Session.get("soloGame"));
+        Meteor.call("addUserSub",
+                    [game.type],
+                    [moment(game.startsAt).day()],
+                    Session.get("geoWithin"),
+                    methodCallback);
+      } else {
+        Meteor.call("addUserSub",
+                    Session.get("gameTypes"),
+                    Session.get("gameDays"),
+                    Session.get("geoWithin"),
+                    methodCallback);
+      }
     } else {
       Alerts.throw({
         type: "warning",
@@ -1232,7 +1285,14 @@ Template.typeFilter.rendered = function () {
 
 Template.typeFilter.helpers({
   typeOptions: function () {
-    return GameOptions.find({option: "type"},{sort: {value: 1}});
+    var selectedTypes = Session.get("gameTypes");
+    return GameOptions.find({option: "type"}, {sort: {value: 1}})
+          .map(function (type) {
+            return {
+              value: type.value,
+              selected: _.contains(selectedTypes, type.value)
+            };
+          });
   }
 });
 
@@ -1245,7 +1305,15 @@ Template.typeFilter.events({
 
 Template.dayFilter.helpers({
   dayOptions: function () {
-    return GameOptions.find({option: "day"},{sort: {value: 1}});
+    var selectedDays = Session.get("gameDays");
+    return GameOptions.find({option: "day"}, {sort: {value: 1}})
+          .map(function (day) {
+            return {
+              name: day.name,
+              value: day.value,
+              selected: _.contains(selectedDays, day.value)
+            };
+          });
   }
 });
 
