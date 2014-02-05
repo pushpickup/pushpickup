@@ -1,5 +1,12 @@
-Meteor.subscribe("game_options");
-Session.setDefault("game-types", GameOptions.find({option: "type"}).fetch());
+var gameOptionsHandle = Meteor.subscribe("game_options");
+Deps.autorun(function (c) {
+  if (gameOptionsHandle.ready()) {
+    Session.setDefault(
+      "game-types",
+      _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'));
+    c.stop();
+  }
+});
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
 

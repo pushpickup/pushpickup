@@ -16,7 +16,6 @@ Meteor.startup(function () {
     });
     check(pageNum, Match.Integer);
     var dbQuery = {};
-
     // select for dateRanges
     var startsAtClauses = [];
     _.each(query.dateRanges, function (dateRange) {

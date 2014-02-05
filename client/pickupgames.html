@@ -89,6 +89,7 @@
     <div class="games list-group">
     {{> game}}
     <div class="panel-body">
+      {{> addUserSub}}
       <a href="{{pathFor 'home'}}">
         <button type="button"
                 class="btn btn-default center-block">
@@ -119,12 +120,27 @@
 </template>
 
 <template name="addUserSub">
-  <div class="addUserSub singleton-button-container">
-    <button type="button"
-            class="btn addUserSub">
-      Subscribe to this region</button>
+  <div class="addUserSub">
+    <div class="singleton-button-container">
+      <button type="button"
+              class="btn addUserSub">
+        <span class="glyphicon glyphicon-envelope"></span>
+        Subscribe
+      </button>
+    </div>
+    {{{alerts}}}
+    {{> addUserSubMessage}}
   </div>
-  {{{alerts}}}
+</template>
+
+<template name="addUserSubMessage">
+  <span class="help-block">
+    {{#if SGet 'soloGame'}}
+      Receive announcements of {{day}} {{type}} games in this region
+    {{else}}
+      Receive announcements of {{days}} {{types}} games in this region
+    {{/if}}
+  </span>
 </template>
 
 <template name="games">
@@ -403,7 +419,8 @@
   <div id="typeFilter">
     {{#each typeOptions}}
       <label class="checkbox-inline">
-        <input type="checkbox" value="{{value}}">
+        <input type="checkbox" value="{{value}}"
+               {{#if selected}}checked{{/if}}>
         <img class="game-type" src="/game_types/{{value}}-26.png"
              alt="{{value}}" data-toggle="tooltip" title="{{value}}">
       </label>
@@ -415,7 +432,9 @@
   <div id="dayFilter">
     {{#each dayOptions}}
       <label class="checkbox-inline">
-        <input type="checkbox" value="{{name}}"> {{name}}
+        <input type="checkbox" value="{{name}}"
+               {{#if selected}}checked{{/if}}>
+        {{name}}
       </label>
     {{/each}}
   </div>
