@@ -100,6 +100,12 @@ Meteor.startup(function () {
       }
     });
 
+    this.route('dev', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      notFoundTemplate: 'devMain'
+    });
+
     this.route('home', {
       path: '/',
 

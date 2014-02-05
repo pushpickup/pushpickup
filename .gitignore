@@ -9,3 +9,4 @@ settings.json
 .DS_Store
 *.min.js
 TAGS
+.tern-*

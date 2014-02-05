@@ -724,6 +724,10 @@ Template.game.helpers({
     var self = this;
     return Template.meteorAlerts({where: self._id});
   },
+  locationName: function () {
+    var game = this;
+    return game.location.name.replace(/,.*/, '');
+  },
   note: function () {
     var self = this;
     return converter.makeHtml(self.note);
@@ -1057,8 +1061,7 @@ Template.editableGame.events({
       type: templ.find("#gameType").value,
       status: templ.find("#gameStatus").value,
       startsAt: new Date(+templ.find("#gameTime").value),
-      location: {name: templ.find("#locationSearchBox").value
-                 .replace(/,.*/, ''),
+      location: {name: templ.find("#locationSearchBox").value,
                  geoJSON: Session.get("selectedLocationPoint") ||
                  Games.findOne(Session.get("soloGame")).location.geoJSON},
       note: templ.find("#gameNote").value,
@@ -1075,8 +1078,7 @@ Template.editableGame.events({
       type: templ.find("#gameType").value,
       status: templ.find("#gameStatus").value,
       startsAt: new Date(+templ.find("#gameTime").value),
-      location: {name: templ.find("#locationSearchBox").value
-                 .replace(/,.*/, ''),
+      location: {name: templ.find("#locationSearchBox").value,
                  geoJSON: Session.get("selectedLocationPoint")},
       note: templ.find("#gameNote").value,
       players: [],

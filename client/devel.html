@@ -1,0 +1,200 @@
+<template name="devLayout">
+  <div class="container">
+    <div class="row">
+      <div id="alerts">
+      </div>
+    </div>
+    {{yield}}
+  </div>
+</template>
+
+<template name="devMain">
+  {{> devNav}}
+  {{> devBody}}
+</template>
+
+<template name="devBody">
+  <div class="row">
+    {{#if SEql 'searching' 'after'}}
+      {{> findingsMap}}
+      {{> subscribe}}
+      {{> listOfGames}}
+    {{else}}
+      {{> listOfGames}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="devNav">
+  {{> optionsMain}}
+  {{> optionsExtended}}
+</template>
+
+<template name="optionsMain">
+  <div class="options-main row">
+    {{#if SEql 'searching' 'not'}}
+      {{> settings}}
+      {{> startSearch}}
+      {{> addGame}}
+    {{else}}
+      {{> searchBacktrack}}
+      {{> searchInput}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="searchBacktrack">
+  {{#if SEql 'searching' 'during'}}
+    {{> exitSearch}}
+  {{else}}
+    {{> back}}
+  {{/if}}
+</template>
+
+<template name="optionsExtended">
+  <div class="options-extended row">
+    {{#if SEql 'searching' 'during'}}
+        {{> selectGameTypes}}
+        {{> runSearch}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="listOfGames">
+  <ul class="list-of-games list-group">
+    {{#each games}}
+      <li class="list-group-item listed-game">
+        {{> listedGame}}
+      </li>
+    {{/each}}
+  </ul>
+</template>
+
+<template name="listedGame">
+  {{> gameStatusIndicator}}
+  {{> gameSummary}}
+  {{#unless userInGame}}
+    {{> joinListedGame}}
+  {{else}}
+    {{> addFriends}}
+  {{/unless}}
+</template>
+
+<template name="gameStatusIndicator">
+  <div class="game-status-indicator">
+    {{#if userInGame}}<span class="glyphicon glyphicon-ok-sign"></span>{{/if}}
+  </div>
+</template>
+
+<template name="gameSummary">
+  <div class="game-summary">
+    <div class="game-type-day-time">{{type}} {{day}} {{time}}</div>
+    <div class="nums-playing-and-needed">
+      {{players.length}} playing ({{requested.players}} needed)
+    </div>
+    <div class="place">
+      <div class="place-name">{{placeName}}</div>
+      <div class-"place-location">{{placeLocation}}</div>
+    </div>
+  </div>
+</template>
+
+<template name="joinListedGame">
+  <div class="join-listed-game">
+    <a>Join</a>
+  </div>
+</template>
+
+<template name="addFriends">
+  <div class="add-friends">
+    <a><span class="glyphicon glyphicon-user"></span>
+      <span class="glyphicon glyphicon-plus"></span></a>
+  </div>
+</template>
+
+<template name="settings">
+  <div class="settings">
+    <span class="glyphicon glyphicon-cog"></span>
+  </div>
+</template>
+
+<template name="startSearch">
+  <div class="start-search">
+    <span class="glyphicon glyphicon-search"></span>
+  </div>
+</template>
+
+<template name="addGame">
+  <div class="add-game">
+    <a>Add game</a>
+  </div>
+</template>
+
+<template name="searchInput">
+  <div class="search-input">
+    <input type="search" placeholder="Enter Location"
+           autofocus required>
+  </div>
+</template>
+
+<template name="exitSearch">
+  <div class="exit-search">
+    <span class="glyphicon glyphicon-remove"></span>
+  </div>
+</template>
+
+<template name="selectGameTypes">
+  <div class="select-game-types">
+    {{#each options}}
+      <div><label>
+        <input type="checkbox" value="{{value}}" checked>
+        {{value}}
+      </label></div>
+    {{/each}}
+  </div>
+</template>
+
+<template name="runSearch">
+  <div class="run-search">
+    <button type="button"
+            class="btn btn-primary center-block">Find games</button>
+  </div>
+</template>
+
+<template name="back">
+  <div class="back">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+  </div>
+</template>
+
+<template name="clearSearch">
+  <div class="clear-search">
+    <span class="glyphicon glyphicon-remove"></span>
+  </div>
+</template>
+
+<template name="findingsMap">
+  <div class="findings-map">
+  {{#constant}}
+    <div class="findings-map-wrapper">
+      <div class="findings-map-canvas"></div>
+    </div>
+  {{/constant}}
+  </div>
+</template>
+
+<template name="subscribe">
+  <div class="subscribe">
+    <div class="subscribe-detail">
+      {{detail}}
+    </div>
+    {{{status}}}
+  </div>
+</template>
+
+<template name="subscribeButton">
+  <button type="button"
+          class="btn btn-primary center-block">
+    <span class="glyphicon glyphicon-envelope"></span>
+    Subscribe</button>
+</template>
