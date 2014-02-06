@@ -17,6 +17,13 @@ var handlebarsHelperMap = {
   "userInGame": function () {
     var game = this;
     return _.contains(_.pluck(game.players, 'userId'), Meteor.userId());
+  },
+  "pluralize": function (hasLength, singular, plural) {
+    if (hasLength.length === 1) {
+      return singular;
+    } else {
+      return plural;
+    }
   }
 };
 (function (handlebarsHelperMap) {

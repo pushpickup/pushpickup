@@ -230,7 +230,10 @@
 </template>
 
 <template name="gameComments">
-  <p>{{comments.length}} comments</p>
+  <p><strong>{{comments.length}}
+      {{pluralize comments 'Comment' 'Comments'}}</strong></p>
+  <p><a class="start-comment">Add comment</a></p>
+  {{{addComment}}}
   <ul class="list-group">
     {{#each comments}}
       <li class="list-group-item">
@@ -238,13 +241,48 @@
       </li>
     {{/each}}
   </ul>
+  {{#if someComments}}
+    <p><a class="start-comment">Add comment</a></p>
+  {{/if}}
 </template>
 
 <template name="gameComment">
   <blockquote>
     <p>{{message}}</p>
-    <footer>{{userName}}</footer>
+    <footer>{{userName}}, {{timestamp}}</footer>
   </blockquote>
+</template>
+
+<template name="editableComment">
+  <div class="panel panel-success">
+    <div class="panel-heading">{{title}}</div>
+    <div class="panel-body">
+      <form class="form-accounts" role="form" id="{{which}}Comment">
+        <div class="form-group {{error}}">
+          {{#if addingComment}}
+            {{#unless currentUser}}
+              <div class="signInLink">
+                {{#link route="signIn"}}Sign In{{/link}}
+              </div>
+            {{/unless}}
+          {{/if}}
+          <label class="sr-only" for="message">Your Message</label>
+          <input type="text" class="form-control" id="message"
+                 placeholder="Who's bringing watermelon?"
+                 value="{{#if message}}{{message}}{{/if}}"
+                 autofocus required />
+          {{{alerts}}}
+        </div>
+        <div class="btn-group btn-group-lg">
+          <button class="btn ok" type="submit">{{action}}</button>
+          <button class="btn cancel" type="button">Cancel</button>
+        </div>
+        {{#unless addingComment}}
+          <a class="remove-comment">Remove comment</a>
+        {{/unless}}
+      </form>
+    </div>
+  </div>
 </template>
 
 <template name="editablePlayer">

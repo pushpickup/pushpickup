@@ -96,7 +96,8 @@ ValidComment = Match.Where(function (x) {
   check(x, {
     userId: String,
     userName: String,
-    message: String
+    message: String,
+    timestamp: Date
   });
   return true;
 });
@@ -242,7 +243,10 @@ Meteor.methods({
     Games.update(gameId, {$pull: {players: {userId: self.userId, name: name}}});
   },
   addComment: function (message, gameId) {
-    check(message, NonEmptyString);
+    if (! Match.test(message, NonEmptyString)) {
+      console.log('message must be non-empty');
+      return false;
+    }
     // user may wish to ask about game before joining,
     // so user need not be playing in game.
     var self = this;
@@ -255,7 +259,8 @@ Meteor.methods({
       $push: {comments: {
         userId: user._id,
         userName: user.profile.name || "Anonymous",
-        message: _.escape(message)
+        message: message,
+        timestamp: new Date()
       }}
     });
     return true;

@@ -867,6 +867,107 @@ Template.game.helpers({
   }
 });
 
+Template.gameComments.events({
+  'click .start-comment': function () {
+    Session.set("addingComment", Session.get("selectedGame"));
+  }
+});
+
+Template.editableComment.helpers({
+  addingComment: function () {
+    return Session.get("addingComment");
+  },
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "editableComment"});
+  },
+  error: function () {
+    return (Alerts.collection.findOne({type: "danger", where: "editableComment"})) ?
+      "has-error": "";
+  }
+});
+
+Template.editableComment.events({
+  "submit #addComment": function (evt, templ) {
+    var game = Games.findOne(Session.get("selectedGame"));
+    evt.preventDefault();
+    var message = templ.find("#message").value;
+    if (_.isEmpty(message)) {
+      Alerts.throw({
+        message: "This is not the place to express emptiness",
+        type: "danger", where: "editableComment"
+      });
+    } else if (! Meteor.userId()) {
+      Alerts.throw({
+        type: "warning",
+        message: "You must be signed in to comment. "+
+          "Add or join a (proposed) game to automatically create an account.",
+        where: "editableComment",
+        autoremove: 10000
+      });
+    } else { // authenticated user
+      Meteor.call("addComment", message, game._id, function (err) {
+        if (!err) {
+          Session.set("addingComment", false);
+        } else {
+          console.log(err);
+          Alerts.throw({
+            message: "Hmm, something went wrong: \""+err.reason+"\". Try again?",
+            type: "danger",
+            where: "editableComment"
+          });
+        }
+      });
+    }
+  },
+  "click button.cancel": function () {
+    Session.set("editingComment", false);
+    Session.set("addingComment", false);
+  },
+  "click .remove-comment": function (event, templ) {
+    if (confirm("Really remove comment?")) {
+      // TODO: Meteor.call('removeComment', ...);
+      Session.set("editingComment", false);
+    }
+  }
+});
+
+Template.gameComments.helpers({
+  addComment: function () {
+    var self = this;
+    if (Session.equals("addingComment", Session.get("selectedGame"))) {
+      return Template.editableComment({
+        which: 'add',
+        title: 'Add comment', action: 'Add'
+      });
+    } else {
+      return "";
+    }
+  },
+  editComment: function () {
+    var self = this;
+    // TODO: give each comment an id (or track index in comments Array)
+    // to enable this.
+    if (Session.get("editingComment")) {
+      return Template.editablePlayer({
+        which: 'edit', name: Session.get("editingComment"),
+        title: 'Edit comment', action: 'OK'});
+    } else {
+      return "";
+    }
+  },
+  someComments: function () {
+    return this.comments.length > 0;
+  }
+});
+
+Template.gameComment.helpers({
+  timestamp: function () {
+    var self = this;
+    return moment(self.timestamp).fromNow();
+  }
+});
+
 Template.editablePlayer.destroyed = function () {
   Alerts.collection.remove({where: "editablePlayer"});
 };
