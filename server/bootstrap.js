@@ -66,7 +66,9 @@ bootstrap = function () {
                     status: _.sample(statuses),
                     location: location, note: note,
                     startsAt: startsAt.toDate(),
-                    players: players, requested: requested});
+                    players: players,
+                    comments: [],
+                    requested: requested});
     });
   });
   var days = [0,1,2,3,4,5,6];

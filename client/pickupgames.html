@@ -222,10 +222,29 @@
                 {{#if showShareLink}}<p>{{baseURL}}{{pathFor 'oneGame'}}</p>{{/if}}
               </div>
           </div></p>
+          {{> gameComments}}
         </div>
       </div>
     {{/if}}
   </li>
+</template>
+
+<template name="gameComments">
+  <p>{{comments.length}} comments</p>
+  <ul class="list-group">
+    {{#each comments}}
+      <li class="list-group-item">
+        {{> gameComment}}
+      </li>
+    {{/each}}
+  </ul>
+</template>
+
+<template name="gameComment">
+  <blockquote>
+    <p>{{message}}</p>
+    <footer>{{userName}}</footer>
+  </blockquote>
 </template>
 
 <template name="editablePlayer">

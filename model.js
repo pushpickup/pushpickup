@@ -92,6 +92,15 @@ ValidPassword =  Match.Where(function (x) {
   return true;
 });
 
+ValidComment = Match.Where(function (x) {
+  check(x, {
+    userId: String,
+    userName: String,
+    message: String
+  });
+  return true;
+});
+
 ValidGame = {
   //createdBy: Match.Optional(String), <-- not passed in
   //notificationsSent: Match.Optional(Boolean)
@@ -102,6 +111,7 @@ ValidGame = {
              geoJSON: GeoJSONPoint},
   note: String,
   players: [Player],
+  comments: [ValidComment],
   requested: Match.ObjectIncluding({players: NonNegativeInteger})
 };
 
@@ -164,6 +174,7 @@ Meteor.methods({
       location: game.location,
       note: game.note,
       players: game.players,
+      comments: oldGame.comments, // no comment edits
       requested: game.requested
     }});
   },
@@ -229,6 +240,25 @@ Meteor.methods({
     // If user added two players with same name, both are removed.
     // Note: client UI alerts if name to add is already taken.
     Games.update(gameId, {$pull: {players: {userId: self.userId, name: name}}});
+  },
+  addComment: function (message, gameId) {
+    check(message, NonEmptyString);
+    // user may wish to ask about game before joining,
+    // so user need not be playing in game.
+    var self = this;
+    var user = this.userId && Meteor.users.findOne(this.userId);
+    if (! user) {
+      console.log('sign in first');
+      return false;
+    }
+    Games.update(gameId, {
+      $push: {comments: {
+        userId: user._id,
+        userName: user.profile.name || "Anonymous",
+        message: _.escape(message)
+      }}
+    });
+    return true;
   }
 });
 
