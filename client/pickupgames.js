@@ -654,7 +654,7 @@ Template.addUserSubMessage.helpers({
     return Games.findOne(Session.get("soloGame")).type;
   },
   day: function () {
-    return moment(Games.findOne(Session.get("soloGame")).startAt).format('dddd');
+    return moment(Games.findOne(Session.get("soloGame")).startsAt).format('dddd');
   }
 });
 
