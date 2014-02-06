@@ -53,6 +53,15 @@ Template.listOfGames.helpers({
   games: function () { return Games.find({}, {sort: {startsAt: 1}}); }
 });
 
+Template.listOfGames.events({
+  "click .join-game-link a": function () {
+    Session.set("unauth-join", this._id);
+  },
+  "click .add-players .close": function () {
+    Session.set("unauth-join", null);
+  }
+});
+
 Template.gameSummary.helpers({
   type: function () {
     var game = this;
