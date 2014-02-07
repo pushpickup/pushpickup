@@ -212,11 +212,17 @@ Meteor.methods({
   // this.userId is not null
   // for unauthenticated adds, see "unauthenticated.addPlayer"
   addPlayer: function (gameId, name) {
-    var player = {userId: this.userId, name: name, rsvp: "in"};
-    check(player, Player); // name must be non-empty
-    Games.update(gameId, {$push: {players: player}});
-    maybeMakeGameOn(gameId);
-    return true;
+    var game = Games.findOne(gameId);
+    var userId = this.userId;
+    if (!game || _.contains(_.pluck(game.players, 'userId'), userId)) {
+      return false;
+    } else {
+      var player = {userId: userId, name: name, rsvp: "in"};
+      check(player, Player); // name must be non-empty
+      Games.update(gameId, {$push: {players: player}});
+      maybeMakeGameOn(gameId);
+      return true;
+    }
   },
   editGamePlayer: function (gameId, fields) {
     var self = this;

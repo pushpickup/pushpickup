@@ -71,34 +71,42 @@
 </template>
 
 <template name="listedGame">
-  {{> gameStatusIndicator}}
+  {{> gameTypeIndicator}}
   {{> gameSummary}}
   {{#unless userInGame}}
     {{> joinGameLink}}
   {{else}}
     {{> addFriendsLink}}
   {{/unless}}
-  {{#if SEql 'unauth-join' _id}}
-    {{> addPlayers}}
-  {{/if}}
+  {{{alerts}}}
+  {{{addPlayers}}}
 </template>
 
-<template name="gameStatusIndicator">
-  <div class="game-status-indicator">
-    {{#if userInGame}}<span class="glyphicon glyphicon-ok-sign"></span>{{/if}}
+<template name="gameTypeIndicator">
+  <div class="game-type-indicator">
+    <img class="game-type" src="/game_types/{{type}}-26.png"
+         alt="{{type}}" title="{{type}}">
   </div>
 </template>
 
 <template name="gameSummary">
   <div class="game-summary">
-    <div class="game-type-day-time">{{type}} {{day}} {{time}}</div>
-    <div class="nums-playing-and-needed">
-      {{players.length}} playing ({{requested.players}} needed)
-    </div>
+    <div class="game-type-day-time">{{day}} {{time}}</div>
+    {{> whoIsPlaying}}
     <div class="place">
       <div class="place-name">{{placeName}}</div>
       <div class-"place-location">{{placeLocation}}</div>
     </div>
+  </div>
+</template>
+
+<template name="whoIsPlaying">
+  <div class="who-is-playing">
+    {{#if playing}}
+      <strong class="text-success">Playing</strong> + {{numOthers}} others
+    {{else}}
+      {{players.length}} playing ({{requested.players}} needed)
+    {{/if}}
   </div>
 </template>
 
@@ -119,11 +127,9 @@
   <div class="add-players well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form role="form">
-      <div class="form-group">
-        <h5 class="form-control-static">
-          Add your info or <a>sign in</a> to join
-        </h5>
-      </div>
+      <h5 class="form-heading">
+        Add your info or <a class="sign-in-and-join">sign in</a> to join
+      </h5>
       <div class="form-group">
         <input type="email" class="form-control email" placeholder="Your email"
                required autofocus>
@@ -140,6 +146,26 @@
       </div>
       <button type="submit" class="btn join-game">Join Game</button>
     </form>
+  </div>
+</template>
+
+<template name="signInInline">
+  <div class="sign-in-inline well">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="sign-in" role="form">
+      <h5 class="form-heading">Please sign in</h5>
+       <div class="form-group">
+        <input type="email" class="form-control email" placeholder="Your email"
+               required autofocus>
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control password" placeholder="Your password"
+               required>
+      </div>
+      {{{alerts}}}
+      <button class="btn sign-in-inline" type="submit">Sign in</button>
+    </form>
+    <p class="text-center">{{#link route="get-reset-link"}}Forgot password?{{/link}}</p>
   </div>
 </template>
 

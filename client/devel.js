@@ -59,6 +59,88 @@ Template.listOfGames.events({
   },
   "click .add-players .close": function () {
     Session.set("unauth-join", null);
+  },
+  "click .sign-in-inline .close": function () {
+    Session.set("sign-in-and-join", null);
+  },
+  "click .sign-in-and-join": function () {
+    Session.set("sign-in-and-join", this._id);
+  }
+});
+
+var addSelfToGame = function (game) {
+  Meteor.call("addPlayer", game._id, Meteor.user().profile.name, function (err) {
+    if (!err) {
+      Session.set("unauth-join", null);
+      Session.set("sign-in-and-join", null);
+    } else {
+      console.log(err);
+      Alerts.throw({
+        message: "Hmm, something went wrong: \""+err.reason+"\". Try again?",
+        type: "danger",
+        where: game._id
+      });
+    }
+  });
+};
+
+Template.listedGame.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: self._id});
+  },
+  addPlayers: function () {
+    var game = this;
+    if (Session.equals("unauth-join", game._id)) {
+      if (! Session.equals("sign-in-and-join", game._id)) {
+        return Template.addPlayers(game);
+      } else { // sign in and join
+        if (! Meteor.userId()) {
+          return Template.signInInline();
+        } else {
+          addSelfToGame(game); // idempotent because reactivity
+          return "Adding you to this game...";
+        }
+      }
+    } else {
+      return "";
+    }
+  }
+});
+
+Template.whoIsPlaying.helpers({
+  playing: function () {
+    return _.contains(_.pluck(this.players, 'userId'), Meteor.userId());
+  },
+  numOthers: function () { return this.players.length - 1; }
+});
+
+Template.signInInline.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "signInInline"});
+  },
+  error: function () {
+    return (Alerts.collection.findOne({type: "danger", where: "signInInline"})) ?
+      "has-error": "";
+  }
+});
+
+Template.signInInline.events({
+  "submit .sign-in": function (evt, templ) {
+    evt.preventDefault();
+    Meteor.loginWithPassword(
+      templ.find("input.email").value,
+      templ.find("input.password").value,
+      function (err) {
+        if (err) {
+          console.log(err);
+          // typical err.reason: "User not found" or "Incorrect password"
+          Alerts.throw({
+            message: err.reason, type: "danger", where: "signInInline"
+          });
+        }
+      });
   }
 });
 
