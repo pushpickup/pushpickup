@@ -1220,7 +1220,10 @@ Template.editableGame.events({
                  Games.findOne(Session.get("soloGame")).location.geoJSON},
       note: templ.find("#gameNote").value,
       players: remainingPlayers,
+
       // for now, no editing comments (simulate an email-list dynamic)
+      comments: self.comments,
+
       requested: selectorValuesFromTemplate({
         players: [".requested input.players", asNumber]
       }, templ)
