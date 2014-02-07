@@ -138,15 +138,63 @@
         <input type="text" class="form-control full-name" placeholder="Your full name"
                required>
       </div>
-      <div class="form-group">
-        <p class="form-control-static">
-          <a><span class="glyphicon glyphicon-plus-sign"></span>
-            Bring a friend</a>
-        </p>
-      </div>
+      {{> unauthAddFriends}}
       {{{alerts}}}
       <button type="submit" class="btn join-game">Join Game</button>
     </form>
+  </div>
+</template>
+
+<template name="addFriends">
+  <div class="add-friends well">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="add-friends" role="form">
+      {{> addFriendsInput}}
+      {{{alerts}}}
+      <button type="submit" class="btn add-friends">Add friends</button>
+    </form>
+  </div>
+</template>
+
+<template name="unauthAddFriends">
+  {{#if SEql 'unauth-add-friends' _id}}
+    {{> addFriendsInput}}
+  {{else}}
+    {{> unauthAddFriendsLink}}
+  {{/if}}
+</template>
+
+<template name="unauthAddFriendsLink">
+  <div class="form-group">
+    <p class="form-control-static">
+      <a class="unauth-add-friends-link">
+        <span class="glyphicon glyphicon-plus-sign"></span>
+        Add a friend</a>
+    </p>
+  </div>
+</template>
+
+<template name="addFriendsInput">
+  <h5 class="form-heading">Add your friends</h5>
+  {{#each friends}}
+    <div class="form-group">
+      <input type="text" class="form-control friend-name"
+             placeholder="Friend's name"
+             value="{{name}}"
+             required autofocus>
+    </div>
+    <div class="form-group">
+      <input type="email" class="form-control friend-email"
+             placeholder="Friend's email (optional)"
+             value="{{email}}">
+    </div>
+  {{/each}}
+  <div class="form-group">
+    <p class="form-control-static">
+      <a class="add-another-friend">
+        <span class="glyphicon glyphicon-plus-sign"></span>
+        Add another friend</a>
+    </p>
   </div>
 </template>
 

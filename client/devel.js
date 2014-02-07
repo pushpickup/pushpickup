@@ -10,7 +10,6 @@ Deps.autorun(function (c) {
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
 
-
 var handlebarsHelperMap = {
   "SGet": function (key) { return Session.get(key); },
   "SEql": function (key, val) { return Session.equals(key, val); },
@@ -69,6 +68,15 @@ Template.listOfGames.events({
   },
   "click .sign-in-and-join": function () {
     Session.set("sign-in-and-join", this._id);
+  },
+  "click .unauth-add-friends-link": function () {
+    Session.set("unauth-add-friends", this._id);
+  },
+  "click .add-friends-link": function () {
+    Session.set("add-friends", this._id);
+  },
+  "click .add-friends .close": function () {
+    Session.set("add-friends", null);
   }
 });
 
@@ -106,6 +114,8 @@ Template.listedGame.helpers({
           return "Adding you to this game...";
         }
       }
+    } else if (Session.equals("add-friends", game._id)) {
+      return Template.addFriends(game);
     } else {
       return "";
     }
@@ -169,6 +179,50 @@ Template.addPlayers.events({
 Template.addPlayers.destroyed = function () {
   Alerts.collection.remove({where: "addPlayers"});
 };
+
+Template.addFriends.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "addFriends"});
+  }
+});
+
+Template.addFriends.events({
+  "submit form": function (event, template) {
+    var game = this;
+    event.preventDefault();
+    console.log("trying to add friends...");
+  }
+});
+
+Template.addFriends.destroyed = function () {
+  Alerts.collection.remove({where: "addFriends"});
+};
+
+// used exclusively by Template.addFriendsInput
+FriendsToAdd = new Meteor.Collection(null);
+
+Template.addFriendsInput.created = function () {
+  FriendsToAdd.insert({name: "", email: ""});
+};
+
+Template.addFriendsInput.destroyed = function () {
+  FriendsToAdd.remove({}); // words b/c Meteor.Collection is local
+  Session.set("add-friends", null);
+  Session.set("unauth-add-friends", null);
+};
+
+Template.addFriendsInput.events({
+  "click .add-another-friend": function () {
+    FriendsToAdd.insert({name: "", email: ""});
+  }
+});
+
+Template.addFriendsInput.helpers({
+  friends: function () {
+    return FriendsToAdd.find();
+  }
+});
 
 Template.signInInline.helpers({
   alerts: function () {
