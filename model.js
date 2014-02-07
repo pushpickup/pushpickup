@@ -182,9 +182,18 @@ Meteor.methods({
   cancelGame: function (id) {
     var self = this;
     var game = Games.findOne(id);
-    check(game.createdBy, Match.Where(function (id) {
+    var isCreator = Match.test(game.createdBy, Match.Where(function (id) {
       return id === self.userId;
     }));
+
+    if (! isCreator) {
+      if (Meteor.isServer) {
+        check(self.userId, Match.Where(function (id) {
+          return (id === donnyId);
+        }));
+      }
+    }
+
     if (Meteor.isServer) {
       this.unblock();
       var email;
