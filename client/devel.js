@@ -55,7 +55,11 @@ Template.listOfGames.helpers({
 
 Template.listOfGames.events({
   "click .join-game-link a": function () {
-    Session.set("unauth-join", this._id);
+    if (Meteor.userId()) {
+      addSelfToGame(this);
+    } else {
+      Session.set("unauth-join", this._id);
+    }
   },
   "click .add-players .close": function () {
     Session.set("unauth-join", null);
@@ -112,7 +116,10 @@ Template.whoIsPlaying.helpers({
   playing: function () {
     return _.contains(_.pluck(this.players, 'userId'), Meteor.userId());
   },
-  numOthers: function () { return this.players.length - 1; }
+  others: function () {
+    var numOthers = this.players.length - 1;
+    return (numOthers == 1) ? "1 other": numOthers + " others";
+  }
 });
 
 Template.signInInline.helpers({

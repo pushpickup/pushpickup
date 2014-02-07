@@ -103,7 +103,7 @@
 <template name="whoIsPlaying">
   <div class="who-is-playing">
     {{#if playing}}
-      <strong class="text-success">Playing</strong> + {{numOthers}} others
+      <strong class="text-success">Playing</strong> + {{others}}
     {{else}}
       {{players.length}} playing ({{requested.players}} needed)
     {{/if}}
