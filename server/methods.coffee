@@ -51,13 +51,34 @@ Meteor.methods
       throw new Meteor.Error 403,
         "Someone has already added and verified that email address"
     else
-    # if email is in system but unverified, remove the email before proceeding
+      # email is in system but unverified. remove it before proceeding.
       Meteor.users.update emailOwner?._id,
         $pull: emails: address: email
       Meteor.users.update self.userId,
         $push: emails: address: email, verified: false
       Accounts.sendVerificationEmail self.userId, email
       "ok"
+  "dev.unauth.addPlayer": (gameId, email, name) ->
+    emailOwner = Meteor.users.findOne({'emails.address': email})
+    if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
+      throw new Meteor.Error 403,
+        "Someone has already added and verified that email address"
+    else
+      if emailOwner
+        # email is in system but unverified. remove it before proceeding.
+        Meteor.users.update emailOwner?._id,
+          $pull: emails: address: email
+      password = strange.password()
+      userId = Accounts.createUser
+        email: email
+        password: password
+        profile: name: name
+      Games.update gameId,
+        $push: players: name: name, userId: userId, rsvp: "in"
+      maybeMakeGameOn gameId
+      # TODO send a combined verification and password reset email
+      Accounts.sendVerificationEmail userId, email
+      password: password
   "addUserSub": (types, days, region) ->
     self = this
     user = Meteor.users.findOne(self.userId)

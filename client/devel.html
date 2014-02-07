@@ -126,7 +126,7 @@
 <template name="addPlayers">
   <div class="add-players well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
-    <form role="form">
+    <form class="add-players" role="form">
       <h5 class="form-heading">
         Add your info or <a class="sign-in-and-join">sign in</a> to join
       </h5>
@@ -144,6 +144,7 @@
             Bring a friend</a>
         </p>
       </div>
+      {{{alerts}}}
       <button type="submit" class="btn join-game">Join Game</button>
     </form>
   </div>
@@ -171,7 +172,9 @@
 
 <template name="settings">
   <div class="settings">
-    <span class="glyphicon glyphicon-cog"></span>
+    {{#if currentUser}}
+      <span class="glyphicon glyphicon-cog"></span>
+    {{/if}}
   </div>
 </template>
 

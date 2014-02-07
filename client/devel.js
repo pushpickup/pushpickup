@@ -122,6 +122,54 @@ Template.whoIsPlaying.helpers({
   }
 });
 
+Template.addPlayers.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "addPlayers"});
+  }
+});
+
+Template.addPlayers.events({
+  "submit form": function (event, template) {
+    var game = this;
+    event.preventDefault();
+    var email = template.find("input.email").value;
+    var fullName = template.find("input.full-name").value;
+    Meteor.call(
+      "dev.unauth.addPlayer", game._id, email, fullName,
+      function (error, result) {
+        if (!error) {
+          Meteor.loginWithPassword(email, result.password);
+          Alerts.throw({
+            message: "Thanks, "+fullName+"! Check for an email from " +
+              "support@pushpickup.com to verify your email address",
+            type: "success", where: game._id
+          });
+          Session.set("unauth-join", null);
+          Session.set("strange-passwd", result.password);
+        } else {
+          // typical error: email in use
+          console.log(error);
+          if (error instanceof Meteor.Error) {
+            Alerts.throw({
+              message: error.reason,
+              type: "danger", where: "addPlayers"
+            });
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong. Try again?",
+              type: "danger", where: "addPlayers"
+            });
+          }
+        }
+    });
+  }
+});
+
+Template.addPlayers.destroyed = function () {
+  Alerts.collection.remove({where: "addPlayers"});
+};
+
 Template.signInInline.helpers({
   alerts: function () {
     var self = this;
