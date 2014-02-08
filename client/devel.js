@@ -139,19 +139,36 @@ Template.addPlayers.helpers({
   }
 });
 
+var makeFriends = function (nameInputs, emailInputs) {
+  var friends = {};
+  _.forEach(nameInputs, function (input) {
+    friends[input.id] = {};
+    friends[input.id].name = input.value;
+  });
+  _.forEach(emailInputs, function (input) {
+    friends[input.id].email = input.value;
+  });
+  return _.reject(_.values(friends), function (friend) {
+    return _.isEmpty(friend.name);
+  });
+};
+
 Template.addPlayers.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
     var email = template.find("input.email").value;
     var fullName = template.find("input.full-name").value;
+    var friends = makeFriends(template.findAll("input.friend-name"),
+                              template.findAll("input.friend-email"));
     Meteor.call(
-      "dev.unauth.addPlayer", game._id, email, fullName,
+      "dev.unauth.addPlayers", game._id, email, fullName, friends,
       function (error, result) {
         if (!error) {
           Meteor.loginWithPassword(email, result.password);
           Alerts.throw({
-            message: "Thanks, "+fullName+"! Check for an email from " +
+            message: "Thanks, " + fullName +
+              "! Check for an email from " +
               "support@pushpickup.com to verify your email address",
             type: "success", where: game._id
           });
@@ -191,7 +208,37 @@ Template.addFriends.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
-    console.log("trying to add friends...");
+    var friends = makeFriends(template.findAll("input.friend-name"),
+                              template.findAll("input.friend-email"));
+    Meteor.call(
+      "dev.addFriends", friends, Meteor.userId(), game._id,
+      function (error, result) {
+        if (!error) {
+          Alerts.throw({
+            message: "Thanks, " + Meteor.user().profile.name +
+              "! An added friend is a happy friend (hopefully).",
+            type: "success", where: game._id,
+            autoremove: 5000
+          });
+          Session.set("add-friends", null);
+        } else {
+          // typical error: email in use
+          // BUT we're currently allowing users to add friends
+          // that are existing users...
+          console.log(error);
+          if (error instanceof Meteor.Error) {
+            Alerts.throw({
+              message: error.reason,
+              type: "danger", where: "addFriends"
+            });
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong. Try again?",
+              type: "danger", where: "addFriends"
+            });
+          }
+        }
+    });
   }
 });
 

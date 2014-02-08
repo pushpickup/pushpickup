@@ -58,6 +58,10 @@ Meteor.methods
         $push: emails: address: email, verified: false
       Accounts.sendVerificationEmail self.userId, email
       "ok"
+  "dev.unauth.addPlayers": (gameId, email, name, friends) ->
+    adder = Meteor.call "dev.unauth.addPlayer", gameId, email, name
+    Meteor.call "dev.addFriends", friends, adder.userId, gameId
+    adder # client may want adder.password to loginWithPassword
   "dev.unauth.addPlayer": (gameId, email, name) ->
     emailOwner = Meteor.users.findOne({'emails.address': email})
     if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
@@ -76,9 +80,42 @@ Meteor.methods
       Games.update gameId,
         $push: players: name: name, userId: userId, rsvp: "in"
       maybeMakeGameOn gameId
-      # TODO send a combined verification and password reset email
-      Accounts.sendVerificationEmail userId, email
-      password: password
+      # TODO: indicate in enrollment email that either they or a friend
+      # may have added them to a game
+      Accounts.sendEnrollmentEmail userId, email
+      userId: userId, password: password
+  "dev.addFriends": (friends, userId, gameId) ->
+    for friend in friends
+      Meteor.call "dev.addFriend", friend, userId, gameId
+    "ok"
+  "dev.addFriend": (friend, userId, gameId) ->
+    if _.isEmpty friend.email
+      Games.update gameId,
+        $push: players: name: friend.name, friendId: userId, rsvp: "in"
+    else
+      emailOwner = Meteor.users.findOne({'emails.address': friend.email});
+      if emailOwner
+        unless Games.findOne({_id: gameId, 'players.userId': emailOwner._id})
+          Games.update gameId,
+            $push: players:
+              name: friend.name
+              friendId: userId
+              userId: emailOwner._id
+              rsvp: "in"
+      else
+        newUserId = Accounts.createUser
+          email: friend.email
+          profile: name: friend.name
+        Games.update gameId,
+          $push: players:
+            name: friend.name
+            friendId: userId
+            userId: newUserId
+            rsvp: "in"
+        # TODO: indicate in enrollment email that a friend
+        # may have added them to the game
+        Accounts.sendEnrollmentEmail newUserId, friend.email
+    maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
     self = this
     user = Meteor.users.findOne(self.userId)

@@ -75,8 +75,11 @@ var rsvps = ["in"];
 Player = Match.Where(function (x) {
   check(x, Match.ObjectIncluding({
     userId: Match.Optional(String),
+    friendId: Match.Optional(String),
     name: NonEmptyString,
     rsvp: String}));
+  // TODO: require userId or friendId, and lose rsvp throughout code
+  // need to update server/bootstrap.js::getNPlayers for this change
   return _.contains(rsvps, x.rsvp);
 });
 
@@ -120,7 +123,10 @@ maybeMakeGameOn = function (gameId) {
   var game = Games.findOne(gameId);
   if (game.status === "proposed" &&
       (game.players.length >= game.requested.players)) {
-    Games.update(gameId, {$set: {status: "on"}});
+    return Games.update(gameId, {$set: {status: "on"}});
+  } else {
+    // because collection.update returns the number of affected documents
+    return 0;
   }
 };
 
@@ -221,9 +227,8 @@ Meteor.methods({
   // this.userId is not null
   // for unauthenticated adds, see "unauthenticated.addPlayer"
   addPlayer: function (gameId, name) {
-    var game = Games.findOne(gameId);
     var userId = this.userId;
-    if (!game || _.contains(_.pluck(game.players, 'userId'), userId)) {
+    if (Games.findOne({_id: gameId, 'players.userId': userId})) {
       return false;
     } else {
       var player = {userId: userId, name: name, rsvp: "in"};
