@@ -77,6 +77,9 @@ Template.listOfGames.events({
   },
   "click .add-friends .close": function () {
     Session.set("add-friends", null);
+  },
+  "click .game-summary": function () {
+    Router.go('devDetail', {_id: this._id});
   }
 });
 

@@ -106,6 +106,23 @@ Meteor.startup(function () {
       notFoundTemplate: 'devMain'
     });
 
+    this.route('devDetail', {
+      path: '/dev/g/:_id',
+      layoutTemplate: 'devLayout',
+      waitOn: function () {
+        return Meteor.subscribe('game', this.params._id);
+      },
+      before: function () {
+        Session.set("soloGame", this.params._id);
+      },
+      data: function () {
+        return Games.findOne(this.params._id);
+      },
+      unload: function () {
+        Session.set("soloGame", null);
+      }
+    });
+
     this.route('home', {
       path: '/',
 

@@ -306,3 +306,89 @@
     <span class="glyphicon glyphicon-envelope"></span>
     Subscribe</button>
 </template>
+
+<template name="devDetail">
+  {{> devDetailNav}}
+  {{> devDetailBody}}
+</template>
+
+<template name="devDetailNav">
+  <div class="dev-detail-nav">
+    {{> backToList}}
+    {{> gameTypeIndicator}}
+    {{> shareGameLink}}
+    {{> editGameLink}}
+  </div>
+</template>
+
+<template name="backToList">
+  <div class="back-to-list">
+    {{#link route="dev"}}
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      Pickups
+    {{/link}}
+  </div>
+</template>
+
+<template name="shareGameLink">
+  <div class="share-game-link">
+    <span class="glyphicon glyphicon-link"></span>
+    Share
+  </div>
+</template>
+
+<template name="editGameLink">
+  <div class="edit-game-link">
+    Edit
+  </div>
+</template>
+
+<template name="devDetailBody">
+  <div class="dev-detail-body">
+    {{> soloGameMap}}
+    {{> gameSummary}}
+    {{> addFriendsLink}}
+    {{> joinOrLeave}}
+    {{> organizersNote}}
+    {{> whosPlayingSummary}}
+    {{> comments}}
+    {{> addComment}}
+  </div>
+</template>
+
+<template name="soloGameMap">
+  <div class="solo-game-map">
+    Map goes here
+  </div>
+</template>
+
+<template name="joinOrLeave">
+  <div class="join-or-leave">
+    <button type="button" class="btn join-game">Join game</button>
+  </div>
+</template>
+
+<template name="organizersNote">
+  <div class="organizers-note">
+    <strong>Organizer's note</strong>
+    <div>{{note}}</div>
+  </div>
+</template>
+
+<template name="whosPlayingSummary">
+  <div class="whos-playing-summary">
+    Who's playing summary
+  </div>
+</template>
+
+<template name="comments">
+  <div class="comments">
+    Comments
+  </div>
+</template>
+
+<template name="addComment">
+  <div class="add-comment">
+    Add comment
+  </div>
+</template>
