@@ -371,7 +371,11 @@
 
 <template name="soloGameMap">
   <div class="solo-game-map">
-    Map goes here
+    {{#constant}}
+      <div class="solo-game-map-wrapper">
+        <div class="solo-game-map-canvas"></div>
+      </div>
+    {{/constant}}
   </div>
 </template>
 

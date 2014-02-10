@@ -577,3 +577,38 @@ Template.devDetail.events({
     Session.set("copy-game-link", null);
   }
 });
+
+Template.soloGameMap.rendered = function () {
+  var self = this;
+
+  geoUtils.toLatLng = function (geoJSONPoint) {
+    var lat = geoJSONPoint.coordinates[1];
+    var lng = geoJSONPoint.coordinates[0];
+    return new google.maps.LatLng(lat, lng);
+  };
+
+  var latLng = geoUtils.toLatLng(self.data.location.geoJSON);
+
+  var map = new google.maps.Map(
+    self.find('.solo-game-map-canvas'), {
+      zoom: 15, // 18 also good
+      center: latLng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: true,
+      panControl: false,
+      streetViewControl: false,
+      minZoom: 3
+    });
+
+  var marker = new google.maps.Marker({
+    position: latLng, map: map
+  });
+
+  var infowindow = new google.maps.InfoWindow({
+    content: "<a href=\"https://maps.google.com/maps?daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(map,marker);
+  });
+};
