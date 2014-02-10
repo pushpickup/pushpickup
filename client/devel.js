@@ -11,18 +11,23 @@ Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
 
 var handlebarsHelperMap = {
-  "SGet": function (key) { return Session.get(key); },
-  "SEql": function (key, val) { return Session.equals(key, val); },
-  "userInGame": function () {
+  SGet: function (key) { return Session.get(key); },
+  SEql: function (key, val) { return Session.equals(key, val); },
+  userInGame: function () {
     var game = this;
-    return _.contains(_.pluck(game.players, 'userId'), Meteor.userId());
+    return Games.findOne({
+      _id: game.id, 'players.userId': Meteor.userId()
+    });
   },
-  "pluralize": function (hasLength, singular, plural) {
+  pluralize: function (hasLength, singular, plural) {
     if (hasLength.length === 1) {
       return singular;
     } else {
       return plural;
     }
+  },
+  baseURL: function () {
+    return Meteor.absoluteUrl().slice(0,-1);
   }
 };
 (function (handlebarsHelperMap) {
@@ -563,3 +568,12 @@ Template.subscribeButton.events({
 Template.subscribe.destroyed = function () {
   Alerts.collection.remove({where: "subscribe"});
 };
+
+Template.devDetail.events({
+  "click .share-game-link": function () {
+    Session.set("copy-game-link", this._id);
+  },
+  "click .copy-game-link .close": function () {
+    Session.set("copy-game-link", null);
+  }
+});

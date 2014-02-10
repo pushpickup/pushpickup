@@ -318,6 +318,7 @@
     {{> gameTypeIndicator}}
     {{> shareGameLink}}
     {{> editGameLink}}
+    {{> copyGameLink}}
   </div>
 </template>
 
@@ -332,8 +333,20 @@
 
 <template name="shareGameLink">
   <div class="share-game-link">
-    <span class="glyphicon glyphicon-link"></span>
-    Share
+    <a><span class="glyphicon glyphicon-link"></span>
+      Share</a>
+  </div>
+</template>
+
+<template name="copyGameLink">
+  <div class="copy-game-link">
+    {{#if SEql 'copy-game-link' _id}}
+      <span class="glyphicon glyphicon-link"></span>
+      <input type="text"
+             value="{{baseURL}}{{pathFor 'devDetail'}}"
+             autofocus>
+      <button type="button" class="close" aria-hidden="true">&times;</button>
+    {{/if}}
   </div>
 </template>
 
