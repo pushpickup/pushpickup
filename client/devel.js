@@ -605,7 +605,7 @@ Template.soloGameMap.rendered = function () {
   });
 
   var infowindow = new google.maps.InfoWindow({
-    content: "<a href=\"https://maps.google.com/maps?daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
   });
 
   google.maps.event.addListener(marker, 'click', function() {
