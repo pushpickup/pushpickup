@@ -633,3 +633,19 @@ Template.joinOrLeave.events({
     Meteor.call("leaveGame", this._id);
   }
 });
+
+Template.whosPlayingSummary.helpers({
+  userPlayers: function () {
+    var isUser = function (player) { return !! player.userId; };
+    return _.select(this.players, isUser);
+  },
+  friends: function (players) {
+    var self = this;
+    return _.select(players, function (p) {
+      return p.friendId === self.userId;
+    });
+  },
+  numFriends: function () {
+    return this.length;
+  }
+});

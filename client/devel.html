@@ -428,7 +428,17 @@
 
 <template name="whosPlayingSummary">
   <div class="whos-playing-summary">
-    Who's playing summary
+    <strong>{{players.length}} playing</strong>
+    <ul>
+    {{#each userPlayers}}
+      <li>
+        {{name}}
+        {{#with friends ../players}}
+          + {{numFriends}}
+        {{/with}}
+      </li>
+    {{/each}}
+    </ul>
   </div>
 </template>
 
