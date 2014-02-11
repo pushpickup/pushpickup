@@ -268,6 +268,10 @@ Meteor.methods({
     // Note: client UI alerts if name to add is already taken.
     Games.update(gameId, {$pull: {players: {userId: self.userId, name: name}}});
   },
+  leaveGame: function (gameId) {
+    var self = this;
+    Games.update(gameId, {$pull: {players: {userId: self.userId}}});
+  },
   addComment: function (message, gameId) {
     if (! Match.test(message, NonEmptyString)) {
       console.log('message must be non-empty');

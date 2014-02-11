@@ -79,7 +79,7 @@
     {{> addFriendsLink}}
   {{/unless}}
   {{{alerts}}}
-  {{{addPlayers}}}
+  {{> addPlayers}}
 </template>
 
 <template name="gameTypeIndicator">
@@ -129,9 +129,30 @@
 </template>
 
 <template name="addPlayers">
-  <div class="add-players well">
+  <div class="add-players">
+    {{#if SEql 'unauth-join' _id}}
+      {{#unless SEql 'sign-in-and-join' _id}}
+        {{> addSelfAndFriends}}
+      {{else}} <!-- sign in and join -->
+        {{#if currentUser}}
+          Adding you to this game...
+        {{else}}
+          {{> signInInline}}
+        {{/if}}
+      {{/unless}}
+    {{/if}}
+    <!-- 'unauth-join' and 'add-friends' should never both be non-null
+         because 'add-friends' is for authenticated users. -->
+    {{#if SEql 'add-friends' _id}}
+      {{> addFriends}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="addSelfAndFriends">
+  <div class="add-self-and-friends well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
-    <form class="add-players" role="form">
+    <form class="add-self-and-friends" role="form">
       <h5 class="form-heading">
         Add your info or <a class="sign-in-and-join">sign in</a> to join
       </h5>
@@ -365,7 +386,9 @@
   <div class="dev-detail-body">
     {{> soloGameMap}}
     {{> gameSummary}}
-    {{> addFriendsLink}}
+    {{#if userInGame}} {{> addFriendsLink}} {{/if}}
+    {{{alerts}}}
+    {{> addPlayers}}
     {{> joinOrLeave}}
     {{> organizersNote}}
     {{> whosPlayingSummary}}
@@ -386,7 +409,13 @@
 
 <template name="joinOrLeave">
   <div class="join-or-leave">
-    <button type="button" class="btn join-game">Join game</button>
+    {{#unless addingPlayers}}
+      {{#unless userInGame}}
+        <button type="button" class="btn join-game">Join game</button>
+      {{else}}
+        <button type="button" class="btn leave-game">Leave game</button>
+      {{/unless}}
+    {{/unless}}
   </div>
 </template>
 

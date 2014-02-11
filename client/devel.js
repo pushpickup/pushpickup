@@ -14,9 +14,10 @@ var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
   SEql: function (key, val) { return Session.equals(key, val); },
   userInGame: function () {
+    // are global handlebars helpers reactive? Seems so.
     var game = this;
     return Games.findOne({
-      _id: game.id, 'players.userId': Meteor.userId()
+      _id: game._id, 'players.userId': Meteor.userId()
     });
   },
   pluralize: function (hasLength, singular, plural) {
@@ -58,38 +59,35 @@ Template.listOfGames.helpers({
 });
 
 Template.listOfGames.events({
-  "click .join-game-link a": function () {
-    if (Meteor.userId()) {
-      addSelfToGame(this);
-    } else {
-      Session.set("unauth-join", this._id);
-    }
-  },
-  "click .add-players .close": function () {
-    Session.set("unauth-join", null);
-  },
-  "click .sign-in-inline .close": function () {
-    Session.set("sign-in-and-join", null);
-  },
-  "click .sign-in-and-join": function () {
-    Session.set("sign-in-and-join", this._id);
-  },
-  "click .unauth-add-friends-link": function () {
-    Session.set("unauth-add-friends", this._id);
-  },
-  "click .add-friends-link": function () {
-    Session.set("add-friends", this._id);
-  },
-  "click .add-friends .close": function () {
-    Session.set("add-friends", null);
-  },
   "click .game-summary": function () {
     Router.go('devDetail', {_id: this._id});
   }
 });
 
-var addSelfToGame = function (game) {
-  Meteor.call("addPlayer", game._id, Meteor.user().profile.name, function (err) {
+Template.addFriendsLink.events({
+  "click .add-friends-link": function () {
+    Session.set("add-friends", this._id);
+  }
+});
+
+Template.unauthAddFriendsLink.events({
+  "click .unauth-add-friends-link": function () {
+    Session.set("unauth-add-friends", this._id);
+  }
+});
+
+Template.joinGameLink.events({
+  "click .join-game-link a": function () {
+    if (Meteor.userId()) {
+      addSelfToGame(this._id);
+    } else {
+      Session.set("unauth-join", this._id);
+    }
+  }
+});
+
+var addSelfToGame = function (gameId) {
+  Meteor.call("addPlayer", gameId, Meteor.user().profile.name, function (err) {
     if (!err) {
       Session.set("unauth-join", null);
       Session.set("sign-in-and-join", null);
@@ -98,7 +96,7 @@ var addSelfToGame = function (game) {
       Alerts.throw({
         message: "Hmm, something went wrong: \""+err.reason+"\". Try again?",
         type: "danger",
-        where: game._id
+        where: gameId
       });
     }
   });
@@ -108,25 +106,6 @@ Template.listedGame.helpers({
   alerts: function () {
     var self = this;
     return Template.meteorAlerts({where: self._id});
-  },
-  addPlayers: function () {
-    var game = this;
-    if (Session.equals("unauth-join", game._id)) {
-      if (! Session.equals("sign-in-and-join", game._id)) {
-        return Template.addPlayers(game);
-      } else { // sign in and join
-        if (! Meteor.userId()) {
-          return Template.signInInline();
-        } else {
-          addSelfToGame(game); // idempotent because reactivity
-          return "Adding you to this game...";
-        }
-      }
-    } else if (Session.equals("add-friends", game._id)) {
-      return Template.addFriends(game);
-    } else {
-      return "";
-    }
   }
 });
 
@@ -137,13 +116,6 @@ Template.whoIsPlaying.helpers({
   others: function () {
     var numOthers = this.players.length - 1;
     return (numOthers == 1) ? "1 other": numOthers + " others";
-  }
-});
-
-Template.addPlayers.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "addPlayers"});
   }
 });
 
@@ -161,7 +133,14 @@ var makeFriends = function (nameInputs, emailInputs) {
   });
 };
 
-Template.addPlayers.events({
+Template.addSelfAndFriends.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "addSelfAndFriends"});
+  }
+});
+
+Template.addSelfAndFriends.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
@@ -188,21 +167,27 @@ Template.addPlayers.events({
           if (error instanceof Meteor.Error) {
             Alerts.throw({
               message: error.reason,
-              type: "danger", where: "addPlayers"
+              type: "danger", where: "addSelfAndFriends"
             });
           } else {
             Alerts.throw({
               message: "Hmm, something went wrong. Try again?",
-              type: "danger", where: "addPlayers"
+              type: "danger", where: "addSelfAndFriends"
             });
           }
         }
     });
+  },
+  "click .add-self-and-friends .close": function () {
+    Session.set("unauth-join", null);
+  },
+  "click .sign-in-and-join": function () {
+    Session.set("sign-in-and-join", this._id);
   }
 });
 
-Template.addPlayers.destroyed = function () {
-  Alerts.collection.remove({where: "addPlayers"});
+Template.addSelfAndFriends.destroyed = function () {
+  Alerts.collection.remove({where: "addSelfAndFriends"});
 };
 
 Template.addFriends.helpers({
@@ -247,6 +232,9 @@ Template.addFriends.events({
           }
         }
     });
+  },
+  "click .add-friends .close": function () {
+    Session.set("add-friends", null);
   }
 });
 
@@ -297,7 +285,9 @@ Template.signInInline.events({
       templ.find("input.email").value,
       templ.find("input.password").value,
       function (err) {
-        if (err) {
+        if (!err) {
+          addSelfToGame(Session.get("sign-in-and-join"));
+        } else {
           console.log(err);
           // typical err.reason: "User not found" or "Incorrect password"
           Alerts.throw({
@@ -305,6 +295,9 @@ Template.signInInline.events({
           });
         }
       });
+  },
+  "click .sign-in-inline .close": function () {
+    Session.set("sign-in-and-join", null);
   }
 });
 
@@ -578,6 +571,13 @@ Template.devDetail.events({
   }
 });
 
+Template.devDetailBody.helpers({
+  alerts: function () {
+    var self = this; // the game
+    return Template.meteorAlerts({where: self._id});
+  }
+});
+
 Template.soloGameMap.rendered = function () {
   var self = this;
 
@@ -612,3 +612,24 @@ Template.soloGameMap.rendered = function () {
     infowindow.open(map,marker);
   });
 };
+
+Template.joinOrLeave.helpers({
+  addingPlayers: function () {
+    var game = this;
+    return Session.equals("unauth-join", game._id) ||
+      Session.equals("add-friends", game._id);
+  }
+});
+
+Template.joinOrLeave.events({
+  "click .join-game": function () {
+    if (Meteor.userId()) {
+      addSelfToGame(this._id);
+    } else {
+      Session.set("unauth-join", this._id);
+    }
+  },
+  "click .leave-game": function () {
+    Meteor.call("leaveGame", this._id);
+  }
+});
