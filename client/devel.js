@@ -16,9 +16,9 @@ var handlebarsHelperMap = {
   userInGame: function () {
     // are global handlebars helpers reactive? Seems so.
     var game = this;
-    return Games.findOne({
+    return !! (Meteor.userId() && Games.findOne({
       _id: game._id, 'players.userId': Meteor.userId()
-    });
+    }));
   },
   pluralize: function (hasLength, singular, plural) {
     if (hasLength.length === 1) {
@@ -112,10 +112,6 @@ Template.listedGame.helpers({
 Template.whoIsPlaying.helpers({
   playing: function () {
     return _.contains(_.pluck(this.players, 'userId'), Meteor.userId());
-  },
-  others: function () {
-    var numOthers = this.players.length - 1;
-    return (numOthers == 1) ? "1 other": numOthers + " others";
   }
 });
 
@@ -308,7 +304,7 @@ Template.gameSummary.helpers({
   },
   day: function () {
     var game = this;
-    return moment(game.startsAt).format('dddd');
+    return moment(game.startsAt).format('ddd');
   },
   time: function () {
     var game = this;
@@ -647,5 +643,18 @@ Template.whosPlayingSummary.helpers({
   },
   numFriends: function () {
     return this.length;
+  }
+});
+
+Template.editGameLink.helpers({
+  isCreator: function () {
+    return (!! Meteor.userId()) &&
+      Meteor.userId() === this.creator.userId;
+  }
+});
+
+Template.editGameLink.events({
+  "click .edit-game-link a": function () {
+    alert("Editing will come...");
   }
 });

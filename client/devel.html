@@ -73,11 +73,11 @@
 <template name="listedGame">
   {{> gameTypeIndicator}}
   {{> gameSummary}}
-  {{#unless userInGame}}
-    {{> joinGameLink}}
-  {{else}}
+  {{#if userInGame}}
     {{> addFriendsLink}}
-  {{/unless}}
+  {{else}}
+    {{> joinGameLink}}
+  {{/if}}
   {{{alerts}}}
   {{> addPlayers}}
 </template>
@@ -108,7 +108,8 @@
 <template name="whoIsPlaying">
   <div class="who-is-playing">
     {{#if playing}}
-      <strong class="text-success">Playing</strong> + {{others}}
+      <strong class="text-success">Playing</strong>
+      + {{requested.players}} needed
     {{else}}
       {{players.length}} playing ({{requested.players}} needed)
     {{/if}}
@@ -377,9 +378,11 @@
 </template>
 
 <template name="editGameLink">
-  <div class="edit-game-link">
-    Edit
-  </div>
+  {{#if isCreator}}
+    <div class="edit-game-link">
+      <a>Edit</a>
+    </div>
+  {{/if}}
 </template>
 
 <template name="devDetailBody">
