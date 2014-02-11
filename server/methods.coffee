@@ -32,7 +32,8 @@ Meteor.methods
   "unauthenticated.addGame": (game) ->
     [username, password] = [strange.username(), strange.password()]
     userId = Accounts.createUser username: username, password: password
-    gameId = Games.insert _.extend(game, createdBy: userId)
+    gameId = Games.insert _.extend(game,
+      creator: {name: username, userId: userId})
     username: username, password: password, gameId: gameId
   "unauthenticated.addPlayer": (gameId, name) ->
     [username, password] = [strange.username(name), strange.password()]

@@ -97,6 +97,11 @@
       <div class="place-name">{{placeName}}</div>
       <div class-"place-location">{{placeLocation}}</div>
     </div>
+    {{#if SEql 'soloGame' _id}}
+      <div class="organizer-info">
+        Added by {{creator.name}}
+      </div>
+    {{/if}}
   </div>
 </template>
 

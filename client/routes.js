@@ -246,7 +246,7 @@ Meteor.startup(function () {
 
       action: function () {
         var self = this;
-        if (Meteor.userId() === self.getData().createdBy) {
+        if (Meteor.userId() === self.getData().creator.userId) {
           self.render();
         } else {
           Meteor.call("getDonnyId", function (error, result) {

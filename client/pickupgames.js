@@ -860,7 +860,7 @@ Template.game.helpers({
   userCanEdit: function () {
     var self = this;
     var userId  = Meteor.userId();
-    return self.createdBy === userId || donnyId === userId;
+    return self.creator.userId === userId || donnyId === userId;
   },
   showShareLink: function () {
     return Session.equals("showShareLink", Session.get("selectedGame"));

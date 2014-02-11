@@ -106,7 +106,7 @@ ValidComment = Match.Where(function (x) {
 });
 
 ValidGame = {
-  //createdBy: Match.Optional(String), <-- not passed in
+  //creator: Match.Optional({name: String, userId: String}), <-- not passed in
   //notificationsSent: Match.Optional(Boolean)
   type: GameType,
   status: GameStatus,
@@ -150,16 +150,20 @@ Meteor.methods({
     if (game.note.length > 1000)
       throw new Meteor.Error(413, "Game note too long");
 
-    game = _.extend(game, {createdBy: user._id});
+    game = _.extend(game, {
+      creator: {name: user.profile.name, userId: user._id}
+    });
     return {gameId: Games.insert(game)};
   },
   editGame: function (id, game) {
     var self = this;
     check(game, ValidGame);
     var oldGame = Games.findOne(id);
-    var isCreator = Match.test(oldGame.createdBy, Match.Where(function (id) {
-      return id === self.userId;
-    }));
+    var isCreator = Match.test(
+      oldGame.creator.userId,
+      Match.Where(function (id) {
+        return id === self.userId;
+      }));
 
     if (! isCreator) {
       if (Meteor.isServer) {
@@ -188,9 +192,11 @@ Meteor.methods({
   cancelGame: function (id) {
     var self = this;
     var game = Games.findOne(id);
-    var isCreator = Match.test(game.createdBy, Match.Where(function (id) {
-      return id === self.userId;
-    }));
+    var isCreator = Match.test(
+      game.creator.userId,
+      Match.Where(function (id) {
+        return id === self.userId;
+      }));
 
     if (! isCreator) {
       if (Meteor.isServer) {

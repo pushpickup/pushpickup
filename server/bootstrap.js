@@ -37,7 +37,7 @@ bootstrap = function () {
     donnyId = Accounts.createUser({
       email: 'donny@pushpickup.com',
       password: 'foobar',
-      profile: {name: 'Donny'}
+      profile: {name: 'Donny Winston'}
     });
     Meteor.users.update(donnyId, {$set: {emails: [{
       address: "donny@pushpickup.com", verified: true
@@ -60,7 +60,7 @@ bootstrap = function () {
     _.each(startsAts, function (startsAt) {
       requested.players = _.random(2,14);
       players = getNPlayers(_.random(requested.players - 1));
-      Games.insert({createdBy: donnyId,
+      Games.insert({creator: {name: "Donny Winston", userId: donnyId},
                     notificationsSent: true,
                     type: _.sample(types),
                     status: _.sample(statuses),
