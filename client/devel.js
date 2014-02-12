@@ -112,6 +112,10 @@ Template.listedGame.helpers({
 Template.whoIsPlaying.helpers({
   playing: function () {
     return _.contains(_.pluck(this.players, 'userId'), Meteor.userId());
+  },
+  numNeeded: function () {
+    var numNeeded = this.requested.players - this.players.length;
+    return (numNeeded > 0) ? numNeeded : 0;
   }
 });
 
@@ -658,3 +662,26 @@ Template.editGameLink.events({
     alert("Editing will come...");
   }
 });
+
+Template.comments.helpers({
+  numComments: function () {
+    return (this.comments.length === 0) ? "No" : this.comments.length;
+  }
+});
+
+Template.addComment.events({
+  "submit form": function (event, template) {
+    event.preventDefault();
+    var self = this;
+    var comment = template.find("input.comment").value;
+    if (! Meteor.userId()) {
+      Session.set("unauth-comment", comment);
+    } else {
+      Meteor.call("addComment", comment, self._id);
+    }
+  }
+});
+
+Template.addComment.destroyed = function () {
+  Session.set("unauth-comment", null);
+};

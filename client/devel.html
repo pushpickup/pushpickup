@@ -109,9 +109,9 @@
   <div class="who-is-playing">
     {{#if playing}}
       <strong class="text-success">Playing</strong>
-      + {{requested.players}} needed
+      + {{numNeeded}} needed
     {{else}}
-      {{players.length}} playing ({{requested.players}} needed)
+      {{players.length}} playing ({{numNeeded}} needed)
     {{/if}}
   </div>
 </template>
@@ -447,12 +447,24 @@
 
 <template name="comments">
   <div class="comments">
-    Comments
+    <strong>{{numComments}}
+      {{pluralize comments 'Comment' 'Comments'}}</strong>
+    <ul>
+      {{#each comments}}
+        <li> {{> gameComment}} </li>
+      {{/each}}
+    </ul>
   </div>
 </template>
 
 <template name="addComment">
-  <div class="add-comment">
-    Add comment
+  <div class="add-comment footer">
+    <form class="add-comment" role="form">
+      <div class="form-group">
+        <input class="form-control comment"
+               type="text"
+               placeholder="Add comment or question">
+      </div>
+    </form>
   </div>
 </template>
