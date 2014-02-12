@@ -289,14 +289,16 @@ Meteor.methods({
       console.log('sign in first');
       return false;
     }
+    var timestamp = new Date();
     Games.update(gameId, {
       $push: {comments: {
         userId: user._id,
         userName: user.profile.name || "Anonymous",
         message: message,
-        timestamp: new Date()
+        timestamp: timestamp
       }}
     });
+    Meteor.call("notifyCommentListeners", gameId, timestamp);
     return true;
   }
 });

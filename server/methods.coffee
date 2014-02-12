@@ -154,6 +154,25 @@ Meteor.methods
       types: types
       days: days
       region: region
+  # Email game participants who wish to be notified of each new comment
+  # Takes a game _id and the timestamp of the new comment
+  "notifyCommentListeners": (gameId, cTimestamp) ->
+    this.unblock() # sending email can take a while
+    # For now, just notify the game creator
+    game = Games.findOne(gameId)
+    comment = _.find(game?.comments, (c) -> +c.timestamp is +cTimestamp)
+    return false if not game or not comment
+    return false if comment.userId is game.creator.userId
+    creator = Meteor.users.findOne(game.creator.userId)
+    Email.send
+      from: "support@pushpickup.com"
+      to: "#{creator.profile.name} <#{creator.emails[0].address}>"
+      subject: "New comment/question on your " +
+        moment(game.startsAt).format('ddd h:mma') +
+        " #{game.type} game"
+      text: "#{comment.userName} just said: \"#{comment.message}\".\n" +
+        "For your reference, below is a link to your game.\n\n" +
+        "#{Meteor.absoluteUrl('dev/g/'+gameId)}\nThanks for organizing."
 
 Meteor.startup ->
   adverbs = _.string.lines(Assets.getText("positive-adverbs-that-are-adjectives-without-ly.txt"))
