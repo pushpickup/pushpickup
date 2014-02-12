@@ -87,6 +87,7 @@ Template.joinGameLink.events({
 });
 
 var addSelfToGame = function (gameId) {
+  if (! gameId) { return; }
   Meteor.call("addPlayer", gameId, Meteor.user().profile.name, function (err) {
     if (!err) {
       Session.set("unauth-join", null);
@@ -286,7 +287,21 @@ Template.signInInline.events({
       templ.find("input.password").value,
       function (err) {
         if (!err) {
-          addSelfToGame(Session.get("sign-in-and-join"));
+          if (Session.get("sign-in-and-join")) {
+            addSelfToGame(Session.get("sign-in-and-join"));
+          } else if (Session.get("sign-in-and-comment-on")) {
+            Meteor.call(
+              "addComment",
+              Session.get("unauth-comment"),
+              Session.get("sign-in-and-comment-on"),
+              function (error) {
+                Session.set("unauth-comment", null);
+                Session.set("sign-in-and-comment-on", null);
+                if (error) {
+                  console.log("Error adding comment");
+                }
+              });
+          }
         } else {
           console.log(err);
           // typical err.reason: "User not found" or "Incorrect password"
@@ -298,6 +313,7 @@ Template.signInInline.events({
   },
   "click .sign-in-inline .close": function () {
     Session.set("sign-in-and-join", null);
+    Session.set("sign-in-and-comment-on", null);
   }
 });
 
@@ -670,7 +686,7 @@ Template.comments.helpers({
 });
 
 Template.addComment.events({
-  "submit form": function (event, template) {
+  "submit form.add-comment": function (event, template) {
     event.preventDefault();
     var self = this;
     var comment = template.find("input.comment").value;
@@ -685,3 +701,57 @@ Template.addComment.events({
 Template.addComment.destroyed = function () {
   Session.set("unauth-comment", null);
 };
+
+Template.addInfoAndComment.events({
+  "submit form": function (event, template) {
+    var game = this;
+    event.preventDefault();
+    var email = template.find("input.email").value;
+    var fullName = template.find("input.full-name").value;
+    var comment = template.find("input.comment").value;
+    Meteor.call(
+      "dev.unauth.addCommenter", game._id, email, fullName, comment,
+      function (error, result) {
+        if (!error) {
+          Meteor.loginWithPassword(email, result.password);
+          Alerts.throw({
+            message: "Thanks, " + fullName +
+              "! Check for an email from " +
+              "support@pushpickup.com to verify your email address",
+            type: "success", where: game._id
+          });
+          Session.set("unauth-comment", null);
+          Session.set("strange-passwd", result.password);
+        } else {
+          // typical error: email in use
+          console.log(error);
+          if (error instanceof Meteor.Error) {
+            Alerts.throw({
+              message: error.reason,
+              type: "danger", where: "addInfoAndComment"
+            });
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong. Try again?",
+              type: "danger", where: "addInfoAndComment"
+            });
+          }
+        }
+    });
+  },
+  "click .add-info-and-comment .close": function () {
+    Session.set("unauth-comment", null);
+  },
+  "click .sign-in-and-comment-on": function (event, template) {
+    Session.set("unauth-comment",
+                template.find("input.comment").value);
+    Session.set("sign-in-and-comment-on", this._id);
+  }
+});
+
+Template.addInfoAndComment.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "addInfoAndComment"});
+  }
+});

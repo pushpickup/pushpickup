@@ -85,6 +85,27 @@ Meteor.methods
       # may have added them to a game
       Accounts.sendEnrollmentEmail userId, email
       userId: userId, password: password
+  "dev.unauth.addCommenter": (gameId, email, name, comment) ->
+    emailOwner = Meteor.users.findOne({'emails.address': email})
+    if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
+      throw new Meteor.Error 403,
+        "Someone has already added and verified that email address"
+    else
+      if emailOwner
+        # email is in system but unverified. remove it before proceeding.
+        Meteor.users.update emailOwner?._id,
+          $pull: emails: address: email
+      password = strange.password()
+      userId = Accounts.createUser
+        email: email
+        password: password
+        profile: name: name
+      this.setUserId(userId)
+      Meteor.call "addComment", comment, gameId
+      # TODO: indicate in enrollment email that either they or a friend
+      # may have added them to a game
+      Accounts.sendEnrollmentEmail userId, email
+      userId: userId, password: password
   "dev.addFriends": (friends, userId, gameId) ->
     for friend in friends
       Meteor.call "dev.addFriend", friend, userId, gameId

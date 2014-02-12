@@ -277,6 +277,10 @@ Meteor.methods({
       console.log('message must be non-empty');
       return false;
     }
+    if (! gameId) {
+      console.log("no gameId provided");
+      return false;
+    };
     // user may wish to ask about game before joining,
     // so user need not be playing in game.
     var self = this;

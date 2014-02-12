@@ -458,13 +458,55 @@
 </template>
 
 <template name="addComment">
-  <div class="add-comment footer">
-    <form class="add-comment" role="form">
+  <div class="add-comment">
+    {{#if SGet 'unauth-comment'}}
+      {{#unless SEql 'sign-in-and-comment-on' _id}}
+        {{> addInfoAndComment}}
+      {{else}} <!-- sign in and comment -->
+        {{#if currentUser}}
+          Adding comment...
+        {{else}}
+          {{> signInInline}}
+        {{/if}}
+      {{/unless}}
+    {{else}}
+      <form class="add-comment" role="form">
+        <div class="form-group">
+          <input class="form-control comment"
+                 type="text"
+                 placeholder="Add comment or question">
+        </div>
+      </form>
+    {{/if}}
+  </div>
+</template>
+
+<template name="addInfoAndComment">
+  <div class="add-info-and-comment">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="add-info-and-comment" role="form">
+      <h5 class="form-heading">
+        Add your info or <a class="sign-in-and-comment-on">sign in</a>
+        to comment
+      </h5>
+      <div class="form-group">
+        <input type="email" class="form-control email"
+               placeholder="Your email"
+               required autofocus>
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control full-name"
+               placeholder="Your full name"
+               required>
+      </div>
       <div class="form-group">
         <input class="form-control comment"
                type="text"
-               placeholder="Add comment or question">
+               placeholder="Add comment or question"
+               value="{{SGet 'unauth-comment'}}">
       </div>
+      {{{alerts}}}
+      <button type="submit" class="btn add-comment">Add Comment</button>
     </form>
   </div>
 </template>
