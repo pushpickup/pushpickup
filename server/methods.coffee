@@ -59,6 +59,10 @@ Meteor.methods
         $push: emails: address: email, verified: false
       Accounts.sendVerificationEmail self.userId, email
       "ok"
+  "dev.addSelf.addFriends": (friends, gameId) ->
+    Meteor.call "addPlayer", gameId
+    Meteor.call "dev.addFriends", friends, this.userId, gameId
+    "ok"
   "dev.unauth.addPlayers": (gameId, email, name, friends) ->
     adder = Meteor.call "dev.unauth.addPlayer", gameId, email, name
     Meteor.call "dev.addFriends", friends, adder.userId, gameId

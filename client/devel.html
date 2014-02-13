@@ -129,18 +129,34 @@
   </div>
 </template>
 
+<template name="addInfoOrSignIn">
+  <h5 class="form-heading">
+    {{#unless SGet 'sign-in'}}
+      Add your info or <a class="sign-in">sign in</a>
+    {{else}}
+      Sign in or <a class="add-info">add your info</a>
+    {{/unless}}
+    to {{action}}.
+  </h5>
+  <div class="form-group">
+    <input type="email" class="form-control email" placeholder="Your email"
+           required autofocus>
+  </div>
+  <div class="form-group">
+    {{#unless SGet 'sign-in'}}
+      <input type="text" class="form-control full-name" placeholder="Your full name"
+             required>
+    {{else}}
+      <input type="password" class="form-control password" placeholder="Your password"
+             required>
+    {{/unless}}
+  </div>
+</template>
+
 <template name="addPlayers">
   <div class="add-players">
     {{#if SEql 'unauth-join' _id}}
-      {{#unless SEql 'sign-in-and-join' _id}}
-        {{> addSelfAndFriends}}
-      {{else}} <!-- sign in and join -->
-        {{#if currentUser}}
-          Adding you to this game...
-        {{else}}
-          {{> signInInline}}
-        {{/if}}
-      {{/unless}}
+      {{> addSelfAndFriends}}
     {{/if}}
     <!-- 'unauth-join' and 'add-friends' should never both be non-null
          because 'add-friends' is for authenticated users. -->
@@ -154,17 +170,7 @@
   <div class="add-self-and-friends well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form class="add-self-and-friends" role="form">
-      <h5 class="form-heading">
-        Add your info or <a class="sign-in-and-join">sign in</a> to join
-      </h5>
-      <div class="form-group">
-        <input type="email" class="form-control email" placeholder="Your email"
-               required autofocus>
-      </div>
-      <div class="form-group">
-        <input type="text" class="form-control full-name" placeholder="Your full name"
-               required>
-      </div>
+      {{{addInfoOrSignInTo 'join'}}}
       {{> unauthAddFriends}}
       {{{alerts}}}
       <button type="submit" class="btn join-game">Join Game</button>
@@ -222,26 +228,6 @@
         <span class="glyphicon glyphicon-plus-sign"></span>
         Add another friend</a>
     </p>
-  </div>
-</template>
-
-<template name="signInInline">
-  <div class="sign-in-inline well">
-    <button type="button" class="close" aria-hidden="true">&times;</button>
-    <form class="sign-in" role="form">
-      <h5 class="form-heading">Please sign in</h5>
-       <div class="form-group">
-        <input type="email" class="form-control email" placeholder="Your email"
-               required autofocus>
-      </div>
-      <div class="form-group">
-        <input type="password" class="form-control password" placeholder="Your password"
-               required>
-      </div>
-      {{{alerts}}}
-      <button class="btn sign-in-inline" type="submit">Sign in</button>
-    </form>
-    <p class="text-center">{{#link route="get-reset-link"}}Forgot password?{{/link}}</p>
   </div>
 </template>
 
@@ -460,15 +446,7 @@
 <template name="addComment">
   <div class="add-comment">
     {{#if SGet 'unauth-comment'}}
-      {{#unless SEql 'sign-in-and-comment-on' _id}}
-        {{> addInfoAndComment}}
-      {{else}} <!-- sign in and comment -->
-        {{#if currentUser}}
-          Adding comment...
-        {{else}}
-          {{> signInInline}}
-        {{/if}}
-      {{/unless}}
+      {{> authenticateAndComment}}
     {{else}}
       <form class="add-comment" role="form">
         <div class="form-group">
@@ -481,24 +459,11 @@
   </div>
 </template>
 
-<template name="addInfoAndComment">
-  <div class="add-info-and-comment">
+<template name="authenticateAndComment">
+  <div class="authenticate-and-comment">
     <button type="button" class="close" aria-hidden="true">&times;</button>
-    <form class="add-info-and-comment" role="form">
-      <h5 class="form-heading">
-        Add your info or <a class="sign-in-and-comment-on">sign in</a>
-        to comment
-      </h5>
-      <div class="form-group">
-        <input type="email" class="form-control email"
-               placeholder="Your email"
-               required autofocus>
-      </div>
-      <div class="form-group">
-        <input type="text" class="form-control full-name"
-               placeholder="Your full name"
-               required>
-      </div>
+    <form class="authenticate-and-comment" role="form">
+      {{{addInfoOrSignInTo 'comment'}}}
       <div class="form-group">
         <input class="form-control comment"
                type="text"

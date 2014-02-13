@@ -232,11 +232,13 @@ Meteor.methods({
   },
   // this.userId is not null
   // for unauthenticated adds, see "unauthenticated.addPlayer"
-  addPlayer: function (gameId, name) {
+  addPlayer: function (gameId, name /* optional */) {
     var userId = this.userId;
+    if (! userId) return false;
     if (Games.findOne({_id: gameId, 'players.userId': userId})) {
       return false;
     } else {
+      name = name || Meteor.users.findOne(userId).profile.name;
       var player = {userId: userId, name: name, rsvp: "in"};
       check(player, Player); // name must be non-empty
       Games.update(gameId, {$push: {players: player}});
