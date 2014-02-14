@@ -110,6 +110,26 @@ Meteor.methods
       # may have added them to a game
       Accounts.sendEnrollmentEmail userId, email
       userId: userId, password: password
+  "dev.unauth.addUserSub": (email, name, types, days, region) ->
+    emailOwner = Meteor.users.findOne({'emails.address': email})
+    if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
+      throw new Meteor.Error 403,
+        "Someone has already added and verified that email address"
+    else
+      if emailOwner
+        # email is in system but unverified. remove it before proceeding.
+        Meteor.users.update emailOwner?._id,
+          $pull: emails: address: email
+      password = strange.password()
+      userId = Accounts.createUser
+        email: email
+        password: password
+        profile: name: name
+      this.setUserId(userId)
+      Meteor.call "addUserSub", types, days, region
+      # TODO convert below to Meteor method that uses this.unblock()
+      Accounts.sendEnrollmentEmail userId, email
+      userId: userId, password: password
   "dev.addFriends": (friends, userId, gameId) ->
     for friend in friends
       Meteor.call "dev.addFriend", friend, userId, gameId
@@ -145,9 +165,9 @@ Meteor.methods
   "addUserSub": (types, days, region) ->
     self = this
     user = Meteor.users.findOne(self.userId)
-    unless _.find(user?.emails, (e) -> e.verified?)
-      throw new Meteor.Error 401,
-        "You must add an email address to your account and verify it."
+    # `sendGameAddedNotification` sends only to verified email addresses,
+    # so don't need to check for verified email address here.
+    return false if not user
     check types, [GameType]
     check days, [Day]
     check region, GeoJSONPolygon

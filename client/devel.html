@@ -309,7 +309,30 @@
     <div class="subscribe-detail">
       {{detail}}
     </div>
-    {{{status}}}
+    {{#if SEql 'unauth-subscribe' true}}
+      {{> authenticateAndSubscribe}}
+    {{else}}
+      {{{alerts}}}
+      {{#unless subscribed}}
+        {{> subscribeButton}}
+      {{/unless}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="authenticateAndSubscribe">
+  <div class="authenticate-and-subscribe well">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="authenticate-and-subscribe" role="form">
+      {{{addInfoOrSignInTo 'subscribe'}}}
+      {{{alerts}}}
+
+      <!-- Not Template.subscribeButton because we don't want to trigger
+           its event handlers-->
+      <button type="submit" class="btn subscribe">
+        <span class="glyphicon glyphicon-envelope"></span> Subscribe
+      </button>
+    </form>
   </div>
 </template>
 

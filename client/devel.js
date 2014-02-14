@@ -37,7 +37,6 @@ var handlebarsHelperMap = {
   // subscribing to game announcements, and adding a game.
   addInfoOrSignInTo: function (action) {
     if (! Meteor.userId()) {
-      console.log(action);
       return Template.addInfoOrSignIn({action: action});
     } else
       return "";
@@ -548,31 +547,152 @@ Template.subscribe.helpers({
     return ppConjunction(Session.get('game-types')) +
       " in " + ppRegion(Session.get('selectedLocationName'));
   },
-  status: function () {
-    var alert = Alerts.collection.findOne({where: "subscribe"});
-    if (alert) {
-      return Template.meteorAlerts({where: "subscribe"});
-    } else {
-      return Template.subscribeButton();
-    }
-  }
-});
-
-Template.subscribeButton.events({
-  'click button': function () {
-    // for now, simply simulate subscribing user
-    // TODO: subscribe if signed in, o/w {{{addInfoOrSignInTo 'subscribe'}}}
-    Alerts.throw({
-      message: "**Subscribed!** We'll let you know when there are new games.",
-      type: "success",
-      where: "subscribe"
-    });
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "subscribe"});
+  },
+  subscribed: function () {
+    // TODO: return true if map bounds are $geoWithin any UserSubs
+    //  May need to user $near if that's all minimongo offers.
+    return Alerts.collection.findOne({where: "subscribe"});
   }
 });
 
 Template.subscribe.destroyed = function () {
   Alerts.collection.remove({where: "subscribe"});
 };
+
+Template.authenticateAndSubscribe.events({
+  "submit form": function (event, template) {
+    event.preventDefault();
+    var email = template.find("input.email").value;
+    var fullNameInput = template.find("input.full-name");
+    if (fullNameInput) {
+      var fullName = fullNameInput.value;
+      Meteor.call(
+        "dev.unauth.addUserSub", email, fullName,
+        Session.get("gameTypes"), Session.get("gameDays"),
+        Session.get("geoWithin"),
+        function (error, result) {
+          if (!error) {
+            Meteor.loginWithPassword(email, result.password);
+            Alerts.throw({
+              message: "Thanks, " + fullName +
+                "! Check for an email from " +
+                "support@pushpickup.com to verify your email address",
+              type: "success", where: "subscribe"
+            });
+            Session.set("unauth-subscribe", null);
+            Session.set("strange-passwd", result.password);
+          } else {
+            // typical error: email in use
+            console.log(error);
+            if (error instanceof Meteor.Error) {
+              Alerts.throw({
+                message: error.reason,
+                type: "danger", where: "authenticateAndSubscribe"
+              });
+            } else {
+              Alerts.throw({
+                message: "Hmm, something went wrong. Try again?",
+                type: "danger", where: "authenticateAndSubscribe"
+              });
+            }
+          }
+        });
+    } else { // attempt to sign in and subscribe
+      var password = template.find("input.password").value;
+      Meteor.loginWithPassword(email, password, function (err) {
+        if (! err) {
+          Meteor.call(
+            "addUserSub", Session.get("gameTypes"),
+            Session.get("gameDays"), Session.get("geoWithin"),
+            function (error) {
+              Session.set("unauth-subscribe", null); // logged in now
+              addUserSub.callback(error);
+            });
+        } else {
+          console.log(err);
+          // typical err.reason: "User not found" or "Incorrect password"
+          Alerts.throw({
+            message: err.reason,
+            type: "danger", where: "authenticateAndSubscribe"
+          });
+        }
+      });
+    }
+  },
+  "click .authenticate-and-subscribe .close": function () {
+    Session.set("unauth-subscribe", null);
+  }
+});
+
+Template.authenticateAndSubscribe.helpers({
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "authenticateAndSubscribe"});
+  }
+});
+
+Template.authenticateAndSubscribe.destroyed = function () {
+  Session.set("unauth-subscribe", null);
+};
+
+var addUserSub = {
+  callback: function (error, result) {
+    if (!error) {
+      Alerts.throw({
+        type: "success",
+        message: "**Subscribed!** We'll let you know " +
+          "when there are new games.",
+        where: "subscribe"
+      });
+      if (! _.find(Meteor.user().emails, function (email) {
+        return email.verified;
+      })) {
+        Alerts.throw({
+          type: "warning",
+          message: "You must have a verified email address to subscribe." +
+            "check for an email from support@pushpickup.com to " +
+            "verify your email address.",
+          where: "subscribe"
+        });
+      }
+    } else {
+      console.log(error);
+      Alerts.throw({
+        type: "danger",
+        message: "Hmm, something went wrong. " +
+          "Try again?",
+        where: "subscribe",
+        autoremove: 3000
+      });
+    }
+  }
+};
+
+Template.subscribeButton.events({
+  'click button': function () {
+    if (! Meteor.userId()) {
+      Session.set("unauth-subscribe", true);
+    } else {
+      if (Session.get("soloGame")) {
+        var game = Games.findOne(Session.get("soloGame"));
+        Meteor.call("addUserSub",
+                    [game.type],
+                    [moment(game.startsAt).day()],
+                    Session.get("geoWithin"),
+                    addUserSub.callback);
+      } else {
+        Meteor.call("addUserSub",
+                    Session.get("gameTypes"),
+                    Session.get("gameDays"),
+                    Session.get("geoWithin"),
+                    addUserSub.callback);
+      }
+    }
+  }
+});
 
 Template.devDetail.events({
   "click .share-game-link": function () {
