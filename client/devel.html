@@ -4,7 +4,11 @@
       <div id="alerts">
       </div>
     </div>
-    {{yield}}
+    <div class="row">
+      <div class="mobile-simulator">
+        {{yield}}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -390,7 +394,7 @@
 <template name="editGameLink">
   {{#if isCreator}}
     <div class="edit-game-link">
-      <a>Edit</a>
+      <a href="{{pathFor 'devEditGame'}}">Edit</a>
     </div>
   {{/if}}
 </template>
@@ -527,12 +531,7 @@
           {{/if}}
         </div>
         <div class="form-group requested">
-            <div class="input-group">
-              <span class="input-group-addon">Players needed</span>
-              <input type="number" class="form-control players" min="0"
-                     value="{{#if requested.players}}{{requested.players}}{{else}}10{{/if}}"
-                     required>
-            </div>
+          {{{selectPlayersRequested}}}
         </div>
         {{#if atLeastOnePlayer}}
           <div class="form-group gamePlayers">
@@ -589,6 +588,7 @@
   <div class="select-location">
     <div class="input-group">
       <input class="form-control location" type="text" placeholder="Add Location"
+             value="{{location.name}}"
              required>
       <span class="input-group-addon">
         <span class="glyphicon glyphicon-map-marker"></span>

@@ -811,12 +811,6 @@ Template.editGameLink.helpers({
   }
 });
 
-Template.editGameLink.events({
-  "click .edit-game-link a": function () {
-    alert("Editing will come...");
-  }
-});
-
 Template.comments.helpers({
   numComments: function () {
     return (this.comments.length === 0) ? "No" : this.comments.length;
@@ -943,8 +937,7 @@ Template.devEditableGame.helpers({
         selected: (type.value === self.type)
       };
     });
-    return Template.selectForm({includeLabel: true,
-                                label: 'What', id: 'gameType',
+    return Template.selectForm({label: 'What', id: 'gameType',
                                 options: them});
   },
   selectTime: function () {
@@ -979,18 +972,6 @@ Template.devEditableGame.helpers({
     return Template.selectForm({label: 'Time', id: 'gameTime',
                                 options: them});
   },
-  selectStatus: function () {
-    var self = this;
-    var them = GameOptions.find({option: "status"}).map(function (status) {
-      return {
-        value: status.value,
-        text: status.value,
-        selected: (status.value === self.status)
-      };
-    });
-    return Template.selectForm({label: 'Status', id: 'gameStatus',
-                                options: them});
-  },
   selectDay: function () {
     var self = this;
     var selfDayStart = self.startsAt &&
@@ -1005,9 +986,20 @@ Template.devEditableGame.helpers({
     });
     them[0].text = 'Today' + ' (' + them[0].text + ')';
     them[1].text = 'Tomorrow' + ' (' + them[1].text + ')';
-    var days = {includeLabel: true, label: "When", id: "gameDay",
+    var days = {label: "When", id: "gameDay",
                 options: them};
     return Template.selectForm(days);
+  },
+  selectPlayersRequested: function () {
+    var self = this;
+    var numRequested = self.requested && self.requested.players || 10;
+    var them =  _.map(_.range(21), function (i) {
+      return { value: i, text: i, selected: (i === numRequested) };
+    });
+    var numPlayers = {includeLabel: true,
+                      label: "Players needed", id: "requestedNumPlayers",
+                      options: them};
+    return Template.selectForm(numPlayers);
   },
   editingGame: function () {
     return this.title === "Edit game";
@@ -1096,7 +1088,7 @@ Template.devEditableGame.events({
       players: [],
       comments: [],
       requested: selectorValuesFromTemplate({
-        players: [".requested input.players", asNumber]
+        players: ["#requestedNumPlayers", asNumber]
       }, template)
     };
     try {
