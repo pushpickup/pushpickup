@@ -1037,6 +1037,9 @@ var selectorValuesFromTemplate = function (selectors, templ) {
 };
 var asNumber = function (str) { return +str; };
 
+// Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
+var getEmailsRegExp = /[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/g;
+
 Template.devEditableGame.events({
   "change #gameDay": function (evt, templ) {
     Session.set("newGameDay", +evt.currentTarget.value);
@@ -1118,20 +1121,10 @@ Template.devEditableGame.events({
       return;
     }
     var inviteEmails = template.find("#inviteFriends").value
-          .replace(/\s+/,'').split(",");
-
-    // Hitting <RET> in the textarea produces a strange character:
-    // String.fromCharCode(8629) (a "↵"), that is not matched by /\s+/
-    // above, so for now I do a heavy trim according to the ValidEmail
-    // format. -DW, using google chrome 32.0.1700.107 on osx mavericks
-    inviteEmails = _.map(inviteEmails, function (email) {
-      email = _.string.ltrim(email, /[^a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]/);
-      email = _.string.rtrim(email, /[^a-zA-Z0-9-]/);
-      return email;
-    });
+          .match(getEmailsRegExp);
     if (! Match.test(_.compact(inviteEmails), [ValidEmail])) {
       Alerts.throw({
-        message: "Invite friends by listing only email addresses, " +
+        message: "Invite friends by listing email addresses, " +
           "each separated by a comma.",
         type: "danger", where: "editableGame"
       });
