@@ -1233,6 +1233,8 @@ Template.addGameMap.rendered = function () {
   var marker, infowindow;
 
   self._setMarker = Deps.autorun(function () {
+    if (! Session.get("selectedLocationPoint")) return;
+
     latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
 
     marker && marker.setMap(null);
