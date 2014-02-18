@@ -335,12 +335,7 @@ Template.gameSummary.helpers({
     if (! comma_separated) {
       return "";
     } else {
-      var rest_with_state_abbr = comma_separated[1].match(/.*[A-Z]{2}/);
-      if (! rest_with_state_abbr) {
-        return comma_separated[1];
-      } else {
-        return rest_with_state_abbr[0];
-      }
+      return comma_separated[1];
     }
   }
 });
@@ -355,11 +350,29 @@ Template.selectGameTypes.helpers({
 var onPlaceChanged = function () {
   var place = autocomplete.getPlace();
   if (place.geometry) {
-    var latLng = place.geometry.location;
-    Session.set("selectedLocationPoint", geoUtils.toGeoJSONPoint(latLng));
-    Session.set("selectedLocationName",place.formatted_address);
+    Session.set("selectedLocationPoint",
+                geoUtils.toGeoJSONPoint(place.geometry.location));
+    Session.set("selectedLocationName", place.name);
+  }
+};
+
+var onSelectLocationChanged = function () {
+  var place = autocomplete.getPlace();
+  if (place.geometry) {
+    Session.set("selectedLocationPoint",
+                geoUtils.toGeoJSONPoint(place.geometry.location));
+    Session.set("selectedLocationName", place.name + ", " + place.vicinity);
+  }
+};
+
+// If location name has more than two commas,
+// it's probably too long and complicated, so substitute with
+// autocomplete result's "`place.name`,  `place.vicinity`"
+var simplifyLocation = function (given) {
+  if (_.string.count(given,',') > 2) {
+    return Session.get("selectedLocationName") || given.split(",", 3).join(",");
   } else {
-    $('.search-input input').get(0).placeholder = 'Enter Location';
+    return given;
   }
 };
 
@@ -422,6 +435,14 @@ Template.findingsMap.rendered = function () {
     return new google.maps.LatLng(lat, lng);
   };
 
+  geoUtils.toLatLngBounds = function (geoJSONMultiPoint) {
+    var SW = geoJSONMultiPoint.coordinates[0];
+    SW = new google.maps.LatLng(SW[1], SW[0]);
+    var NE = geoJSONMultiPoint.coordinates[1];
+    NE = new google.maps.LatLng(NE[1], NE[0]);
+    return new google.maps.LatLngBounds(SW, NE);
+  };
+
   var map = new google.maps.Map(
     self.find('.findings-map-canvas'), {
       zoom: 12, //18 good for one-game zoom
@@ -448,7 +469,8 @@ Template.findingsMap.rendered = function () {
           var selectedResult = (map.getZoom() > 13) ?
                 (neighborhoodResult || cityResult || results[1] || results[0]) :
                 (cityResult || results[1] || results[0]);
-          Session.set("selectedLocationName", selectedResult.formatted_address);
+          Session.set("selectedLocationName",
+                      selectedResult.address_components[0].long_name);
         } else {
           console.log("Geocode was not successful for the following reason: " +
                       status);
@@ -545,7 +567,7 @@ Template.findingsMap.destroyed = function () {
 Template.subscribe.helpers({
   detail: function () {
     return ppConjunction(Session.get('game-types')) +
-      " in " + ppRegion(Session.get('selectedLocationName'));
+      " around " + ppRegion(Session.get('selectedLocationName'));
   },
   alerts: function () {
     var self = this;
@@ -908,4 +930,326 @@ Template.addInfoOrSignIn.events({
 
 Template.addInfoOrSignIn.destroyed = function () {
   Session.set("sign-in", false);
+};
+
+
+Template.devEditableGame.helpers({
+  selectType: function () {
+    var self = this;
+    var them = GameOptions.find({option: "type"}).map(function (type) {
+      return {
+        value: type.value,
+        text: type.value,
+        selected: (type.value === self.type)
+      };
+    });
+    return Template.selectForm({includeLabel: true,
+                                label: 'What', id: 'gameType',
+                                options: them});
+  },
+  selectTime: function () {
+    var self = this;
+    var selfDayStart = self.startsAt &&
+          moment(self.startsAt).startOf('day');
+    var dayStart = moment(Session.get("newGameDay") ||
+                          selfDayStart ||
+                          moment().startOf('day'));
+
+    var prevSelectedTime = Session.get("newGameTime");
+    var dayMinutes = function (m) {
+      return 60 * m.hours() + m.minutes();
+    };
+    var selectedMinutes =
+          (prevSelectedTime && dayMinutes(moment(prevSelectedTime))) ||
+          (self.startsAt && dayMinutes(moment(self.startsAt))) ||
+          720; // noon is 720 minutes into day
+
+    var them =  _.map(_.range(96), function (i) {
+      var t = moment(dayStart).add('minutes', 15 * i);
+      return {
+        value: +t,
+        text: t.format('h:mmA'),
+        selected: ((15 * i) === selectedMinutes)
+      };
+    });
+
+    them = _.reject(them, function (t) {
+      return t.value < +moment() || t.value > +moment().add('weeks', 1);
+    });
+    return Template.selectForm({label: 'Time', id: 'gameTime',
+                                options: them});
+  },
+  selectStatus: function () {
+    var self = this;
+    var them = GameOptions.find({option: "status"}).map(function (status) {
+      return {
+        value: status.value,
+        text: status.value,
+        selected: (status.value === self.status)
+      };
+    });
+    return Template.selectForm({label: 'Status', id: 'gameStatus',
+                                options: them});
+  },
+  selectDay: function () {
+    var self = this;
+    var selfDayStart = self.startsAt &&
+          moment(self.startsAt).startOf('day');
+    var them =  _.map(_.range(8), function (i) {
+      var dayStart = moment().startOf('day').add('days', i);
+      return {
+        value: dayStart.valueOf(),
+        text: dayStart.format('dddd'),
+        selected: (+dayStart === +selfDayStart)
+      };
+    });
+    them[0].text = 'Today' + ' (' + them[0].text + ')';
+    them[1].text = 'Tomorrow' + ' (' + them[1].text + ')';
+    var days = {includeLabel: true, label: "When", id: "gameDay",
+                options: them};
+    return Template.selectForm(days);
+  },
+  editingGame: function () {
+    return this.title === "Edit game";
+  },
+  atLeastOnePlayer: function () {
+    return this.players && (! _.isEmpty(this.players));
+  },
+  alerts: function () {
+    var self = this;
+    return Template.meteorAlerts({where: "editableGame"});
+  }
+});
+
+// selector is either a String, e.g. "#name", or a [String, function] that
+// takes the value and then feeds it to the (one-argument) function for
+// a final value
+var selectorValuesFromTemplate = function (selectors, templ) {
+  var result = {};
+  _.each(selectors, function (selector, key) {
+    if (typeof selector === "string") {
+      result[key] = templ.find(selector).value;
+    } else {
+      result[key] = (selector[1])(templ.find(selector[0]).value);
+    }
+  });
+  return result;
+};
+var asNumber = function (str) { return +str; };
+
+Template.devEditableGame.events({
+  "change #gameDay": function (evt, templ) {
+    Session.set("newGameDay", +evt.currentTarget.value);
+  },
+  "change #gameTime": function (evt, templ) {
+    Session.set("newGameTime", +evt.currentTarget.value);
+  },
+  "submit #editGameForm": function (evt, templ) {
+    var self = this;
+    evt.preventDefault();
+    var marked = $(templ.findAll(".gamePlayers input:checked"))
+          .map(function () { return this.value; }).get();
+    var remainingPlayers = _.reject(self.players, function (p) {
+      return _.contains(marked, p.name);
+    });
+    Meteor.call("editGame", Session.get("soloGame"), {
+      type: templ.find("#gameType").value,
+      status: templ.find("#gameStatus").value,
+      startsAt: new Date(+templ.find("#gameTime").value),
+      location: {name: templ.find("#locationSearchBox").value,
+                 geoJSON: Session.get("selectedLocationPoint") ||
+                 Games.findOne(Session.get("soloGame")).location.geoJSON},
+      note: templ.find("#gameNote").value,
+      players: remainingPlayers,
+
+      // for now, no editing comments (simulate an email-list dynamic)
+      comments: self.comments,
+
+      requested: selectorValuesFromTemplate({
+        players: [".requested input.players", asNumber]
+      }, templ)
+    });
+    Router.go('home');
+  },
+  "keypress .select-location input": function (event, template) {
+    if (event.which === 13) { // <RET> pressed
+      // submit triggered from location field
+      // event.stopImmediatePropagation() and event.preventDefault()
+      return false;
+    }
+    return true;
+  },
+  "submit #addGameForm": function (event, template) {
+    event.preventDefault();
+    var game = {
+      type: template.find("#gameType").value,
+      status: "proposed",
+      startsAt: new Date(+template.find("#gameTime").value),
+      location: {
+        name: simplifyLocation(template.find(".select-location input").value),
+        geoJSON: Session.get("selectedLocationPoint")
+      },
+      note: template.find("#gameNote").value,
+      players: [],
+      comments: [],
+      requested: selectorValuesFromTemplate({
+        players: [".requested input.players", asNumber]
+      }, template)
+    };
+    try {
+      check(game, ValidGame);
+    } catch (e) {
+      if (e instanceof Match.Error) {
+        console.log(e.message);
+        var result = /Match error: (.*) in field (.*)/.exec(e.message);
+        if (result[2] === 'location.name') {
+          Session.set("need_location_set", result[1]);
+        } else if (result[2] === 'location.geoJSON') {
+          Session.set("need_location_set",
+                      "Your game needs a location.");
+        }
+      }
+      return;
+    }
+    if (! Meteor.userId()) {
+      var email = template.find("input.email").value;
+      var fullNameInput = template.find("input.full-name");
+      if (fullNameInput) { // new user
+        var fullName = fullNameInput.value;
+        Meteor.call(
+          "dev.unauth.addGame", email, fullName, game,
+          function (error, result) {
+            if (!error) {
+              Meteor.loginWithPassword(email, result.password);
+              Alerts.throw({
+                message: "Thanks, " + fullName +
+                  "! Check for an email from " +
+                  "support@pushpickup.com to verify your email address",
+                type: "success", where: result.gameId
+              });
+              Session.set("strange-passwd", result.password);
+              Router.go('devDetail', {_id: result.gameId});
+            } else {
+              // typical error: email in use
+              console.log(error);
+              if (error instanceof Meteor.Error) {
+                Alerts.throw({
+                  message: error.reason,
+                  type: "danger", where: "editableGame"
+                });
+              } else {
+                Alerts.throw({
+                  message: "Hmm, something went wrong. Try again?",
+                  type: "danger", where: "editableGame"
+                });
+              }
+            }
+          });
+      } else { // attempt to sign in, join game, and possibly add friends
+        var password = template.find("input.password").value;
+        Meteor.loginWithPassword(email, password, function (error) {
+          if (! error) {
+            Meteor.call("addGame", game, function (error, result) {
+              if (!error) {
+                Router.go('devDetail', {_id: result.gameId});
+              } else {
+                console.log(error);
+                Alerts.throw({
+                  message: "Hmm, something went wrong: \""+error.reason+"\". Try again?",
+                  type: "danger",
+                  where: "editableGame"
+                });
+              }
+            });
+          } else {
+            console.log(error);
+            // typical error.reason: "User not found" or "Incorrect password"
+            Alerts.throw({
+              message: error.reason, type: "danger", where: "editableGame"
+            });
+          }
+        });
+      }
+    } else { // authenticated user
+      Meteor.call("addGame", game, function (error, result) {
+        if (!error) {
+          Router.go('devDetail', {_id: result.gameId});
+        } else {
+          console.log(error);
+          Alerts.throw({
+            message: "Hmm, something went wrong: \""+error.reason+"\". Try again?",
+            type: "danger",
+            where: "editableGame"
+          });
+        }
+      });
+    }
+  },
+  "click .cancelAll": function (evt) {
+    evt.preventDefault(); // this bubbles to trigger "submit #addGameForm"!
+    Router.go('home');
+  },
+  "click .remove": function (evt, templ) {
+    evt.preventDefault();
+    if (confirm("Really cancel game? Players will be notified.")) {
+      Meteor.call("cancelGame", Session.get("soloGame"));
+      Router.go('home');
+    }
+  }
+});
+
+Template.devSelectLocation.rendered = function () {
+  var template = this;
+  autocomplete && google.maps.event.clearListeners(autocomplete);
+  autocomplete = new google.maps.places.Autocomplete(
+    template.find('.select-location input'));
+  google.maps.event.addListener(
+    autocomplete, 'place_changed', onSelectLocationChanged);
+};
+
+Template.addGameMap.rendered = function () {
+  var self = this;
+  if (! Session.get("selectedLocationPoint")) return;
+
+  geoUtils.toLatLng = function (geoJSONPoint) {
+    var lat = geoJSONPoint.coordinates[1];
+    var lng = geoJSONPoint.coordinates[0];
+    return new google.maps.LatLng(lat, lng);
+  };
+
+  var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+
+  var map = new google.maps.Map(
+    self.find('.add-game-map-canvas'), {
+      zoom: 15, // 18 also good
+      center: latLng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: true,
+      panControl: false,
+      streetViewControl: false,
+      minZoom: 3
+    });
+
+  var marker, infowindow;
+
+  self._setMarker = Deps.autorun(function () {
+    latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+
+    marker && marker.setMap(null);
+    marker = new google.maps.Marker({
+      position: latLng, map: map
+    });
+
+    infowindow = new google.maps.InfoWindow({
+      content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.open(map,marker);
+    });
+  });
+};
+
+Template.addGameMap.destroyed = function () {
+  this._setMarker && this._setMarker.stop();
 };

@@ -1,0 +1,109 @@
+/* Just click to select the code */
+
+@charset "UTF-8";
+
+@font-face {
+  font-family: "push-pickup";
+  src:url("/ourfonts/push-pickup.eot");
+  src:url("/ourfonts/push-pickup.eot?#iefix") format("embedded-opentype"),
+    url("/ourfonts/push-pickup.ttf") format("truetype"),
+    url("/ourfonts/push-pickup.svg#push-pickup") format("svg"),
+    url("/ourfonts/push-pickup.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+[data-fontasticicon]:before {
+  font-family: "push-pickup" !important;
+  content: attr(data-fontasticicon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class*="fontasticicon-"]:before {
+  font-family: "push-pickup" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.fontasticicon-cog:before {
+   content: "a";
+}
+
+.fontasticicon-search:before {
+   content: "b";
+}
+
+.fontasticicon-add-friend:before {
+   content: "c";
+}
+
+.fontasticicon-frisbee:before {
+   content: "d";
+}
+
+.fontasticicon-basketball:before {
+   content: "e";
+}
+
+.fontasticicon-soccerball:before {
+   content: "f";
+}
+
+.fontasticicon-cancel:before {
+   content: "k";
+}
+
+.fontasticicon-cancel-circled:before {
+   content: "l";
+}
+
+.fontasticicon-left-open:before {
+   content: "g";
+}
+
+.fontasticicon-down-open:before {
+   content: "h";
+}
+
+.fontasticicon-right-open:before {
+   content: "i";
+}
+
+.fontasticicon-up-open:before {
+   content: "j";
+}
+
+.fontasticicon-location:before {
+   content: "m";
+}
+
+.fontasticicon-link:before {
+   content: "n";
+}
+
+.fontasticicon-check:before {
+   content: "o";
+}
+
+.fontasticicon-validated-checkmark:before {
+   content: "p";
+}
+
+.fontasticicon-eye:before {
+   content: "q";
+}

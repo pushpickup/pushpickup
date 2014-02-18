@@ -142,12 +142,12 @@ Meteor.methods({
   // see unauthenticated.addGame for when this.userId is null
   addGame: function (game) {
     var self = this;
-    var user = Meteor.user();
+    var user = Meteor.users.findOne(self.userId);
     check(game, ValidGame);
 
     if (game.location.name.length > 100)
       throw new Meteor.Error(413, "Location name too long");
-    if (game.note.length > 1000)
+    if (game.note.length > 250)
       throw new Meteor.Error(413, "Game note too long");
 
     game = _.extend(game, {

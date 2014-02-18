@@ -88,6 +88,16 @@ geoUtils.toGeoJSONPolygon = function (latLngBounds) {
                    [NE.lng(), SW.lat()], [SW.lng(), SW.lat()],
                    firstAndLast]]};
 };
+geoUtils.toGeoJSONMultiPoint = function (latLngBounds) {
+  var SW = latLngBounds.getSouthWest();
+  var NE = latLngBounds.getNorthEast();
+  SW = [SW.lng(), SW.lat()];
+  NE = [NE.lng(), NE.lat()];
+  return {
+    type: "MultiPoint",
+    coordinates: [SW, NE]
+  };
+};
 
 // When the user selects a city, get the place details for the city and
 // zoom the map in on the city.
@@ -1140,7 +1150,7 @@ Template.editableGame.helpers({
       return t.value < +moment() || t.value > +moment().add('weeks', 1);
     });
     return Template.selectForm({label: 'Time', id: 'gameTime',
-                                     options: them});
+                                options: them});
   },
   selectStatus: function () {
     var self = this;
@@ -1152,7 +1162,7 @@ Template.editableGame.helpers({
       };
     });
     return Template.selectForm({label: 'Status', id: 'gameStatus',
-                                     options: them});
+                                options: them});
   },
   selectDay: function () {
     var self = this;

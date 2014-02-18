@@ -35,7 +35,7 @@
     {{#if SEql 'searching' 'not'}}
       {{> settings}}
       {{> startSearch}}
-      {{> addGame}}
+      {{> addGameLink}}
     {{else}}
       {{> searchBacktrack}}
       {{> searchInput}}
@@ -95,7 +95,9 @@
     {{> whoIsPlaying}}
     <div class="place">
       <div class="place-name">{{placeName}}</div>
-      <div class-"place-location">{{placeLocation}}</div>
+      {{#if SEql 'soloGame' _id}}
+        <div class-"place-location">{{placeLocation}}</div>
+      {{/if}}
     </div>
     {{#if SEql 'soloGame' _id}}
       <div class="organizer-info">
@@ -124,8 +126,7 @@
 
 <template name="addFriendsLink">
   <div class="add-friends-link">
-    <a><span class="glyphicon glyphicon-user"></span>
-      <span class="glyphicon glyphicon-plus"></span></a>
+    <a><span class="fontasticicon-add-friend"></span></a>
   </div>
 </template>
 
@@ -245,9 +246,9 @@
   </div>
 </template>
 
-<template name="addGame">
-  <div class="add-game">
-    <a>Add game</a>
+<template name="addGameLink">
+  <div class="add-game-link">
+    {{#link route="devAddGame"}}Add game{{/link}}
   </div>
 </template>
 
@@ -298,7 +299,7 @@
   <div class="findings-map">
   {{#constant}}
     <div class="findings-map-wrapper">
-      <div class="findings-map-canvas"></div>
+      <div class="findings-map-canvas map-canvas"></div>
     </div>
   {{/constant}}
   </div>
@@ -413,7 +414,7 @@
   <div class="solo-game-map">
     {{#constant}}
       <div class="solo-game-map-wrapper">
-        <div class="solo-game-map-canvas"></div>
+        <div class="solo-game-map-canvas map-canvas"></div>
       </div>
     {{/constant}}
   </div>
@@ -497,4 +498,111 @@
       <button type="submit" class="btn add-comment">Add Comment</button>
     </form>
   </div>
+</template>
+
+<template name="devEditableGame">
+  <div id="{{action}}Game">
+    <div class="header">
+      <div class="close pull-left"><span class="glyphicon glyphicon-remove"></span></div>
+      <h3 class="title">{{title}}</h3>
+    </div>
+    <div class="body">
+      <form id="{{action}}GameForm" role="form">
+        {{{addInfoOrSignInTo 'add this game'}}}
+        <div class="form-group">
+          {{{selectType}}}
+        </div>
+        <div class="form-group">
+          {{{selectDay}}}
+          {{{selectTime}}}
+        </div>
+        <div class="form-group">
+          {{> devSelectLocation}}
+        </div>
+        <div class="form-group">
+          {{#if editingGame}}
+            {{> soloGameMap}}
+          {{else}}
+            {{> addGameMap}}
+          {{/if}}
+        </div>
+        <div class="form-group requested">
+            <div class="input-group">
+              <span class="input-group-addon">Players needed</span>
+              <input type="number" class="form-control players" min="0"
+                     value="{{#if requested.players}}{{requested.players}}{{else}}10{{/if}}"
+                     required>
+            </div>
+        </div>
+        {{#if atLeastOnePlayer}}
+          <div class="form-group gamePlayers">
+            <label class="control-label">Who</label>
+            <div>
+              <p class="form-control-static">
+                {{#each players}}
+                  <input type="checkbox" class="hidden" id="{{name}}"
+                         value="{{name}}">
+                  <label for="{{name}}">
+                    {{name}}{{#if verified}} (verified) {{/if}}
+                    &times;
+                  </label>
+                {{/each}}
+              </p>
+              <span class="help-block">
+                Click names to mark players for removal.
+              </span>
+            </div>
+          </div>
+        {{/if}}
+        <div class="form-group">
+          <label for="gameNote" class="control-label">Details (250 characters max)</label>
+          <textarea class="form-control" id="gameNote"
+                    placeholder="Does anybody need to bring equipment or a field fee?"
+                    maxlength="250">{{note}}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="inviteFriends" class="control-label">Invite friends</label>
+          <textarea class="form-control" id="inviteFriends"
+                    placeholder="example@gmail.com, another@gmail.com"
+                    >{{invitedFriends}}</textarea>
+        </div>
+        <!-- <p class="form-control-static"> -->
+        <!--   Please let players contact you (your email address -->
+        <!--   will not be visible to them; we will forward messages -->
+        <!--   to you). Your game will not be visible to others until -->
+        <!--   you verify your email address (confirmation sent from -->
+        <!--   support@pushpickup.com). Thanks! -->
+        <!-- </p> -->
+        {{{alerts}}}
+        <button for="{{action}}GameForm" type="submit" class="btn {{action}}-game">
+          {{submit}}
+        </button>
+        {{#if editingGame}}
+          <button for="{{action}}GameForm" class="btn remove">Cancel game</button>
+        {{/if}}
+      </form>
+    </div>
+  </div>
+</template>
+
+<template name="devSelectLocation">
+  <div class="select-location">
+    <div class="input-group">
+      <input class="form-control location" type="text" placeholder="Add Location"
+             required>
+      <span class="input-group-addon">
+        <span class="glyphicon glyphicon-map-marker"></span>
+      </span>
+    </div>
+  </div>
+</template>
+
+<template name="addGameMap">
+  {{#if SGet 'selectedLocationPoint'}}
+    <div class="add-game-map">
+      <div class="add-game-map-wrapper">
+        <div class="add-game-map-canvas map-canvas"></div>
+      </div>
+    </div>
+  {{/if}}
 </template>

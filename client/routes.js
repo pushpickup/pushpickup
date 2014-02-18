@@ -100,29 +100,6 @@ Meteor.startup(function () {
       }
     });
 
-    this.route('dev', {
-      template: 'devMain',
-      layoutTemplate: 'devLayout',
-      notFoundTemplate: 'devMain'
-    });
-
-    this.route('devDetail', {
-      path: '/dev/g/:_id',
-      layoutTemplate: 'devLayout',
-      waitOn: function () {
-        return Meteor.subscribe('game', this.params._id);
-      },
-      before: function () {
-        Session.set("soloGame", this.params._id);
-      },
-      data: function () {
-        return Games.findOne(this.params._id);
-      },
-      unload: function () {
-        Session.set("soloGame", null);
-      }
-    });
-
     this.route('home', {
       path: '/',
 
@@ -269,6 +246,88 @@ Meteor.startup(function () {
         Session.set("pageNum", 0);
         Session.set("editingGame", false);
         Session.set("selectedLocationPoint", null);
+      }
+    });
+
+    //// 'dev' routes
+    //
+    // Routes for the next beta release of the site,
+    // accessible via '/dev'
+
+    // the home page. listing and searching for games
+    this.route('dev', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      notFoundTemplate: 'devMain'
+    });
+
+    // typical user interaction with a single game
+    this.route('devDetail', {
+      path: '/dev/g/:_id',
+      layoutTemplate: 'devLayout',
+      waitOn: function () {
+        return Meteor.subscribe('game', this.params._id);
+      },
+      before: function () {
+        Session.set("soloGame", this.params._id);
+      },
+      data: function () {
+        return Games.findOne(this.params._id);
+      },
+      unload: function () {
+        Session.set("soloGame", null);
+      }
+    });
+
+    this.route('devAddGame', {
+      path: '/dev/addGame',
+      template: 'devEditableGame',
+      layoutTemplate: 'devLayout',
+      data: function () {
+        return {
+          action: 'add',
+          title: 'Add game',
+          submit: 'Add game'
+        };
+      },
+      unload: function () {
+        Session.set("selectedLocationPoint", null);
+      }
+    });
+
+    this.route('devEditGame', {
+      path: '/dev/editGame/:_id',
+      template: 'devEditableGame',
+      layoutTemplate: 'devLayout',
+      waitOn: function () {
+        return Meteor.subscribe('game', this.params._id);
+      },
+      before: [
+        filters.mustBeSignedIn,
+        function () {
+          Session.set("soloGame", this.params._id);
+        }
+      ],
+      data: function () {
+        return _.extend({
+          action: 'edit',
+          title: 'Edit game',
+          submit: 'Update game'
+        }, Games.findOne(this.params._id));
+      },
+      action: function () {
+        var self = this;
+        if (Meteor.userId() === self.getData().creator.userId) {
+          self.render();
+        } else {
+          Meteor.call("getDonnyId", function (error, result) {
+            if (!error && Meteor.userId() === result) {
+              self.render();
+            } else {
+              self.render('home');
+            }
+          });
+        }
       }
     });
 

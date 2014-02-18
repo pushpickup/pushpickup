@@ -1,13 +1,14 @@
 @import "/packages/bootstrap3-less/bootstrap.lessimport";
 
-.findings-map-canvas, .solo-game-map-canvas {
+.map-canvas {
   width: auto;
   height: 150px;
 }
 
 button {
   &.join-game, &.sign-in-inline,
-  &.add-friends, &.add-comment {
+  &.add-friends, &.add-comment,
+  &.subscribe, &.add-game {
     .btn-primary;
     .btn-lg;
     .btn-block;
@@ -17,11 +18,6 @@ button {
     .btn-lg;
     .btn-block;
     background-color: rgba(0, 0, 0, 0.25);
-  }
-  &.subscribe {
-    .btn-primary;
-    .btn-lg;
-    .btn-block;
   }
 }
 
