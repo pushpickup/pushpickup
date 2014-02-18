@@ -1103,14 +1103,41 @@ Template.devEditableGame.events({
         console.log(e.message);
         var result = /Match error: (.*) in field (.*)/.exec(e.message);
         if (result[2] === 'location.name') {
-          Session.set("need_location_set", result[1]);
+          Alerts.throw({
+            message: "Your game location needs a name.",
+            type: "danger", where: "editableGame"
+          });
         } else if (result[2] === 'location.geoJSON') {
-          Session.set("need_location_set",
-                      "Your game needs a location.");
+          Alerts.throw({
+            message: "Your game needs a location. A map will appear when you've selected one.",
+            type: "danger", where: "editableGame",
+            autoremove: 5000
+          });
         }
       }
       return;
     }
+    var inviteEmails = template.find("#inviteFriends").value
+          .replace(/\s+/,'').split(",");
+
+    // Hitting <RET> in the textarea produces a strange character:
+    // String.fromCharCode(8629) (a "↵"), that is not matched by /\s+/
+    // above, so for now I do a heavy trim according to the ValidEmail
+    // format. -DW, using google chrome 32.0.1700.107 on osx mavericks
+    inviteEmails = _.map(inviteEmails, function (email) {
+      email = _.string.ltrim(email, /[^a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]/);
+      email = _.string.rtrim(email, /[^a-zA-Z0-9-]/);
+      return email;
+    });
+    if (! Match.test(_.compact(inviteEmails), [ValidEmail])) {
+      Alerts.throw({
+        message: "Invite friends by listing only email addresses, " +
+          "each separated by a comma.",
+        type: "danger", where: "editableGame"
+      });
+      return;
+    }
+    // TODO: actually invite friends upon successful adding of game
     if (! Meteor.userId()) {
       var email = template.find("input.email").value;
       var fullNameInput = template.find("input.full-name");
