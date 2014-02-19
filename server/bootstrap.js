@@ -1,19 +1,14 @@
-// // Game generator
-// var insertGame = (function () {
-//   // within the default map bounds (berkeley, ca)
-//   var lngBnds = {gte: -122.409603, lt: 122.134944};
-//   var latBnds = {gte: 37.774920, lt: 37.937563};
-// })();
+// Populate the database with sample users and games
 
-// get n random players
-var getNPlayers = (function () {
-  var names = ["Shirl", "Camilla", "Blondell", "Shaunta", "Simone", "Riley", "Daniele", "Jefferson", "Jewell", "Olen", "Ira", "Ona", "Harriet", "Sheron", "Adriane", "Geri", "Hettie", "Clara", "Melita", "Soo", "Allyn", "Lissette", "Latrisha", "Holly", "Arnette", "Takako", "Lezlie", "Lashaun", "May", "Francis", "Dacia", "Katharine", "Max", "Kristan", "Shiela", "Lora", "Honey", "Sade", "Pok", "Harriette", "Vivan", "Dusty", "Nelly", "Clora", "Jolyn", "Caroline", "Cindie", "Judie", "Alma", "Virgilio"];
-  return function (n) {
-    return _.map(_.sample(names, n), function (name) {
-      return {name: name, rsvp: "in"};
-    });
-  };
-})();
+// example player names
+var names = ["Shirl", "Camilla", "Blondell", "Shaunta", "Simone", "Riley", "Daniele", "Jefferson", "Jewell", "Olen", "Ira", "Ona", "Harriet", "Sheron", "Adriane", "Geri", "Hettie", "Clara", "Melita", "Soo", "Allyn", "Lissette", "Latrisha", "Holly", "Arnette", "Takako", "Lezlie", "Lashaun", "May", "Francis", "Dacia", "Katharine", "Max", "Kristan", "Shiela", "Lora", "Honey", "Sade", "Pok", "Harriette", "Vivan", "Dusty", "Nelly", "Clora", "Jolyn", "Caroline", "Cindie", "Judie", "Alma", "Virgilio"];
+
+// retrieve n players. useful for adding players to a game in one swoop
+var getNPlayers = function (n) {
+  return _.map(_.sample(Meteor.users.find().fetch(), n), function (user) {
+    return {userId: user._id, name: user.profile.name, rsvp: "in"};
+  });
+};
 
 // Helper function for parsing relative start times
 var asMoments = function (relativeStartsAts) {
@@ -27,8 +22,21 @@ var asMoments = function (relativeStartsAts) {
   });
 };
 
-// Populate games db from Assets
+// Populate users db from names above, and populate games db from Assets
 bootstrap = function () {
+
+  // for each name, create a user with a verified email address
+  _.forEach(names, function (name) {
+    var id = Accounts.createUser({
+      // Example names above are not full names, but defensively
+      // replace spaces with periods below.
+      email: name.toLowerCase().replace(/\s/,'.') + "@pushpickup.com",
+      password: "foobar", profile: {name: name}
+    });
+    Meteor.users.update(id, {$set: {'emails.0.verified': true}});
+  });
+
+  // establish donny, a power user (can edit any game)
   var donny = Meteor.users.findOne({
     'emails.address': 'donny@pushpickup.com'
   });
@@ -39,10 +47,8 @@ bootstrap = function () {
       password: 'foobar',
       profile: {name: 'Donny Winston'}
     });
-    Meteor.users.update(donnyId, {$set: {emails: [{
-      address: "donny@pushpickup.com", verified: true
-    }]}});
   }
+  Meteor.users.update(donnyId, {$set: {'emails.0.verified': true}});
 
   var types = _.pluck(GameOptions.find({option: "type"}).fetch(), 'value');
 

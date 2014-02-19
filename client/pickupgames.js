@@ -661,10 +661,12 @@ Template.addUserSubMessage.helpers({
   // assumes singular helpers are only invoked when Session.get("soloGame")
   // returns a valid game id.
   type: function () {
-    return Games.findOne(Session.get("soloGame")).type;
+    var game = Games.findOne(Session.get("soloGame"));
+    return game && game.type;
   },
   day: function () {
-    return moment(Games.findOne(Session.get("soloGame")).startsAt).format('dddd');
+    var game = Games.findOne(Session.get("soloGame"));
+    return game && moment(game.startsAt).format('dddd');
   }
 });
 

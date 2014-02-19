@@ -52,8 +52,9 @@ Meteor.startup(function () {
 
   })();
 
-  if (development && Games.find().count() === 0) {
-    bootstrap(); // Populate Games from Assets
+  if (development && Games.find().count() === 0 &&
+      Meteor.users.find().count() === 0) {
+    bootstrap(); // Populate Users, and Games from Assets
   }
 
   // start observers
