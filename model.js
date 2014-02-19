@@ -278,6 +278,19 @@ Meteor.methods({
   leaveGame: function (gameId) {
     var self = this;
     Games.update(gameId, {$pull: {players: {userId: self.userId}}});
+    Games.update(gameId, {$pull: {players: {
+      friendId: self.userId,
+      userId: {$exists: false}
+    }}}, function (error, result) {
+      if (self.isSimulation && (! error) && result > 0) {
+        // `result` is the number of friends removed
+        Alerts.throw({
+          message: "The friends you added to this game without " +
+            "email addresses have been removed.",
+        type: "warning", where: gameId
+        });
+      }
+    });
   },
   addComment: function (message, gameId) {
     if (! Match.test(message, NonEmptyString)) {
