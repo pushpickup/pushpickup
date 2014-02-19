@@ -31,29 +31,8 @@ Meteor.startup(function () {
     });
   }
 
-  // Overwrite meteor/packages/accounts-base/url_server.js
-  // so that accounts routes work with iron-router.
-  // Idea from samhatoum (4th comment on
-  // https://github.com/EventedMind/iron-router/issues/3).
-  (function () {
-    "use strict";
-
-    Accounts.urls.resetPassword = function (token) {
-      return Meteor.absoluteUrl('reset-password#' + token);
-    };
-
-    Accounts.urls.verifyEmail = function (token) {
-      return Meteor.absoluteUrl('verify-email#' + token);
-    };
-
-    Accounts.urls.enrollAccount = function (token) {
-      return Meteor.absoluteUrl('enroll-account#' + token);
-    };
-
-  })();
-
-  if (development && Games.find().count() === 0 &&
-      Meteor.users.find().count() === 0) {
+  if (development && (Games.find().count() === 0)
+      && (Meteor.users.find().count() === 0)) {
     bootstrap(); // Populate Users, and Games from Assets
   }
 
@@ -61,3 +40,7 @@ Meteor.startup(function () {
   observers.gameOnObserver();
   observers.gameAddedNotifier();
 });
+// When this trailing comment is removed, the following error occurs:
+//
+// While building the application:
+// server/main.js:43:1: Unexpected token ));

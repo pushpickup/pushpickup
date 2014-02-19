@@ -146,9 +146,8 @@ Meteor.methods
             friendId: userId
             userId: newUserId
             rsvp: "in"
-        # TODO: indicate in enrollment email that a friend
-        # may have added them to the game
-        Accounts.sendEnrollmentEmail newUserId, friend.email
+        sendEnrollmentEmail newUserId, friend.email, "addedAsFriend",
+          gameId: gameId, adderId: userId
     maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
     self = this
