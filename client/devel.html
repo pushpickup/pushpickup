@@ -507,7 +507,11 @@
 <template name="devEditableGame">
   <div id="{{action}}Game">
     <div class="header">
-      <div class="close pull-left"><span class="glyphicon glyphicon-remove"></span></div>
+      <div class="close pull-left">
+        {{#link route="dev"}}
+          <span class="glyphicon glyphicon-remove"></span>
+        {{/link}}
+      </div>
       <h3 class="title">{{title}}</h3>
     </div>
     <div class="body">

@@ -1206,10 +1206,6 @@ Template.devEditableGame.events({
       });
     }
   },
-  "click .close": function (evt) {
-    evt.preventDefault(); // this bubbles to trigger "submit #addGameForm"!
-    Router.go('dev');
-  },
   "click .remove": function (evt, templ) {
     evt.preventDefault();
     if (confirm("Really cancel game? Players will be notified.")) {
