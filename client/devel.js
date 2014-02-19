@@ -788,7 +788,7 @@ Template.joinOrLeave.events({
   }
 });
 
-Template.whosPlayingSummary.helpers({
+var whosPlayingHelpers = {
   userPlayers: function () {
     var isUser = function (player) { return !! player.userId; };
     return _.select(this.players, isUser);
@@ -796,13 +796,15 @@ Template.whosPlayingSummary.helpers({
   friends: function (players) {
     var self = this;
     return _.select(players, function (p) {
-      return p.friendId === self.userId;
+      return (! p.userId) && p.friendId === self.userId;
     });
   },
   numFriends: function () {
     return this.length;
   }
-});
+};
+Template.whosPlayingSummary.helpers(whosPlayingHelpers);
+Template.whosPlayingEditable.helpers(whosPlayingHelpers);
 
 Template.editGameLink.helpers({
   isCreator: function () {
@@ -1042,18 +1044,20 @@ Template.devEditableGame.events({
   "submit #editGameForm": function (evt, templ) {
     var self = this;
     evt.preventDefault();
-    var marked = $(templ.findAll(".gamePlayers input:checked"))
+    var markedIds = $(templ.findAll(".gamePlayers input:checked"))
           .map(function () { return this.value; }).get();
     var remainingPlayers = _.reject(self.players, function (p) {
-      return _.contains(marked, p.name);
+      return _.contains(markedIds, p.userId || (! p.userId) && p.friendId);
     });
     Meteor.call("editGame", Session.get("soloGame"), {
       type: templ.find("#gameType").value,
-      status: templ.find("#gameStatus").value,
+      // status depends on (requested.players - players.length)
       startsAt: new Date(+templ.find("#gameTime").value),
-      location: {name: templ.find("#locationSearchBox").value,
-                 geoJSON: Session.get("selectedLocationPoint") ||
-                 Games.findOne(Session.get("soloGame")).location.geoJSON},
+      location: {
+        name: simplifyLocation(templ.find(".select-location input").value),
+        geoJSON: Session.get("selectedLocationPoint") ||
+          Games.findOne(Session.get("soloGame")).location.geoJSON
+      },
       note: templ.find("#gameNote").value,
       players: remainingPlayers,
 
@@ -1061,10 +1065,10 @@ Template.devEditableGame.events({
       comments: self.comments,
 
       requested: selectorValuesFromTemplate({
-        players: [".requested input.players", asNumber]
+        players: ["#requestedNumPlayers", asNumber]
       }, templ)
     });
-    Router.go('home');
+    Router.go('devDetail', {_id: self._id});
   },
   "keypress .select-location input": function (event, template) {
     if (event.which === 13) { // <RET> pressed
@@ -1078,7 +1082,7 @@ Template.devEditableGame.events({
     event.preventDefault();
     var game = {
       type: template.find("#gameType").value,
-      status: "proposed",
+      // status depends on requested.players
       startsAt: new Date(+template.find("#gameTime").value),
       location: {
         name: simplifyLocation(template.find(".select-location input").value),
@@ -1091,6 +1095,11 @@ Template.devEditableGame.events({
         players: ["#requestedNumPlayers", asNumber]
       }, template)
     };
+    if (game.requested.players === 0) {
+      game.status = "on";
+    } else {
+      game.status = "proposed";
+    }
     try {
       check(game, ValidGame);
     } catch (e) {

@@ -157,6 +157,11 @@ Meteor.methods({
   },
   editGame: function (id, game) {
     var self = this;
+    if (game.requested.players === 0) {
+      game.status = "on";
+    } else {
+      game.status = "proposed";
+    }
     check(game, ValidGame);
     var oldGame = Games.findOne(id);
     var isCreator = Match.test(

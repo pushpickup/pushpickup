@@ -535,22 +535,9 @@
         </div>
         {{#if atLeastOnePlayer}}
           <div class="form-group gamePlayers">
-            <label class="control-label">Who</label>
-            <div>
               <p class="form-control-static">
-                {{#each players}}
-                  <input type="checkbox" class="hidden" id="{{name}}"
-                         value="{{name}}">
-                  <label for="{{name}}">
-                    {{name}}{{#if verified}} (verified) {{/if}}
-                    &times;
-                  </label>
-                {{/each}}
+                {{> whosPlayingEditable}}
               </p>
-              <span class="help-block">
-                Click names to mark players for removal.
-              </span>
-            </div>
           </div>
         {{/if}}
         <div class="form-group">
@@ -581,6 +568,27 @@
         {{/if}}
       </form>
     </div>
+  </div>
+</template>
+
+<template name="whosPlayingEditable">
+  <div class="whos-playing-editable">
+    <strong>{{players.length}} playing</strong>
+    <ul>
+      {{#each userPlayers}}
+        <li>
+          <input type="checkbox" class="hidden" id="{{userId}}"
+                 value="{{userId}}">
+          <label for="{{userId}}">
+            {{name}}
+            {{#with friends ../players}}
+              + {{numFriends}}
+            {{/with}}
+            <span class="text-danger">remove</span>
+          </label>
+        </li>
+      {{/each}}
+    </ul>
   </div>
 </template>
 
