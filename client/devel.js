@@ -1214,7 +1214,7 @@ Template.devEditableGame.events({
     evt.preventDefault();
     if (confirm("Really cancel game? Players will be notified.")) {
       Meteor.call("cancelGame", Session.get("soloGame"));
-      Router.go('home');
+      Router.go('dev');
     }
   }
 });
