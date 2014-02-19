@@ -40,7 +40,3 @@ Meteor.startup(function () {
   observers.gameOnObserver();
   observers.gameAddedNotifier();
 });
-// When this trailing comment is removed, the following error occurs:
-//
-// While building the application:
-// server/main.js:43:1: Unexpected token ));
