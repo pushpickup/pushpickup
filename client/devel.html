@@ -354,7 +354,7 @@
 </template>
 
 <template name="devDetailNav">
-  <div class="dev-detail-nav">
+  <div class="dev-detail-nav row">
     {{> backToList}}
     {{> gameTypeIndicator}}
     {{> shareGameLink}}
@@ -400,7 +400,7 @@
 </template>
 
 <template name="devDetailBody">
-  <div class="dev-detail-body">
+  <div class="dev-detail-body row">
     {{> soloGameMap}}
     {{> gameSummary}}
     {{#if userInGame}} {{> addFriendsLink}} {{/if}}
