@@ -21,10 +21,8 @@ var getUserLocation = function () {
                         position.coords.latitude]
       };
       Session.set("current-location", point);
-      if (Session.equals("searching", "during")) {
-        Session.set("selectedLocationPoint", point);
-        Session.set("selectedLocationName", "Current Location");
-      }
+      Session.set("selectedLocationPoint", point);
+      Session.set("selectedLocationName", "Current Location");
     }, function() {
       alert('Error: The Geolocation service failed.');
     });
