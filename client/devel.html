@@ -102,8 +102,8 @@
 
 <template name="gameTypeIndicator">
   <div class="game-type-indicator">
-    <img class="game-type" src="/game_types/{{type}}-26.png"
-         alt="{{type}}" title="{{type}}">
+    <span class="ppicon-{{type}}"></span>
+    <!-- TODO: remove /game_types/*.png files from repo -->
   </div>
 </template>
 
@@ -168,7 +168,7 @@
 
 <template name="addFriendsLink">
   <div class="add-friends-link">
-    <a><span class="fontasticicon-add-friend"></span></a>
+    <a><span class="ppicon-add-friend"></span></a>
   </div>
 </template>
 
@@ -277,15 +277,13 @@
 
 <template name="settings">
   <div class="settings">
-    {{#if currentUser}}
-      <span class="glyphicon glyphicon-cog"></span>
-    {{/if}}
+    <span class="ppicon-cog"></span>
   </div>
 </template>
 
 <template name="startSearch">
   <div class="start-search">
-    <span class="glyphicon glyphicon-search"></span>
+    <span class="ppicon-search"></span>
   </div>
 </template>
 
@@ -307,7 +305,7 @@
 
 <template name="exitSearch">
   <div class="exit-search">
-    <span class="glyphicon glyphicon-remove"></span>
+    <span class="ppicon-cancel"></span>
   </div>
 </template>
 
@@ -331,13 +329,13 @@
 
 <template name="back">
   <div class="back">
-    <span class="glyphicon glyphicon-chevron-left"></span>
+    <span class="ppicon-left-open"></span>
   </div>
 </template>
 
 <template name="clearSearch">
   <div class="clear-search">
-    <span class="glyphicon glyphicon-remove"></span>
+    <span class="ppicon-cancel"></span>
   </div>
 </template>
 
@@ -408,7 +406,7 @@
 <template name="backToList">
   <div class="back-to-list">
     {{#link route="dev"}}
-      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="ppicon-left-open"></span>
       Pickups
     {{/link}}
   </div>
@@ -416,7 +414,7 @@
 
 <template name="shareGameLink">
   <div class="share-game-link">
-    <a><span class="glyphicon glyphicon-link"></span>
+    <a><span class="ppicon-link"></span>
       Share</a>
   </div>
 </template>
@@ -424,7 +422,7 @@
 <template name="copyGameLink">
   <div class="copy-game-link">
     {{#if SEql 'copy-game-link' _id}}
-      <span class="glyphicon glyphicon-link"></span>
+      <span class="ppicon-link"></span>
       <input type="text"
              value="{{baseURL}}{{pathFor 'devDetail'}}"
              autofocus>
@@ -551,7 +549,7 @@
     <div class="header">
       <div class="close pull-left">
         {{#link route="dev"}}
-          <span class="glyphicon glyphicon-remove"></span>
+          <span class="ppicon-cancel"></span>
         {{/link}}
       </div>
       <h3 class="title">{{title}}</h3>
@@ -645,7 +643,7 @@
              value="{{location.name}}"
              required>
       <span class="input-group-addon">
-        <span class="glyphicon glyphicon-map-marker"></span>
+        <span class="ppicon-location"></span>
       </span>
     </div>
   </div>
