@@ -230,6 +230,9 @@ Template.listedGame.helpers({
 });
 
 Template.whoIsPlaying.helpers({
+  organizing: function () {
+    return this.creator.userId == Meteor.userId();
+  },
   playing: function () {
     return _.contains(_.pluck(this.players, 'userId'), Meteor.userId());
   },

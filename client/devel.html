@@ -140,15 +140,22 @@
 
 <template name="whoIsPlaying">
   <div class="who-is-playing">
-    {{#if playing}}
-      <strong class="text-success">
-        {{participle startsAt past='Played' present='Playing'}}
+    {{#if organizing}}
+      <strong class="text-info">
+        {{participle startsAt past='Organized' present='Organizing'}}
       </strong>
       + {{numNeeded}} needed
     {{else}}
-      {{players.length}}
-      {{participle startsAt past='played' present='playing'}}
-      ({{numNeeded}} needed)
+      {{#if playing}}
+        <strong class="text-success">
+          {{participle startsAt past='Played' present='Playing'}}
+        </strong>
+        + {{numNeeded}} needed
+      {{else}}
+        {{players.length}}
+        {{participle startsAt past='played' present='playing'}}
+        ({{numNeeded}} needed)
+      {{/if}}
     {{/if}}
   </div>
 </template>
