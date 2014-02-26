@@ -277,13 +277,20 @@ Meteor.methods({
   },
   leaveGame: function (gameId) {
     var self = this;
+    var game = Games.findOne(gameId);
+    if (!game)
+      throw new Meteor.Error(404, "Game not found.");
     Games.update(gameId, {$pull: {players: {userId: self.userId}}});
+    var numNonUserFriends = _.filter(game.players, function (p) {
+      return p.friendId === self.userId && !p.userId;
+    }).length;
     Games.update(gameId, {$pull: {players: {
       friendId: self.userId,
       userId: {$exists: false}
     }}}, function (error, result) {
-      if (self.isSimulation && (! error) && result > 0) {
-        // `result` is the number of friends removed
+      // `result` will always return 1, unfortunately, so need
+      // to calculate and use `numNonUserFriends`
+      if (self.isSimulation && (! error) && numNonUserFriends > 0) {
         Alerts.throw({
           message: "The friends you added to this game without " +
             "email addresses have been removed.",

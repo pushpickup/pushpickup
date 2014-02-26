@@ -3,9 +3,10 @@
 // example player names
 var names = ["Shirl", "Camilla", "Blondell", "Shaunta", "Simone", "Riley", "Daniele", "Jefferson", "Jewell", "Olen", "Ira", "Ona", "Harriet", "Sheron", "Adriane", "Geri", "Hettie", "Clara", "Melita", "Soo", "Allyn", "Lissette", "Latrisha", "Holly", "Arnette", "Takako", "Lezlie", "Lashaun", "May", "Francis", "Dacia", "Katharine", "Max", "Kristan", "Shiela", "Lora", "Honey", "Sade", "Pok", "Harriette", "Vivan", "Dusty", "Nelly", "Clora", "Jolyn", "Caroline", "Cindie", "Judie", "Alma", "Virgilio"];
 
+var examplePlayers;
 // retrieve n players. useful for adding players to a game in one swoop
 var getNPlayers = function (n) {
-  return _.map(_.sample(Meteor.users.find().fetch(), n), function (user) {
+  return _.map(_.sample(examplePlayers, n), function (user) {
     return {userId: user._id, name: user.profile.name, rsvp: "in"};
   });
 };
@@ -22,6 +23,12 @@ var asMoments = function (relativeStartsAts) {
   });
 };
 
+// flips a coin to return the same moment or one shifted a week earlier.
+var randomlyPastOrFuture = function (m) {
+  return (Random.fraction() < 0.5) ?
+    m : moment(m).subtract('weeks', 1);
+};
+
 // Populate users db from names above, and populate games db from Assets
 bootstrap = function () {
 
@@ -36,19 +43,24 @@ bootstrap = function () {
     Meteor.users.update(id, {$set: {'emails.0.verified': true}});
   });
 
+  // inserted test games will not include donny@pushpickup.com as a player
+  examplePlayers = Meteor.users.find().fetch();
+
   // establish donny, a power user (can edit any game)
-  var donny = Meteor.users.findOne({
-    'emails.address': 'donny@pushpickup.com'
+  var donnyId = Accounts.createUser({
+    email: 'donny@pushpickup.com',
+    password: 'foobar',
+    profile: {name: 'Donny Winston'}
   });
-  var donnyId = donny && donny._id;
-  if (!donnyId) {
-    donnyId = Accounts.createUser({
-      email: 'donny@pushpickup.com',
-      password: 'foobar',
-      profile: {name: 'Donny Winston'}
-    });
-  }
   Meteor.users.update(donnyId, {$set: {'emails.0.verified': true}});
+
+  // establish Tim Tester, who creates test games
+  var timId = Accounts.createUser({
+    email: 'tim.tester@pushpickup.com',
+    password: 'foobar',
+    profile: {name: 'Tim Tester'}
+  });
+  Meteor.users.update(timId, {$set: {'emails.0.verified': true}});
 
   var types = _.pluck(GameOptions.find({option: "type"}).fetch(), 'value');
 
@@ -58,7 +70,8 @@ bootstrap = function () {
     var location = {geoJSON: feature.geometry,
                     name: feature.properties.name};
     var note = feature.properties.note;
-    var startsAts = asMoments(feature.properties.startsAts);
+    var startsAts = _.map(asMoments(feature.properties.startsAts),
+                          randomlyPastOrFuture);
     var requested = {};
     var players = [];
     var statuses = _.pluck(GameOptions.find({option: "status"}).fetch(),
@@ -66,7 +79,7 @@ bootstrap = function () {
     _.each(startsAts, function (startsAt) {
       requested.players = _.random(2,14);
       players = getNPlayers(_.random(requested.players - 1));
-      Games.insert({creator: {name: "Donny Winston", userId: donnyId},
+      Games.insert({creator: {name: "Tim Tester", userId: timId},
                     notificationsSent: true,
                     type: _.sample(types),
                     status: _.sample(statuses),

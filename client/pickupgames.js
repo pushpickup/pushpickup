@@ -34,16 +34,10 @@ Session.setDefault("selectedLocationPoint", null);
 Session.setDefault("selectedLocationName", null);
 Session.setDefault("addingGame", false);
 Session.setDefault("editingGame", false);
-
-var gameOptionsHandle = Meteor.subscribe("game_options");
-Deps.autorun(function (c) {
-  if (gameOptionsHandle.ready()) {
-    Session.setDefault(
-      "gameTypes",
-      _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'));
-    c.stop();
-  }
-});
+Session.setDefault(
+  "gameTypes",
+  _.pluck(GameOptions.find({option: "type"}).fetch(), 'value')
+);
 
 var donnyId;
 Meteor.call("getDonnyId", function (error, result) {
@@ -52,6 +46,9 @@ Meteor.call("getDonnyId", function (error, result) {
 
 // subscribe to games
 Deps.autorun(function () {
+  if (Session.equals("dev-mode", true))
+    return;
+
   var query = {};
   query.dateRanges = Session.get("dateRanges");
   query.geoWithin  = Session.get("geoWithin");

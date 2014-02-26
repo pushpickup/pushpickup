@@ -1,14 +1,104 @@
-var gameOptionsHandle = Meteor.subscribe("game_options");
-Deps.autorun(function (c) {
-  if (gameOptionsHandle.ready()) {
-    Session.setDefault(
-      "game-types",
-      _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'));
-    c.stop();
-  }
-});
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
+Session.setDefault("current-location", {
+	"type" : "Point",
+  // San Pablo Park, Berkeley, CA
+	"coordinates" : [-122.284786, 37.855271]
+});
+Session.setDefault(
+  "game-types",
+  _.pluck(GameOptions.find({option: "type"}).fetch(), 'value')
+);
+Session.setDefault("max-distance", 100000); // 100,000 m => 62 miles
+Session.setDefault("num-games-requested", 15);
+
+var getUserLocation = function () {
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var point = {
+        "type": "Point",
+        "coordinates": [position.coords.longitude,
+                        position.coords.latitude]
+      };
+      Session.set("current-location", point);
+      if (Session.equals("searching", "during")) {
+        Session.set("selectedLocationPoint", point);
+        Session.set("selectedLocationName", "Current Location");
+      }
+    }, function() {
+      alert('Error: The Geolocation service failed.');
+    });
+  } else {
+    console.log('Error: Your browser doesn\'t support geolocation.');
+  }
+};
+
+Meteor.startup(function () {
+  getUserLocation();
+});
+
+Deps.autorun(function () {
+  if (! Session.equals("dev-mode", true))
+    return;
+
+  if (! Session.equals("searching", "after")) {
+    // No map, so no map bounds to poll. Get games user is involved in
+    // and games upcoming and nearby. If there aren't many user-involved
+    // or nearby upcoming games, pull in nearby past games.
+
+    Deps.autorun(function () {
+      Meteor.userId() && Meteor.subscribe("user-games");
+    });
+
+    var nearbyUpcomingGamesHandle = null;
+    Deps.autorun(function () {
+      nearbyUpcomingGamesHandle = Meteor.subscribe(
+        "nearby-upcoming-games", Session.get("current-location"), {
+          types: Session.get("game-types"),
+          maxDistance: Session.get("max-distance"),
+          limit: Session.get("num-games-requested")
+        });
+    });
+
+    Deps.autorun(function () {
+      if (nearbyUpcomingGamesHandle.ready()) {
+        var numUpcoming = Games.find({startsAt: {$gte: new Date()}}).count();
+        var deficit =  Session.get("num-games-requested") - numUpcoming;
+        (deficit > 0) &&
+          Meteor.subscribe(
+            "nearby-past-games", Session.get("current-location"), {
+              types: Session.get("game-types"),
+              maxDistance: Session.get("max-distance"),
+              limit: deficit
+            });
+      }
+    });
+  } else {
+    // after searching -- findingsMap is rendered
+
+    var geoWithinUpcomingGamesHandle = null;
+    Deps.autorun(function () {
+      geoWithinUpcomingGamesHandle = Meteor.subscribe(
+        "geowithin-upcoming-games", Session.get("geoWithin"), {
+          types: Session.get("game-types"),
+          limit: Session.get("num-games-requested")
+        });
+    });
+
+    Deps.autorun(function () {
+      if (geoWithinUpcomingGamesHandle.ready()) {
+        var numUpcoming = Games.find({startsAt: {$gte: new Date()}}).count();
+        var deficit =  Session.get("num-games-requested") - numUpcoming;
+        (deficit > 0) &&
+          Meteor.subscribe(
+            "geowithin-past-games", Session.get("geoWithin"), {
+              types: Session.get("game-types"),
+              limit: deficit
+            });
+      }
+    });
+  }
+});
 
 var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
@@ -40,6 +130,13 @@ var handlebarsHelperMap = {
       return Template.addInfoOrSignIn({action: action});
     } else
       return "";
+  },
+  past: function (date) {
+    return date < new Date();
+  },
+  participle: function(date, options) {
+    check(options.hash, {past: String, present: String});
+    return (date < new Date()) ? options.hash.past : options.hash.present;
   }
 };
 (function (handlebarsHelperMap) {
@@ -48,6 +145,12 @@ var handlebarsHelperMap = {
   });
 })(handlebarsHelperMap);
 
+Template.devLayout.created = function () {
+  Session.set("dev-mode", true);
+};
+Template.layout.created = function () {
+  Session.set("dev-mode", false);
+};
 
 Template.devNav.events({
   'click .start-search': function () { Session.set('searching', 'during'); },
@@ -66,7 +169,15 @@ Template.devNav.events({
 });
 
 Template.listOfGames.helpers({
-  games: function () { return Games.find({}, {sort: {startsAt: 1}}); }
+  games: function () { return Games.find({}, {sort: {startsAt: 1}}); },
+  upcomingGames: function () {
+    return Games.find({'startsAt': {$gte: new Date()}},
+                      {sort: {startsAt: 1}});
+  },
+  pastGames: function () {
+    return Games.find({'startsAt': {$lt: new Date()}},
+                      {sort: {startsAt: -1}});
+  }
 });
 
 Template.listOfGames.events({
@@ -316,14 +427,6 @@ Template.gameSummary.helpers({
     var game = this;
     return _.string.capitalize(game.type);
   },
-  day: function () {
-    var game = this;
-    return moment(game.startsAt).format('ddd');
-  },
-  time: function () {
-    var game = this;
-    return moment(game.startsAt).format('h:mma');
-  },
   placeName: function () {
     var game = this;
     // return everything before first comma (if no comma, return everything)
@@ -337,6 +440,13 @@ Template.gameSummary.helpers({
     } else {
       return comma_separated[1];
     }
+  },
+  // diagnostic -- not intended for production use
+  placeDistance: function () {
+    return (0.00062137119 * gju.pointDistance(
+      this.location.geoJSON,
+      Session.get("current-location")
+    )).toFixed(1) + " mi"; // conversion from meters to miles
   }
 });
 
@@ -386,6 +496,13 @@ Template.searchInput.rendered = function () {
   google.maps.event.addListener(
     autocomplete, 'place_changed', onPlaceChanged); // call Meteor.method
 };
+
+Template.searchInput.events({
+  "click .geolocate a": function (evt, templ) {
+    getUserLocation();
+    templ.find('.search-input input').value = "Current Location";
+  }
+});
 
 var inputValue = function (element) { return element.value; };
 
@@ -914,17 +1031,22 @@ Template.authenticateAndComment.helpers({
 });
 
 Template.addInfoOrSignIn.helpers({
-  // action: function () {
-  //   return Session.get("unauth-action");
-  // }
+  email: function () { return Session.get("sign-in.email"); }
 });
 
 Template.addInfoOrSignIn.events({
-  "click .sign-in": function () { Session.set("sign-in", true); },
-  "click .add-info": function () { Session.set("sign-in", false); }
+  "click .sign-in": function (evt, templ) {
+    Session.set("sign-in.email", templ.find("input.email").value);
+    Session.set("sign-in", true);
+  },
+  "click .add-info": function (evt, templ) {
+    Session.set("sign-in.email", templ.find("input.email").value);
+    Session.set("sign-in", false);
+  }
 });
 
 Template.addInfoOrSignIn.destroyed = function () {
+  Session.set("sign-in.email", undefined);
   Session.set("sign-in", false);
 };
 
@@ -1272,3 +1394,28 @@ Template.addGameMap.rendered = function () {
 Template.addGameMap.destroyed = function () {
   this._setMarker && this._setMarker.stop();
 };
+
+Template.loadMoreGames.events({
+  "click a": function () {
+    Session.set("num-games-requested",
+                Session.get("num-games-requested") + 15);
+  }
+});
+
+Template.loadMoreGames.helpers({
+  noMoreGames: function () {
+    return Session.get("num-games-requested") > Games.find().count();
+  }
+});
+
+Template.gameWhen.helpers({
+  day: function () {
+    return moment(this.startsAt).format('ddd');
+  },
+  time: function () {
+    return moment(this.startsAt).format('h:mma');
+  },
+  fromNow: function () {
+    return moment(this.startsAt).fromNow();
+  }
+});

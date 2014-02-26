@@ -66,24 +66,38 @@
 
 <template name="listOfGames">
   <ul class="list-of-games list-group">
-    {{#each games}}
-      <li class="list-group-item listed-game">
-        {{> listedGame}}
-      </li>
+    {{#each upcomingGames}}
+      {{> listedGame}}
     {{/each}}
+    <div class="past-games">
+      {{#each pastGames}}
+        {{> listedGame}}
+      {{/each}}
+    </div>
   </ul>
+  {{> loadMoreGames}}
+</template>
+
+<template name="loadMoreGames">
+  <div class="load-more-games">
+    {{#unless noMoreGames}}<a>Load more</a>{{/unless}}
+  </div>
 </template>
 
 <template name="listedGame">
-  {{> gameTypeIndicator}}
-  {{> gameSummary}}
-  {{#if userInGame}}
-    {{> addFriendsLink}}
-  {{else}}
-    {{> joinGameLink}}
-  {{/if}}
-  {{{alerts}}}
-  {{> addPlayers}}
+  <li class="list-group-item listed-game">
+    {{> gameTypeIndicator}}
+    {{> gameSummary}}
+    {{#unless past startsAt}}
+      {{#if userInGame}}
+        {{> addFriendsLink}}
+      {{else}}
+        {{> joinGameLink}}
+      {{/if}}
+      {{{alerts}}}
+      {{> addPlayers}}
+    {{/unless}}
+  </li>
 </template>
 
 <template name="gameTypeIndicator">
@@ -95,10 +109,13 @@
 
 <template name="gameSummary">
   <div class="game-summary">
-    <div class="game-type-day-time">{{day}} {{time}}</div>
+    {{> gameWhen}}
     {{> whoIsPlaying}}
     <div class="place">
-      <div class="place-name">{{placeName}}</div>
+      <div class="place-name">
+        {{placeName}}
+        <!-- <span class="place-distance">({{placeDistance}})</span> -->
+      </div>
       {{#if SEql 'soloGame' _id}}
         <div class-"place-location">{{placeLocation}}</div>
       {{/if}}
@@ -111,13 +128,27 @@
   </div>
 </template>
 
+<template name="gameWhen">
+  <div class="game-when">
+    {{#if past startsAt}}
+      {{day}} {{time}} ({{fromNow}})
+    {{else}}
+      {{day}} {{time}}
+    {{/if}}
+  </div>
+</template>
+
 <template name="whoIsPlaying">
   <div class="who-is-playing">
     {{#if playing}}
-      <strong class="text-success">Playing</strong>
+      <strong class="text-success">
+        {{participle startsAt past='Played' present='Playing'}}
+      </strong>
       + {{numNeeded}} needed
     {{else}}
-      {{players.length}} playing ({{numNeeded}} needed)
+      {{players.length}}
+      {{participle startsAt past='played' present='playing'}}
+      ({{numNeeded}} needed)
     {{/if}}
   </div>
 </template>
@@ -145,6 +176,7 @@
   </h5>
   <div class="form-group">
     <input type="email" class="form-control email" placeholder="Your email"
+           value="{{email}}"
            required autofocus>
   </div>
   <div class="form-group">
@@ -258,8 +290,11 @@
 
 <template name="searchInput">
   <div class="search-input">
-    <input type="search" placeholder="Enter Location"
+    <input class="form-control" type="search" placeholder="Enter Location"
            autofocus required>
+  </div>
+  <div class="geolocate">
+    <a>Current Location</a>
   </div>
 </template>
 

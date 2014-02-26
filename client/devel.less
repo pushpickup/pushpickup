@@ -1,4 +1,4 @@
-@import "/packages/bootstrap3-less/bootstrap.lessimport";
+@import "/packages/bootstrap3-less/bootstrap.import.less";
 
 .mobile-simulator {
   .make-lg-column(2);
@@ -29,6 +29,10 @@ button {
 
 .listed-game .game-summary {
   cursor: pointer;
+}
+
+.past-games .listed-game .game-summary {
+  .text-muted;
 }
 
 .whos-playing-summary, .whos-playing-editable, .comments {

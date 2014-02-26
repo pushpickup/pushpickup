@@ -1,7 +1,3 @@
-var types = ["ultimate", "basketball", "soccer"];
-var statuses = ["proposed", "on"];
-var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 var development = Meteor.settings.DEVELOPMENT; // Toggles bootstrapping
 
 Accounts.emailTemplates.from = "Push Pickup <support@pushpickup.com>";
@@ -18,18 +14,10 @@ Accounts.emailTemplates.enrollAccount.text = function(user, url) {
 };
 
 Meteor.startup(function () {
-  if (GameOptions.find().count() === 0) {
-    _.forEach(types, function (type) {
-      GameOptions.insert({option: "type", value: type});
-    });
-    _.forEach(statuses, function (status) {
-      GameOptions.insert({option: "status", value: status});
-    });
-    _.forEach(days, function (day, i) {
-      // value used for sorting and used by moment()
-      GameOptions.insert({option: "day", value: i, name: day});
-    });
-  }
+  // Undocumented API, but can "assume it will stick around"
+  // https://groups.google.com/d/msg/meteor-talk/b_jDgaINAV4/MsyWpmA9IgQJ
+  // Nick Martin, Meteor core dev, 2013/02/21
+  Games._ensureIndex({'location.geoJSON': "2dsphere"});
 
   if (development && (Games.find().count() === 0)
       && (Meteor.users.find().count() === 0)) {
