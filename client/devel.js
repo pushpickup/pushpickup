@@ -49,13 +49,14 @@ Deps.autorun(function () {
       var handle;
       var userId = Meteor.userId();
       handle = userId && Meteor.subscribe("user-games");
-      if (handle && handle.ready() && (! Session.get("soloGame"))) {
+      if ((handle && handle.ready() || !userId)
+          && (! Session.get("soloGame"))) {
         Session.set(
           "user-gameIds-upcoming-initial",
           Games.find(
             {
-              $or: [{'players.userId': userId},
-                    {'creator.userId': userId}],
+              $or: [{'players.userId': userId || "null"},
+                    {'creator.userId': userId || "null"}],
               startsAt: {$gte: new Date()}
             },
             {
