@@ -63,16 +63,44 @@
 </template>
 
 <template name="listOfGames">
-  <ul class="list-of-games list-group">
-    {{#each upcomingGames}}
-      {{> listedGame}}
-    {{/each}}
-    <div class="past-games">
-      {{#each pastGames}}
-        {{> listedGame}}
-      {{/each}}
+  {{#if gte userUpcomingGames.count 1}}
+    <div class="panel panel-success">
+      <div class="panel-heading">Your upcoming games</div>
+      <ul class="list-of-games list-group">
+        {{#each userUpcomingGames}}
+          {{> listedGame}}
+        {{/each}}
+      </ul>
     </div>
-  </ul>
+  {{/if}}
+  <div class="panel panel-info">
+    <div class="panel-heading">Upcoming games</div>
+    {{#if gte upcomingGames.count 1}}
+      <ul class="list-of-games list-group">
+        {{#each upcomingGames}}
+          {{> listedGame}}
+        {{/each}}
+      </ul>
+    {{else}}
+      <div class="panel-body">
+        {{#if SGet 'gamesReady'}}
+          <p>There are none within {{maxDistance}}. :(</p>
+        {{else}}
+          {{> spinner}}
+        {{/if}}
+      </div>
+    {{/if}}
+  </div>
+  {{#if gte pastGames.count 1}}
+    <div class="panel panel-default">
+      <div class="panel-heading">Past games</div>
+      <ul class="list-of-games list-group past-games">
+        {{#each pastGames}}
+          {{> listedGame}}
+        {{/each}}
+      </ul>
+    </div>
+  {{/if}}
   {{> loadMoreGames}}
 </template>
 

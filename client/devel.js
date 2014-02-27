@@ -46,17 +46,33 @@ Deps.autorun(function () {
     // or nearby upcoming games, pull in nearby past games.
 
     Deps.autorun(function () {
-      Meteor.userId() && Meteor.subscribe("user-games");
+      var handle;
+      var userId = Meteor.userId();
+      handle = userId && Meteor.subscribe("user-games");
+      if (handle && handle.ready() && (! Session.get("soloGame"))) {
+        Session.set(
+          "user-gameIds-upcoming-initial",
+          Games.find(
+            {
+              $or: [{'players.userId': userId},
+                    {'creator.userId': userId}],
+              startsAt: {$gte: new Date()}
+            },
+            {
+              reactive: false, fields: {_id: 1}
+            }).fetch());
+      }
     });
 
     var nearbyUpcomingGamesHandle = null;
     Deps.autorun(function () {
+      Session.set("gamesReady", false);
       nearbyUpcomingGamesHandle = Meteor.subscribe(
         "nearby-upcoming-games", Session.get("current-location"), {
           types: Session.get("game-types"),
           maxDistance: Session.get("max-distance"),
           limit: Session.get("num-games-requested")
-        });
+        }, function () { Session.set("gamesReady", true); });
     });
 
     Deps.autorun(function () {
@@ -102,6 +118,8 @@ Deps.autorun(function () {
 var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
   SEql: function (key, val) { return Session.equals(key, val); },
+  gte: function (a, b) { return a && b && a >= b; },
+  lt: function (a, b) { return a && b && a < b; },
   userInGame: function () {
     // are global handlebars helpers reactive? Seems so.
     var game = this;
@@ -173,7 +191,19 @@ Template.devNav.events({
 });
 
 Template.listOfGames.helpers({
-  games: function () { return Games.find({}, {sort: {startsAt: 1}}); },
+  maxDistance: function () {
+    var m = Session.get("max-distance");
+    return m &&
+      (0.00062137119 * m).toFixed(0)
+      + " miles / " + (m/1000).toFixed(0) + " km";
+  },
+  userUpcomingGames: function () {
+    var games = Session.get("user-gameIds-upcoming-initial");
+    return games
+      && (games.length > 0)
+      && Games.find({$or: games}, {sort: {startsAt: 1}})
+      || [];
+  },
   upcomingGames: function () {
     return Games.find({'startsAt': {$gte: new Date()}},
                       {sort: {startsAt: 1}});
