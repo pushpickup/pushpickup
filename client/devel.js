@@ -65,10 +65,9 @@ Deps.autorun(function () {
       }
     });
 
-    var nearbyUpcomingGamesHandle = null;
     Deps.autorun(function () {
       Session.set("gamesReady", false);
-      nearbyUpcomingGamesHandle = Meteor.subscribe(
+      Meteor.subscribe(
         "nearby-upcoming-games", Session.get("current-location"), {
           types: Session.get("game-types"),
           maxDistance: Session.get("max-distance"),
@@ -77,7 +76,7 @@ Deps.autorun(function () {
     });
 
     Deps.autorun(function () {
-      if (nearbyUpcomingGamesHandle.ready()) {
+      if (Session.equals("gamesReady", true)) {
         var numUpcoming = Games.find({startsAt: {$gte: new Date()}}).count();
         var deficit =  Session.get("num-games-requested") - numUpcoming;
         (deficit > 0) &&
