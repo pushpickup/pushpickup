@@ -1,9 +1,21 @@
 @import "/packages/bootstrap3-less/bootstrap.import.less";
 
-.mobile-simulator {
-  .make-lg-column(2);
-  .center-block();
-  max-width: 320px;
+@media (max-width: @screen-xs) {
+  input:focus { font-size: 16px; } // prevent Auto Zoom
+}
+
+.content-all {
+  .make-lg-column(12);
+}
+// .content-head, content-tail {
+//   .make-lg-column(3);
+// }
+// .content-main {
+//   .make-lg-column(9);
+// }
+
+.run-search, .subscribe-button {
+  margin: @line-height-computed/2 auto;
 }
 
 .map-canvas {
@@ -14,7 +26,8 @@
 button {
   &.join-game, &.sign-in-inline,
   &.add-friends, &.add-comment,
-  &.subscribe, &.add-game, &.edit-game {
+  &.subscribe, &.add-game, &.edit-game,
+  &.find-games {
     .btn-primary;
     .btn-lg;
     .btn-block;
@@ -27,9 +40,9 @@ button {
   }
 }
 
-.ppicon-search, .ppicon-cancel, .ppicon-cog {
+.nav-icon {
   color: @text-color;
-  font-size: @font-size-large;
+  font-size: @font-size-h3;
 }
 
 .ppicon-basketball, .ppicon-soccer, .ppicon-ultimate,
