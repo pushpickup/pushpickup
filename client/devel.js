@@ -31,8 +31,9 @@ var getUserLocation = function () {
   }
 };
 
-Meteor.startup(function () {
-  getUserLocation();
+Deps.autorun(function (c) {
+  if (Session.equals("dev-mode", true))
+    getUserLocation();
 });
 
 Deps.autorun(function () {
