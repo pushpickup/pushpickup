@@ -281,8 +281,8 @@ var initializeMapStuff = _.once(function(c) {
 
   // help sync Games with map bounds
   google.maps.event.addListener(map, 'idle', function () {
-    Session.set("geoWithin",
-                geoUtils.toGeoJSONPolygon(map.getBounds()));
+    map.getBounds() && Session.set(
+      "geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
     Session.set("mapCenter",
                 geoUtils.toGeoJSONPoint(map.getCenter()));
   });
