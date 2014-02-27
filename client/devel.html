@@ -276,13 +276,13 @@
 
 <template name="settings">
   <div class="settings">
-    <span class="ppicon-cog"></span>
+    <a><span class="ppicon-cog"></span></a>
   </div>
 </template>
 
 <template name="startSearch">
   <div class="start-search">
-    <span class="ppicon-search"></span>
+    <a><span class="ppicon-search"></span></a>
   </div>
 </template>
 
@@ -297,14 +297,20 @@
     <input class="form-control" type="search" placeholder="Enter Location"
            autofocus required>
   </div>
-  <div class="geolocate">
-    <a>Current Location</a>
-  </div>
+  {{> getCurrentLocation}}
+</template>
+
+<template name="getCurrentLocation">
+  {{#if SEql 'searching' 'during'}}
+    <div class="get-current-location">
+      <a>Current Location</a>
+    </div>
+  {{/if}}
 </template>
 
 <template name="exitSearch">
   <div class="exit-search">
-    <span class="ppicon-cancel"></span>
+    <a><span class="ppicon-cancel"></span></a>
   </div>
 </template>
 
@@ -328,7 +334,7 @@
 
 <template name="back">
   <div class="back">
-    <span class="ppicon-left-open"></span>
+    <a><span class="ppicon-left-open"></span></a>
   </div>
 </template>
 

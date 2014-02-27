@@ -151,18 +151,23 @@ Template.layout.created = function () {
 };
 
 Template.devNav.events({
-  'click .start-search': function () { Session.set('searching', 'during'); },
-  'click .search-input': function () { Session.set('searching', 'during'); },
-  'click .exit-search': function () {
+  'click .start-search a': function () { Session.set('searching', 'during'); },
+  'click .search-input input': function () {
+    Session.set('searching', 'during');
+  },
+  'click .exit-search a': function () {
     if (Session.equals('search-results', true)) {
       Session.set('searching', 'after');
     } else {
       Session.set('searching', 'not');
     }
   },
-  'click .back': function () {
+  'click .back a': function () {
     Session.set('searching', 'not');
     Session.set('search-results', false);
+  },
+  "click .settings a": function () {
+    alert("Soon I will make you a settings for great good.");
   }
 });
 
@@ -185,7 +190,7 @@ Template.listOfGames.events({
 });
 
 Template.addFriendsLink.events({
-  "click .add-friends-link": function () {
+  "click .add-friends-link a": function () {
     Session.set("add-friends", this._id);
   }
 });
@@ -498,10 +503,10 @@ Template.searchInput.rendered = function () {
     autocomplete, 'place_changed', onPlaceChanged); // call Meteor.method
 };
 
-Template.searchInput.events({
-  "click .geolocate a": function (evt, templ) {
+Template.getCurrentLocation.events({
+  "click .get-current-location a": function (evt, templ) {
     getUserLocation();
-    templ.find('.search-input input').value = "Current Location";
+    $('.search-input input[type=search]').val("Current Location");
   }
 });
 
@@ -566,7 +571,7 @@ Template.findingsMap.rendered = function () {
       zoom: 12, //18 good for one-game zoom
       center: geoUtils.toLatLng(Session.get("selectedLocationPoint")),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: true,
+      mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
       minZoom: 3
@@ -835,7 +840,7 @@ Template.subscribeButton.events({
 });
 
 Template.devDetail.events({
-  "click .share-game-link": function () {
+  "click .share-game-link a": function () {
     Session.set("copy-game-link", this._id);
   },
   "click .copy-game-link .close": function () {
@@ -866,7 +871,7 @@ Template.soloGameMap.rendered = function () {
       zoom: 15, // 18 also good
       center: latLng,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: true,
+      mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
       minZoom: 3
@@ -1364,7 +1369,7 @@ Template.addGameMap.rendered = function () {
       zoom: 15, // 18 also good
       center: latLng,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: true,
+      mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
       minZoom: 3
