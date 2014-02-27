@@ -78,12 +78,17 @@ geoUtils.toGeoJSONPoint = function (latLng) {
 geoUtils.toGeoJSONPolygon = function (latLngBounds) {
   var SW = latLngBounds.getSouthWest();
   var NE = latLngBounds.getNorthEast();
-  var firstAndLast = [SW.lng(), NE.lat()];
+  var corners = {
+    sw: [SW.lng(), SW.lat()],
+    nw: [SW.lng(), NE.lat()],
+    ne: [NE.lng(), NE.lat()],
+    se: [NE.lng(), SW.lat()]
+  };
   return {
     type: "Polygon",
-    coordinates: [[firstAndLast, [NE.lng(), NE.lat()],
-                   [NE.lng(), SW.lat()], [SW.lng(), SW.lat()],
-                   firstAndLast]]};
+    coordinates: [[corners.sw, corners.nw,
+                   corners.ne, corners.se,
+                   corners.sw]]};
 };
 geoUtils.toGeoJSONMultiPoint = function (latLngBounds) {
   var SW = latLngBounds.getSouthWest();

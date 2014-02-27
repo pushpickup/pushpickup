@@ -619,7 +619,8 @@ Template.findingsMap.rendered = function () {
   };
 
   google.maps.event.addListener(map, 'idle', function () {
-    Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+    map.getBounds()
+      && Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
     // asynchronous Session.set('selectedLocationName',...)
     locationName.sync();
     Alerts.collection.remove({where: "subscribe"});
