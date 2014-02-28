@@ -215,15 +215,18 @@ Template.listOfGames.helpers({
       + " miles / " + (m/1000).toFixed(0) + " km";
   },
   userUpcomingGames: function () {
-    var games = Session.get("user-gameIds-upcoming-initial");
-    return games
-      && (games.length > 0)
-      && Games.find({$or: games}, {sort: {startsAt: 1}})
+    var ugui = Session.get("user-gameIds-upcoming-initial");
+    return ugui
+      && (ugui.length > 0)
+      && Games.find({$or: ugui}, {sort: {startsAt: 1}})
       || [];
   },
   upcomingGames: function () {
-    return Games.find({'startsAt': {$gte: new Date()}},
-                      {sort: {startsAt: 1}});
+    var ugui = Session.get("user-gameIds-upcoming-initial");
+    return Games.find({
+      '_id': {$nin: _.pluck(ugui, '_id')},
+      'startsAt': {$gte: new Date()}
+    }, {sort: {startsAt: 1}});
   },
   pastGames: function () {
     return Games.find({'startsAt': {$lt: new Date()}},

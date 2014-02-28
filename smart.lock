@@ -7,7 +7,7 @@
       "spin": {},
       "iron-router-progress": {},
       "bootstrap3-less": {},
-      "fontawesome4": {}
+      "font-awesome": {}
     },
     "packages": {
       "iron-router": {
@@ -35,10 +35,10 @@
         "tag": "v0.1.9",
         "commit": "5c812c4d7ce72917a065f0424c3cf54e5ff2d16a"
       },
-      "fontawesome4": {
-        "git": "https://github.com/chrismbeckett/meteor-fontawesome4.git",
-        "tag": "v1.0.0",
-        "commit": "fe38ec775e974f0f7855d1693dc74fd4f1b4848c"
+      "font-awesome": {
+        "git": "https://github.com/nate-strauser/meteor-font-awesome.git",
+        "tag": "v4.0.3",
+        "commit": "61e9361384347547ae144f8228faa4deffda23db"
       }
     }
   }
