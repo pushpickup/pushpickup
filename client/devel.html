@@ -320,18 +320,31 @@
 
 <template name="searchInput">
   <div class="search-input">
-    <input class="form-control" type="search" placeholder="Enter Location"
-           autofocus required>
+    <div class="input-group">
+      <span class="input-group-btn">
+        {{> getCurrentLocation}}
+      </span>
+      <input class="form-control" type="search" placeholder="Enter Location"
+             autofocus required>
+    </div>
   </div>
-  {{> getCurrentLocation}}
 </template>
 
 <template name="getCurrentLocation">
-  {{#if SEql 'searching' 'during'}}
-    <div class="get-current-location">
-      <a>Current Location</a>
-    </div>
-  {{/if}}
+  <button class="btn btn-default get-current-location" type="button">
+    {{#unless SGet 'get-user-location'}}
+      <i class="fa fa-location-arrow"></i>
+    {{/unless}}
+    {{#if SEql 'get-user-location' 'pending'}}
+      <i class="fa fa-refresh fa-spin"></i>
+    {{/if}}
+    {{#if SEql 'get-user-location' 'success'}}
+      <i class="fa fa-check-circle"></i>
+    {{/if}}
+    {{#if SEql 'get-user-location' 'failure'}}
+      <i class="fa fa-exclamation"></i>
+    {{/if}}
+  </button>
 </template>
 
 <template name="exitSearch">

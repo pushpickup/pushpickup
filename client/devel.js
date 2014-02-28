@@ -13,6 +13,7 @@ Session.setDefault("max-distance", 100000); // 100,000 m => 62 miles
 Session.setDefault("num-games-requested", 15);
 
 var getUserLocation = function () {
+  Session.set("get-user-location", "pending");
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var point = {
@@ -20,16 +21,32 @@ var getUserLocation = function () {
         "coordinates": [position.coords.longitude,
                         position.coords.latitude]
       };
+      Session.set("get-user-location", "success");
       Session.set("current-location", point);
       Session.set("selectedLocationPoint", point);
       Session.set("selectedLocationName", "Current Location");
     }, function() {
+      Session.set("get-user-location", "failure");
       alert('Error: The Geolocation service failed.');
     });
   } else {
+    Session.set("get-user-location", "failure");
     console.log('Error: Your browser doesn\'t support geolocation.');
   }
 };
+
+Deps.autorun(function () {
+  if (Session.equals("get-user-location", "success")) {
+    $('.search-input input[type=search]').val("Current Location");
+    Meteor.setTimeout(function () {
+      Session.set("get-user-location", null);
+    }, 1000);
+  } else if (Session.equals("get-user-location", "failure")) {
+    Meteor.setTimeout(function () {
+      Session.set("get-user-location", null);
+    }, 1000);
+  }
+});
 
 Deps.autorun(function (c) {
   if (Session.equals("dev-mode", true))
@@ -531,13 +548,12 @@ Template.searchInput.rendered = function () {
     template.find('.search-input input'),
     {types: ['(cities)']});
   google.maps.event.addListener(
-    autocomplete, 'place_changed', onPlaceChanged); // call Meteor.method
+    autocomplete, 'place_changed', onPlaceChanged);
 };
 
 Template.getCurrentLocation.events({
-  "click .get-current-location a": function (evt, templ) {
+  "click .get-current-location.btn": function (evt, templ) {
     getUserLocation();
-    $('.search-input input[type=search]').val("Current Location");
   }
 });
 

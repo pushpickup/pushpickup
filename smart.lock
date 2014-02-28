@@ -6,7 +6,8 @@
       "nprogress": {},
       "spin": {},
       "iron-router-progress": {},
-      "bootstrap3-less": {}
+      "bootstrap3-less": {},
+      "fontawesome4": {}
     },
     "packages": {
       "iron-router": {
@@ -33,6 +34,11 @@
         "git": "https://github.com/eprochasson/bootstrap3-less",
         "tag": "v0.1.9",
         "commit": "5c812c4d7ce72917a065f0424c3cf54e5ff2d16a"
+      },
+      "fontawesome4": {
+        "git": "https://github.com/chrismbeckett/meteor-fontawesome4.git",
+        "tag": "v1.0.0",
+        "commit": "fe38ec775e974f0f7855d1693dc74fd4f1b4848c"
       }
     }
   }
