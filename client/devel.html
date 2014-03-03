@@ -721,5 +721,39 @@
 </template>
 
 <template name="settings">
-Settings
+<ul class="settings list-group">
+  <li class="sign-in list-group-item">
+    <a> Sign In
+      {{#if SGet 'settings-sign-in'}}
+        <span class="ppicon-up-open"></span>
+      {{else}}
+        <span class="ppicon-down-open"></span>
+      {{/if}}
+    </a>
+  </li>
+  {{#if SGet 'settings-sign-in'}}
+    <li class="sign-in action list-group-item">
+      {{> devSignIn}}
+    </li>
+  {{/if}}
+  <li class="sign-up list-group-item"><a>Sign Up
+      <span class="ppicon-down-open"></span></a></li>
+  <li class="forgot-password list-group-item"><a>Forgot Password
+      <span class="ppicon-down-open"></span></a></li>
+  <li class="help-and-feeback list-group-item"><a>Help & Feedback
+      <span class="ppicon-down-open"></span></a></li>
+</ul>
+</template>
+
+<template name="devSignIn">
+  <form class="dev-sign-in" role="form">
+    <div class="form-group">
+      <input type="email" class="form-control email"
+             placeholder="Your email" value="{{email}}" required autofocus>
+      <input type="password" class="form-control password"
+             placeholder="Your password" required>
+    </div>
+    {{{alerts}}}
+    <button class="btn sign-in" type="submit">Sign in</button>
+  </form>
 </template>

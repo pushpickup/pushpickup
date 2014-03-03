@@ -1478,3 +1478,21 @@ Template.gameWhen.helpers({
     return moment(this.startsAt).fromNow();
   }
 });
+
+Template.settings.events({
+  "click .sign-in a": function () {
+    Session.toggle("settings-sign-in");
+  },
+  "click .sign-up a": function () {
+    Session.toggle("settings-sign-up");
+  },
+  "click .forgot-password a": function () {
+    Session.toggle("settings-forgot-password");
+  },
+  "click .help-and-feedback a": function () {
+    Session.toggle("settings-help-and-feedback");
+  }
+});
+
+Template.settings.helpers({
+});

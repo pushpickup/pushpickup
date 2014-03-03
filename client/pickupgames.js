@@ -1,4 +1,10 @@
-Session.toggle = function (key, val1, val2) {
+Session.toggle = function (key) {
+  var val1 = true;
+  var val2 = false;
+  if (arguments.length === 3) { // val1 and val2 passed in
+    val1 = arguments[1];
+    val2 = arguments[2];
+  }
   if (Session.equals(key, val1)) {
     Session.set(key, val2);
   } else {

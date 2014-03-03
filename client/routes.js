@@ -268,6 +268,10 @@ Meteor.startup(function () {
       },
       unload: function () {
         Session.set("viewing-settings", false);
+        Session.set("settings-sign-in", false);
+        Session.set("settings-sign-up", false);
+        Session.set("settings-forgot-password", false);
+        Session.set("settings-help-and-feedback", false);
       }
     });
 
