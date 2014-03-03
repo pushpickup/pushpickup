@@ -30,16 +30,14 @@
 
 <template name="optionsMain">
   <div class="options-main row">
-    <div class="content-all">
-      {{#if SEql 'searching' 'not'}}
-        {{> settings}}
-        {{> startSearch}}
-        {{> addGameLink}}
-      {{else}}
-        {{> searchBacktrack}}
-        {{> searchInput}}
-      {{/if}}
-    </div>
+    {{#if SEql 'searching' 'not'}}
+      {{> settings}}
+      {{> startSearch}}
+      {{> addGameLink}}
+    {{else}}
+      {{> searchBacktrack}}
+      {{> searchInput}}
+    {{/if}}
   </div>
 </template>
 
