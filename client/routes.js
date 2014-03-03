@@ -257,8 +257,18 @@ Meteor.startup(function () {
     // the home page. listing and searching for games
     this.route('dev', {
       template: 'devMain',
+      layoutTemplate: 'devLayout'
+    });
+
+    this.route('devSettings', {
+      path: '/dev/settings',
       layoutTemplate: 'devLayout',
-      notFoundTemplate: 'devMain'
+      load: function () {
+        Session.set("viewing-settings", true);
+      },
+      unload: function () {
+        Session.set("viewing-settings", false);
+      }
     });
 
     // typical user interaction with a single game

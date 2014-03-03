@@ -300,7 +300,15 @@
 
 <template name="settingsCog">
   <div class="settings-cog">
-    <a><span class="nav-icon ppicon-cog"></span></a>
+    {{#if SGet 'viewing-settings'}}
+      {{#link route="dev"}}
+        <span class="nav-icon ppicon-cog text-muted"></span>
+      {{/link}}
+    {{else}}
+      {{#link route="devSettings"}}
+        <span class="nav-icon ppicon-cog"></span>
+      {{/link}}
+    {{/if}}
   </div>
 </template>
 
@@ -705,4 +713,13 @@
       </div>
     </div>
   {{/if}}
+</template>
+
+<template name="devSettings">
+  {{> devNav}}
+  {{> settings}}
+</template>
+
+<template name="settings">
+Settings
 </template>

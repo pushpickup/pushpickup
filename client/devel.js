@@ -187,7 +187,12 @@ Template.layout.created = function () {
 };
 
 Template.devNav.events({
-  'click .start-search a': function () { Session.set('searching', 'during'); },
+  'click .start-search a': function () {
+    Session.set('searching', 'during');
+    if (Session.equals("viewing-settings", true)) {
+      Router.go('dev');
+    }
+  },
   'click .search-input input': function () {
     Session.set('searching', 'during');
   },
@@ -201,9 +206,6 @@ Template.devNav.events({
   'click .back a': function () {
     Session.set('searching', 'not');
     Session.set('search-results', false);
-  },
-  "click .settings-cog a": function () {
-    alert("Soon I will make you a settings for great good.");
   }
 });
 
