@@ -202,7 +202,7 @@ Template.devNav.events({
     Session.set('searching', 'not');
     Session.set('search-results', false);
   },
-  "click .settings a": function () {
+  "click .settings-cog a": function () {
     alert("Soon I will make you a settings for great good.");
   }
 });
