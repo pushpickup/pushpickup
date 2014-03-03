@@ -16,3 +16,5 @@ coffeescript
 underscore
 random
 bootstrap3-less
+font-awesome
+appcache

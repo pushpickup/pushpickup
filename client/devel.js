@@ -13,6 +13,7 @@ Session.setDefault("max-distance", 100000); // 100,000 m => 62 miles
 Session.setDefault("num-games-requested", 15);
 
 var getUserLocation = function () {
+  Session.set("get-user-location", "pending");
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var point = {
@@ -20,19 +21,36 @@ var getUserLocation = function () {
         "coordinates": [position.coords.longitude,
                         position.coords.latitude]
       };
+      Session.set("get-user-location", "success");
       Session.set("current-location", point);
       Session.set("selectedLocationPoint", point);
       Session.set("selectedLocationName", "Current Location");
     }, function() {
+      Session.set("get-user-location", "failure");
       alert('Error: The Geolocation service failed.');
     });
   } else {
+    Session.set("get-user-location", "failure");
     console.log('Error: Your browser doesn\'t support geolocation.');
   }
 };
 
-Meteor.startup(function () {
-  getUserLocation();
+Deps.autorun(function () {
+  if (Session.equals("get-user-location", "success")) {
+    $('.search-input input[type=search]').val("Current Location");
+    Meteor.setTimeout(function () {
+      Session.set("get-user-location", null);
+    }, 1000);
+  } else if (Session.equals("get-user-location", "failure")) {
+    Meteor.setTimeout(function () {
+      Session.set("get-user-location", null);
+    }, 1000);
+  }
+});
+
+Deps.autorun(function (c) {
+  if (Session.equals("dev-mode", true))
+    getUserLocation();
 });
 
 Deps.autorun(function () {
@@ -45,21 +63,37 @@ Deps.autorun(function () {
     // or nearby upcoming games, pull in nearby past games.
 
     Deps.autorun(function () {
-      Meteor.userId() && Meteor.subscribe("user-games");
+      var handle;
+      var userId = Meteor.userId();
+      handle = userId && Meteor.subscribe("user-games");
+      if ((handle && handle.ready() || !userId)
+          && (! Session.get("soloGame"))) {
+        Session.set(
+          "user-gameIds-upcoming-initial",
+          Games.find(
+            {
+              $or: [{'players.userId': userId || "null"},
+                    {'creator.userId': userId || "null"}],
+              startsAt: {$gte: new Date()}
+            },
+            {
+              reactive: false, fields: {_id: 1}
+            }).fetch());
+      }
     });
 
-    var nearbyUpcomingGamesHandle = null;
     Deps.autorun(function () {
-      nearbyUpcomingGamesHandle = Meteor.subscribe(
+      Session.set("gamesReady", false);
+      Meteor.subscribe(
         "nearby-upcoming-games", Session.get("current-location"), {
           types: Session.get("game-types"),
           maxDistance: Session.get("max-distance"),
           limit: Session.get("num-games-requested")
-        });
+        }, function () { Session.set("gamesReady", true); });
     });
 
     Deps.autorun(function () {
-      if (nearbyUpcomingGamesHandle.ready()) {
+      if (Session.equals("gamesReady", true)) {
         var numUpcoming = Games.find({startsAt: {$gte: new Date()}}).count();
         var deficit =  Session.get("num-games-requested") - numUpcoming;
         (deficit > 0) &&
@@ -101,6 +135,8 @@ Deps.autorun(function () {
 var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
   SEql: function (key, val) { return Session.equals(key, val); },
+  gte: function (a, b) { return a && b && a >= b; },
+  lt: function (a, b) { return a && b && a < b; },
   userInGame: function () {
     // are global handlebars helpers reactive? Seems so.
     var game = this;
@@ -151,26 +187,46 @@ Template.layout.created = function () {
 };
 
 Template.devNav.events({
-  'click .start-search': function () { Session.set('searching', 'during'); },
-  'click .search-input': function () { Session.set('searching', 'during'); },
-  'click .exit-search': function () {
+  'click .start-search a': function () { Session.set('searching', 'during'); },
+  'click .search-input input': function () {
+    Session.set('searching', 'during');
+  },
+  'click .exit-search a': function () {
     if (Session.equals('search-results', true)) {
       Session.set('searching', 'after');
     } else {
       Session.set('searching', 'not');
     }
   },
-  'click .back': function () {
+  'click .back a': function () {
     Session.set('searching', 'not');
     Session.set('search-results', false);
+  },
+  "click .settings a": function () {
+    alert("Soon I will make you a settings for great good.");
   }
 });
 
 Template.listOfGames.helpers({
-  games: function () { return Games.find({}, {sort: {startsAt: 1}}); },
+  maxDistance: function () {
+    var m = Session.get("max-distance");
+    return m &&
+      (0.00062137119 * m).toFixed(0)
+      + " miles / " + (m/1000).toFixed(0) + " km";
+  },
+  userUpcomingGames: function () {
+    var ugui = Session.get("user-gameIds-upcoming-initial");
+    return ugui
+      && (ugui.length > 0)
+      && Games.find({$or: ugui}, {sort: {startsAt: 1}})
+      || [];
+  },
   upcomingGames: function () {
-    return Games.find({'startsAt': {$gte: new Date()}},
-                      {sort: {startsAt: 1}});
+    var ugui = Session.get("user-gameIds-upcoming-initial");
+    return Games.find({
+      '_id': {$nin: _.pluck(ugui, '_id')},
+      'startsAt': {$gte: new Date()}
+    }, {sort: {startsAt: 1}});
   },
   pastGames: function () {
     return Games.find({'startsAt': {$lt: new Date()}},
@@ -185,7 +241,7 @@ Template.listOfGames.events({
 });
 
 Template.addFriendsLink.events({
-  "click .add-friends-link": function () {
+  "click .add-friends-link a": function () {
     Session.set("add-friends", this._id);
   }
 });
@@ -495,13 +551,12 @@ Template.searchInput.rendered = function () {
     template.find('.search-input input'),
     {types: ['(cities)']});
   google.maps.event.addListener(
-    autocomplete, 'place_changed', onPlaceChanged); // call Meteor.method
+    autocomplete, 'place_changed', onPlaceChanged);
 };
 
-Template.searchInput.events({
-  "click .geolocate a": function (evt, templ) {
+Template.getCurrentLocation.events({
+  "click .get-current-location.btn": function (evt, templ) {
     getUserLocation();
-    templ.find('.search-input input').value = "Current Location";
   }
 });
 
@@ -566,7 +621,7 @@ Template.findingsMap.rendered = function () {
       zoom: 12, //18 good for one-game zoom
       center: geoUtils.toLatLng(Session.get("selectedLocationPoint")),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: true,
+      mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
       minZoom: 3
@@ -614,7 +669,8 @@ Template.findingsMap.rendered = function () {
   };
 
   google.maps.event.addListener(map, 'idle', function () {
-    Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+    map.getBounds()
+      && Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
     // asynchronous Session.set('selectedLocationName',...)
     locationName.sync();
     Alerts.collection.remove({where: "subscribe"});
@@ -835,7 +891,7 @@ Template.subscribeButton.events({
 });
 
 Template.devDetail.events({
-  "click .share-game-link": function () {
+  "click .share-game-link a": function () {
     Session.set("copy-game-link", this._id);
   },
   "click .copy-game-link .close": function () {
@@ -866,7 +922,7 @@ Template.soloGameMap.rendered = function () {
       zoom: 15, // 18 also good
       center: latLng,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: true,
+      mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
       minZoom: 3
@@ -1364,7 +1420,7 @@ Template.addGameMap.rendered = function () {
       zoom: 15, // 18 also good
       center: latLng,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: true,
+      mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
       minZoom: 3

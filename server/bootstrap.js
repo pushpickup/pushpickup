@@ -4,11 +4,22 @@
 var names = ["Shirl", "Camilla", "Blondell", "Shaunta", "Simone", "Riley", "Daniele", "Jefferson", "Jewell", "Olen", "Ira", "Ona", "Harriet", "Sheron", "Adriane", "Geri", "Hettie", "Clara", "Melita", "Soo", "Allyn", "Lissette", "Latrisha", "Holly", "Arnette", "Takako", "Lezlie", "Lashaun", "May", "Francis", "Dacia", "Katharine", "Max", "Kristan", "Shiela", "Lora", "Honey", "Sade", "Pok", "Harriette", "Vivan", "Dusty", "Nelly", "Clora", "Jolyn", "Caroline", "Cindie", "Judie", "Alma", "Virgilio"];
 
 var examplePlayers;
+var userNumGames = {}; // Keep track of how many games each user is in
+
 // retrieve n players. useful for adding players to a game in one swoop
-var getNPlayers = function (n) {
-  return _.map(_.sample(examplePlayers, n), function (user) {
+// 5 games max (past or upcoming) per player
+var getUpToNPlayers = function (n) {
+  var nPlayers = _.map(_.sample(examplePlayers, n), function (user) {
     return {userId: user._id, name: user.profile.name, rsvp: "in"};
   });
+  return _.compact(_.map(nPlayers, function (player) {
+    if (userNumGames[player.userId] >= 5) {
+      return null;
+    } else {
+      userNumGames[player.userId] += 1;
+      return player;
+    }
+  }));
 };
 
 // Helper function for parsing relative start times
@@ -45,6 +56,9 @@ bootstrap = function () {
 
   // inserted test games will not include donny@pushpickup.com as a player
   examplePlayers = Meteor.users.find().fetch();
+  _.forEach(examplePlayers, function (user) {
+    userNumGames[user._id] = 0;
+  });
 
   // establish donny, a power user (can edit any game)
   var donnyId = Accounts.createUser({
@@ -78,7 +92,7 @@ bootstrap = function () {
                            'value');
     _.each(startsAts, function (startsAt) {
       requested.players = _.random(2,14);
-      players = getNPlayers(_.random(requested.players - 1));
+      players = getUpToNPlayers(_.random(requested.players - 1));
       Games.insert({creator: {name: "Tim Tester", userId: timId},
                     notificationsSent: true,
                     type: _.sample(types),

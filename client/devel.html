@@ -4,11 +4,7 @@
       <div id="alerts">
       </div>
     </div>
-    <div class="row">
-      <div class="mobile-simulator">
-        {{yield}}
-      </div>
-    </div>
+    {{yield}}
   </div>
 </template>
 
@@ -18,15 +14,13 @@
 </template>
 
 <template name="devBody">
-  <div class="row">
-    {{#if SEql 'searching' 'after'}}
-      {{> findingsMap}}
-      {{> subscribe}}
-      {{> listOfGames}}
-    {{else}}
-      {{> listOfGames}}
-    {{/if}}
-  </div>
+  {{#if SEql 'searching' 'after'}}
+    {{> findingsMap}}
+    {{> subscribe}}
+    {{> listOfGames}}
+  {{else}}
+    {{> listOfGames}}
+  {{/if}}
 </template>
 
 <template name="devNav">
@@ -36,14 +30,16 @@
 
 <template name="optionsMain">
   <div class="options-main row">
-    {{#if SEql 'searching' 'not'}}
-      {{> settings}}
-      {{> startSearch}}
-      {{> addGameLink}}
-    {{else}}
-      {{> searchBacktrack}}
-      {{> searchInput}}
-    {{/if}}
+    <div class="content-all">
+      {{#if SEql 'searching' 'not'}}
+        {{> settings}}
+        {{> startSearch}}
+        {{> addGameLink}}
+      {{else}}
+        {{> searchBacktrack}}
+        {{> searchInput}}
+      {{/if}}
+    </div>
   </div>
 </template>
 
@@ -57,24 +53,54 @@
 
 <template name="optionsExtended">
   <div class="options-extended row">
-    {{#if SEql 'searching' 'during'}}
+    <div class="content-all">
+      {{#if SEql 'searching' 'during'}}
         {{> selectGameTypes}}
         {{> runSearch}}
-    {{/if}}
+      {{/if}}
+    </div>
   </div>
 </template>
 
 <template name="listOfGames">
-  <ul class="list-of-games list-group">
-    {{#each upcomingGames}}
-      {{> listedGame}}
-    {{/each}}
-    <div class="past-games">
-      {{#each pastGames}}
-        {{> listedGame}}
-      {{/each}}
+  {{#if gte userUpcomingGames.count 1}}
+    <div class="panel panel-success">
+      <div class="panel-heading">Your upcoming games</div>
+      <ul class="list-of-games list-group">
+        {{#each userUpcomingGames}}
+          {{> listedGame}}
+        {{/each}}
+      </ul>
     </div>
-  </ul>
+  {{/if}}
+  <div class="panel panel-info">
+    <div class="panel-heading">Upcoming games</div>
+    {{#if gte upcomingGames.count 1}}
+      <ul class="list-of-games list-group">
+        {{#each upcomingGames}}
+          {{> listedGame}}
+        {{/each}}
+      </ul>
+    {{else}}
+      <div class="panel-body">
+        {{#if SGet 'gamesReady'}}
+          <p>There are none within {{maxDistance}}. :(</p>
+        {{else}}
+          {{> spinner}}
+        {{/if}}
+      </div>
+    {{/if}}
+  </div>
+  {{#if gte pastGames.count 1}}
+    <div class="panel panel-default">
+      <div class="panel-heading">Past games</div>
+      <ul class="list-of-games list-group past-games">
+        {{#each pastGames}}
+          {{> listedGame}}
+        {{/each}}
+      </ul>
+    </div>
+  {{/if}}
   {{> loadMoreGames}}
 </template>
 
@@ -276,13 +302,13 @@
 
 <template name="settings">
   <div class="settings">
-    <span class="ppicon-cog"></span>
+    <a><span class="nav-icon ppicon-cog"></span></a>
   </div>
 </template>
 
 <template name="startSearch">
   <div class="start-search">
-    <span class="ppicon-search"></span>
+    <a><span class="nav-icon ppicon-search"></span></a>
   </div>
 </template>
 
@@ -294,17 +320,36 @@
 
 <template name="searchInput">
   <div class="search-input">
-    <input class="form-control" type="search" placeholder="Enter Location"
-           autofocus required>
+    <div class="input-group">
+      <span class="input-group-btn">
+        {{> getCurrentLocation}}
+      </span>
+      <input class="form-control" type="search" placeholder="Enter Location"
+             autofocus required>
+    </div>
   </div>
-  <div class="geolocate">
-    <a>Current Location</a>
-  </div>
+</template>
+
+<template name="getCurrentLocation">
+  <button class="btn btn-default get-current-location" type="button">
+    {{#unless SGet 'get-user-location'}}
+      <i class="fa fa-location-arrow"></i>
+    {{/unless}}
+    {{#if SEql 'get-user-location' 'pending'}}
+      <i class="fa fa-refresh fa-spin"></i>
+    {{/if}}
+    {{#if SEql 'get-user-location' 'success'}}
+      <i class="fa fa-check-circle"></i>
+    {{/if}}
+    {{#if SEql 'get-user-location' 'failure'}}
+      <i class="fa fa-exclamation"></i>
+    {{/if}}
+  </button>
 </template>
 
 <template name="exitSearch">
   <div class="exit-search">
-    <span class="ppicon-cancel"></span>
+    <a><span class="nav-icon ppicon-cancel"></span></a>
   </div>
 </template>
 
@@ -312,8 +357,8 @@
   <div class="select-game-types">
     {{#each options}}
       <div><label>
-        <input type="checkbox" value="{{value}}" checked>
-        {{value}}
+          <input type="checkbox" value="{{value}}" checked>
+          {{value}}
       </label></div>
     {{/each}}
   </div>
@@ -322,19 +367,19 @@
 <template name="runSearch">
   <div class="run-search">
     <button type="button"
-            class="btn btn-primary center-block">Find games</button>
+            class="btn find-games">Find games</button>
   </div>
 </template>
 
 <template name="back">
   <div class="back">
-    <span class="ppicon-left-open"></span>
+    <a><span class="nav-icon ppicon-left-open"></span></a>
   </div>
 </template>
 
 <template name="clearSearch">
   <div class="clear-search">
-    <span class="ppicon-cancel"></span>
+    <span class="nav-icon ppicon-cancel"></span>
   </div>
 </template>
 
@@ -381,10 +426,12 @@
 </template>
 
 <template name="subscribeButton">
-  <button type="button"
-          class="btn btn-primary center-block">
-    <span class="glyphicon glyphicon-envelope"></span>
-    Subscribe</button>
+  <div class="subscribe-button">
+    <button type="button"
+            class="btn btn-primary center-block">
+      <span class="glyphicon glyphicon-envelope"></span>
+      Subscribe</button>
+  </div>
 </template>
 
 <template name="devDetail">
@@ -394,11 +441,13 @@
 
 <template name="devDetailNav">
   <div class="dev-detail-nav row">
-    {{> backToList}}
-    {{> gameTypeIndicator}}
-    {{> shareGameLink}}
-    {{> editGameLink}}
-    {{> copyGameLink}}
+    <div class="content-all">
+      {{> backToList}}
+      {{> gameTypeIndicator}}
+      {{> shareGameLink}}
+      {{> editGameLink}}
+      {{> copyGameLink}}
+    </div>
   </div>
 </template>
 
@@ -440,16 +489,18 @@
 
 <template name="devDetailBody">
   <div class="dev-detail-body row">
-    {{> soloGameMap}}
-    {{> gameSummary}}
-    {{#if userInGame}} {{> addFriendsLink}} {{/if}}
-    {{{alerts}}}
-    {{> addPlayers}}
-    {{> joinOrLeave}}
-    {{> organizersNote}}
-    {{> whosPlayingSummary}}
-    {{> comments}}
-    {{> addComment}}
+    <div class="content-all">
+      {{> soloGameMap}}
+      {{> gameSummary}}
+      {{#if userInGame}} {{> addFriendsLink}} {{/if}}
+      {{{alerts}}}
+      {{> addPlayers}}
+      {{> joinOrLeave}}
+      {{> organizersNote}}
+      {{> whosPlayingSummary}}
+      {{> comments}}
+      {{> addComment}}
+    </div>
   </div>
 </template>
 
@@ -548,7 +599,7 @@
     <div class="header">
       <div class="close pull-left">
         {{#link route="dev"}}
-          <span class="ppicon-cancel"></span>
+          <span class="nav-icon ppicon-cancel"></span>
         {{/link}}
       </div>
       <h3 class="title">{{title}}</h3>

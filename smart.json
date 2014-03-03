@@ -4,6 +4,7 @@
     "nprogress": {},
     "spin": {},
     "iron-router-progress": {},
-    "bootstrap3-less": {}
+    "bootstrap3-less": {},
+    "font-awesome": {}
   }
 }
