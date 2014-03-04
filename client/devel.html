@@ -722,27 +722,31 @@
 
 <template name="settings">
 <ul class="settings list-group">
-  <li class="sign-in list-group-item">
-    <a> Sign In
-      {{#if SGet 'settings-sign-in'}}
-        <span class="ppicon-up-open"></span>
-      {{else}}
-        <span class="ppicon-down-open"></span>
-      {{/if}}
-    </a>
+  {{#if currentUser}}
+    <li class="sign-out trigger list-group-item">Sign Out</li>
+  {{else}}
+    {{{settingsItem 'sign-in'}}}
+    {{{settingsItem 'sign-up'}}}
+    {{{settingsItem 'forgot-password'}}}
+    {{{settingsItem 'help-and-feedback'}}}
+  {{/if}}
+</ul>
+</template>
+
+<template name="settingsItem">
+  <li class="{{name}} trigger list-group-item">
+    {{title}}
+    {{#if isSetting}}
+      <span class="ppicon-up-open"></span>
+    {{else}}
+      <span class="ppicon-down-open"></span>
+    {{/if}}
   </li>
-  {{#if SGet 'settings-sign-in'}}
-    <li class="sign-in action list-group-item">
-      {{> devSignIn}}
+  {{#if isSetting}}
+    <li class="{{name}} action list-group-item">
+      {{{action}}}
     </li>
   {{/if}}
-  <li class="sign-up list-group-item"><a>Sign Up
-      <span class="ppicon-down-open"></span></a></li>
-  <li class="forgot-password list-group-item"><a>Forgot Password
-      <span class="ppicon-down-open"></span></a></li>
-  <li class="help-and-feeback list-group-item"><a>Help & Feedback
-      <span class="ppicon-down-open"></span></a></li>
-</ul>
 </template>
 
 <template name="devSignIn">
@@ -753,7 +757,32 @@
       <input type="password" class="form-control password"
              placeholder="Your password" required>
     </div>
-    {{{alerts}}}
+    {{{alerts 'devSignIn'}}}
     <button class="btn sign-in" type="submit">Sign in</button>
   </form>
+</template>
+
+<template name="devSignUp">
+  <form class="dev-sign-up" role="form">
+    <strong class="form-heading">Glad to have you!</strong>
+    <p>Be sure to check for your email confirmation.</p>
+    <div class="form-group">
+      <input type="text" class="form-control full-name"
+             placeholder="Your full name" required autofocus>
+      <input type="email" class="form-control email"
+             placeholder="Your email" value="{{email}}" required>
+      <input type="password" class="form-control password"
+             placeholder="Your password" required>
+    </div>
+    {{{alerts 'devSignUp'}}}
+    <button class="btn sign-up" type="submit">Sign up</button>
+  </form>
+</template>
+
+<template name="devForgotPassword">
+Forgot password!
+</template>
+
+<template name="devHelpAndFeedback">
+Help and feedback!
 </template>

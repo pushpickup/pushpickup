@@ -171,6 +171,11 @@ var handlebarsHelperMap = {
   participle: function(date, options) {
     check(options.hash, {past: String, present: String});
     return (date < new Date()) ? options.hash.past : options.hash.present;
+  },
+  alerts: function (where) {
+    var self = this;
+    check(where, String);
+    return Template.meteorAlerts({where: where});
   }
 };
 (function (handlebarsHelperMap) {
@@ -1480,19 +1485,88 @@ Template.gameWhen.helpers({
 });
 
 Template.settings.events({
-  "click .sign-in a": function () {
+  // signed in
+  "click .sign-out.trigger": function () {
+    Meteor.logout();
+    Router.go('dev');
+  },
+
+  // not signed in
+  "click .sign-in.trigger": function () {
     Session.toggle("settings-sign-in");
   },
-  "click .sign-up a": function () {
+  "click .sign-up.trigger": function () {
     Session.toggle("settings-sign-up");
   },
-  "click .forgot-password a": function () {
+  "click .forgot-password.trigger": function () {
     Session.toggle("settings-forgot-password");
   },
-  "click .help-and-feedback a": function () {
+  "click .help-and-feedback.trigger": function () {
     Session.toggle("settings-help-and-feedback");
   }
 });
 
 Template.settings.helpers({
+  settingsItem: function (name) {
+    return Template.settingsItem({name: name});
+  }
+});
+
+Template.settingsItem.helpers({
+  title: function () {
+    return _.string.titleize(_.string.humanize(this.name))
+      .replace('And','&');
+  },
+  isSetting: function () {
+    return Session.get("settings-" + this.name);
+  },
+  action: function () {
+    return Template[_.string.camelize("dev-"+this.name)](this);
+  }
+});
+
+Template.devSignIn.events({
+  "submit form": function (event, template) {
+    event.preventDefault();
+    var email = template.find("input.email").value;
+    var password = template.find("input.password").value;
+    Meteor.loginWithPassword(email, password, function (err) {
+      if (err) {
+        console.log(err);
+        Alerts.throw({
+          message: err.reason, type: "danger", where: "devSignIn"
+        });
+      } else {
+        Router.go('dev');
+      }
+    });
+  }
+});
+
+Template.devSignUp.events({
+  "submit form": function (event, template) {
+    event.preventDefault();
+    var fullName = template.find("input.full-name").value;
+    var email = template.find("input.email").value;
+    var password = template.find("input.password").value;
+    Meteor.call("dev.signUp", email, fullName, password, function (err) {
+      if (err) {
+        console.log(err);
+        Alerts.throw({
+          message: err.reason, type: "danger", where: "devSignUp"
+        });
+      } else {
+        Meteor.loginWithPassword(email, password, function (err) {
+          if (err) {
+            console.log(err);
+            Alerts.throw({
+              message: err.reason, type: "danger", where: "devSignUp"
+            });
+          } else {
+            Router.go('dev');
+          }
+        });
+      }
+    });
+  }
 });

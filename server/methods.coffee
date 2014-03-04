@@ -75,18 +75,35 @@ Meteor.methods
     if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
       throw new Meteor.Error 403,
         "Someone has already added and verified that email address"
-    else
-      if emailOwner
-        # email is in system but unverified. remove it before proceeding.
-        Meteor.users.update emailOwner?._id,
-          $pull: emails: address: email
-      password = strange.password()
-      userId = Accounts.createUser
-        email: email
-        password: password
-        profile: name: name
-      userId: userId, password: password
+    if emailOwner
+      # email is in system but unverified. remove it before proceeding.
+      Meteor.users.update emailOwner?._id,
+        $pull: emails: address: email
+    password = strange.password()
+    userId = Accounts.createUser
+      email: email
+      password: password
+      profile: name: name
+    userId: userId, password: password
 
+  "dev.signUp": (email, name, password) ->
+    emailOwner = Meteor.users.findOne({'emails.address': email})
+    if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
+      throw new Meteor.Error 403,
+        "Someone has already added and verified that email address"
+    if not Match.test(password, String) or password.length < 6
+      throw new Meteor.Error 403,
+        "Password must be at least 6 characters."
+    if emailOwner
+      # email is in system but unverified. remove it before proceeding.
+      Meteor.users.update emailOwner?._id,
+        $pull: emails: address: email
+    userId = Accounts.createUser
+      email: email
+      password: password
+      profile: name: name
+    Accounts.sendVerificationEmail userId, email
+    "ok"
   "dev.unauth.addGame": (email, name, game) ->
     newUser = Meteor.call "dev.addUser", email, name
     this.setUserId(newUser.userId)
