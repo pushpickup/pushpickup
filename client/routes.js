@@ -4,6 +4,8 @@ Router.configure({
   loadingTemplate: 'loading'
 });
 
+Router.load(function () {Session.set("waiting-on", null); });
+
 Router.before(function() { Alerts.clearSeen(); });
 
 var filters = {

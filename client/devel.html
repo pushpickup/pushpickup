@@ -605,8 +605,7 @@
           {{{selectType}}}
         </div>
         <div class="form-group">
-          {{{selectDay}}}
-          {{{selectTime}}}
+          {{> devSelectWhen}}
         </div>
         <div class="form-group">
           {{> devSelectLocation}}
@@ -648,8 +647,9 @@
         <!--   support@pushpickup.com). Thanks! -->
         <!-- </p> -->
         {{{alerts}}}
-        <button for="{{action}}GameForm" type="submit" class="btn {{action}}-game">
-          {{submit}}
+        <button for="{{action}}GameForm" type="submit"
+                class="btn {{action}}-game">
+          {{> submitAndWait}}
         </button>
         {{#if editingGame}}
           <div><a class="text-danger remove">Cancel game</a></div>
@@ -657,6 +657,17 @@
       </form>
     </div>
   </div>
+</template>
+
+<template name="devSelectWhen">
+  {{{selectDay}}}
+  {{{selectTime}}}
+</template>
+
+<template name="submitAndWait">
+  {{#spinnerIfWaiting action}}
+    {{submit}}
+  {{/spinnerIfWaiting}}
 </template>
 
 <template name="whosPlayingEditable">
@@ -773,4 +784,8 @@ Forgot password!
 
 <template name="devHelpAndFeedback">
 Help and feedback!
+</template>
+
+<template name="tinySpinner">
+  <i class="fa fa-refresh fa-spin"></i>
 </template>
