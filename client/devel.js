@@ -66,19 +66,27 @@ Deps.autorun(function () {
       var handle;
       var userId = Meteor.userId();
       handle = userId && Meteor.subscribe("user-games");
-      if ((handle && handle.ready() || !userId)
+      if (handle && handle.ready()
           && (! Session.get("soloGame"))) {
+        // These sets are mutually exclusive. If a user is playing *and*
+        // organizing a game, that game is in the "organizing" list.
         Session.set(
-          "user-gameIds-upcoming-initial",
-          Games.find(
-            {
-              $or: [{'players.userId': userId || "null"},
-                    {'creator.userId': userId || "null"}],
-              startsAt: {$gte: new Date()}
-            },
-            {
-              reactive: false, fields: {_id: 1}
-            }).fetch());
+          "user-organizing-upcoming-initial",
+          Games.find({
+            'creator.userId': userId,
+            startsAt: {$gte: new Date()}
+          }, {
+            reactive: false, fields: {_id: 1}
+          }).fetch());
+        Session.set(
+          "user-playing-upcoming-initial",
+          Games.find({
+            'players.userId': userId,
+            'creator.userId': {$ne: userId},
+            startsAt: {$gte: new Date()}
+          }, {
+            reactive: false, fields: {_id: 1}
+          }).fetch());
       }
     });
 
@@ -221,17 +229,26 @@ Template.listOfGames.helpers({
       (0.00062137119 * m).toFixed(0)
       + " miles / " + (m/1000).toFixed(0) + " km";
   },
-  userUpcomingGames: function () {
-    var ugui = Session.get("user-gameIds-upcoming-initial");
-    return ugui
-      && (ugui.length > 0)
-      && Games.find({$or: ugui}, {sort: {startsAt: 1}})
+  userOrganizingUpcoming: function () {
+    var uoui = Session.get("user-organizing-upcoming-initial");
+    return uoui
+      && (uoui.length > 0)
+      && Games.find({$or: uoui}, {sort: {startsAt: 1}})
+      || [];
+  },
+  userPlayingUpcoming: function () {
+    var upui = Session.get("user-playing-upcoming-initial");
+    var userId = Meteor.userId();
+    return upui
+      && (upui.length > 0)
+      && Games.find({$or: upui}, {sort: {startsAt: 1}})
       || [];
   },
   upcomingGames: function () {
-    var ugui = Session.get("user-gameIds-upcoming-initial");
+    var uopui = _.union(Session.get("user-organizing-upcoming-initial") || [],
+                        Session.get("user-playing-upcoming-initial") || []);
     return Games.find({
-      '_id': {$nin: _.pluck(ugui, '_id')},
+      '_id': {$nin: _.pluck(uopui || [], '_id')},
       'startsAt': {$gte: new Date()}
     }, {sort: {startsAt: 1}});
   },

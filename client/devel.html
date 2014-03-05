@@ -62,8 +62,11 @@
 
 <template name="listOfGames">
   <ul class="list-of-games list-group">
-    {{#if gte userUpcomingGames.count 1}}
-      {{#each userUpcomingGames}}
+    {{#if currentUser}}
+      {{#each userOrganizingUpcoming}}
+        {{> listedGame}}
+      {{/each}}
+      {{#each userPlayingUpcoming}}
         {{> listedGame}}
       {{/each}}
     {{/if}}
@@ -72,19 +75,17 @@
         {{> listedGame}}
       {{/each}}
     {{else}}
-      {{#if SGet 'gamesReady'}}
-        <li class="list-group-item">
+      <li class="list-group-item">
+        {{#if SGet 'gamesReady'}}
           There are no upcoming games within {{maxDistance}}. :(
-        </li>
-      {{else}}
-        {{> spinner}}
-      {{/if}}
+        {{else}}
+          {{> spinner}}
+        {{/if}}
+      </li>
     {{/if}}
-    {{#if gte pastGames.count 1}}
-      {{#each pastGames}}
-        {{> listedGame}}
-      {{/each}}
-    {{/if}}
+    {{#each pastGames}}
+      {{> listedGame}}
+    {{/each}}
   </ul>
   {{> loadMoreGames}}
 </template>
