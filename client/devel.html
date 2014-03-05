@@ -154,9 +154,9 @@
 <template name="gameWhen">
   <div class="game-when">
     {{#if past startsAt}}
-      {{day}} {{time}} ({{fromNow}})
+      <strong>Ended {{fromNow}}</strong> ({{day}} {{time}})
     {{else}}
-      {{day}} {{time}}
+      <strong>{{day}}</strong> {{time}}
     {{/if}}
   </div>
 </template>
@@ -167,7 +167,7 @@
       <strong class="text-info">
         {{participle startsAt past='Organized' present='Organizing'}}
       </strong>
-      + {{numNeeded}} needed
+        + {{numNeeded}} needed
     {{else}}
       {{#if playing}}
         <strong class="text-success">
@@ -529,8 +529,10 @@
 
 <template name="organizersNote">
   <div class="organizers-note">
+    {{#if note}}
     <strong>Organizer's note</strong>
-    <div>{{note}}</div>
+      <div>{{note}}</div>
+    {{/if}}
   </div>
 </template>
 
@@ -545,6 +547,8 @@
           + {{numFriends}}
         {{/with}}
       </li>
+    {{else}}
+      <li>Be the first to join and add friends :)</li>
     {{/each}}
     </ul>
   </div>
