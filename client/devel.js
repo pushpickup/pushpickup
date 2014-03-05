@@ -1274,8 +1274,8 @@ Template.devEditableGame.helpers({
         selected: (+dayStart === +selfDayStart)
       };
     });
-    them[0].text = 'Today' + ' (' + them[0].text + ')';
-    them[1].text = 'Tomorrow' + ' (' + them[1].text + ')';
+    them[0].text = 'Today';
+    them[1].text = 'Tomorrow';
     var days = {label: "When", id: "gameDay",
                 options: them};
     return Template.selectForm(days);
