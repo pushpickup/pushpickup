@@ -71,6 +71,8 @@ Meteor.methods
   # This method, which sends no verification email, is intended to compose
   # with another method that *will* send a verification email
   "dev.addUser": (email, name) ->
+    check(email, ValidEmail)
+    check(name, NonEmptyString)
     emailOwner = Meteor.users.findOne({'emails.address': email})
     if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
       throw new Meteor.Error 403,
@@ -87,13 +89,13 @@ Meteor.methods
     userId: userId, password: password
 
   "dev.signUp": (email, name, password) ->
+    check(email, ValidEmail)
+    check(name, NonEmptyString)
+    check(password, ValidPassword)
     emailOwner = Meteor.users.findOne({'emails.address': email})
     if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
       throw new Meteor.Error 403,
         "Someone has already added and verified that email address"
-    if not Match.test(password, String) or password.length < 6
-      throw new Meteor.Error 403,
-        "Password must be at least 6 characters."
     if emailOwner
       # email is in system but unverified. remove it before proceeding.
       Meteor.users.update emailOwner?._id,

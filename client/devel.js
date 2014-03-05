@@ -305,6 +305,9 @@ Template.whoIsPlaying.helpers({
   }
 });
 
+// Return friends as [{name: XXX, email: XXX}, {name: YYY}, ...]
+// `email` is optional
+// Ignore inputs where both `name` and `email` are empty
 var makeFriends = function (nameInputs, emailInputs) {
   var friends = {};
   _.forEach(nameInputs, function (input) {
@@ -312,11 +315,52 @@ var makeFriends = function (nameInputs, emailInputs) {
     friends[input.id].name = input.value;
   });
   _.forEach(emailInputs, function (input) {
-    friends[input.id].email = input.value;
+    if (! _.isEmpty(input.value))
+      friends[input.id].email = input.value;
   });
   return _.reject(_.values(friends), function (friend) {
-    return _.isEmpty(friend.name);
+    return _.isEmpty(friend.name) && _.isEmpty(friend.email);
   });
+};
+
+var alertables = {
+  signUp: function (email, fullName, password) {
+    var them = [{
+      value: email, pattern: ValidEmail,
+      alert: {message: "Your email doesn't look right"}
+    },{
+      value: fullName, pattern: NonEmptyString,
+      alert: {message: "Please put in your name"}
+    }];
+    if (password !== undefined) {
+      them.push({
+        value: password, pattern: ValidPassword,
+        alert: {message: "Password must be at least 6 characters"}
+      });
+    }
+    return them;
+  },
+  signIn: function (email, password) {
+    return [{
+      value: email, pattern: ValidEmail,
+      alert: {message: "Your email doesn't look right"}
+    },{
+      value: password, pattern: NonEmptyString,
+      alert: {message: "Enter your password to sign in"}
+    }];
+  },
+  addFriends: function (friends) {
+    return [{
+      value: friends, pattern: [{name: NonEmptyString,
+                                 email: Match.Optional(ValidEmail)}],
+      alert: {message: "A friend's email either doesn't look right "
+              + "or needs a name to go with it"}
+    }];
+  },
+  comment: function (comment) {
+    return [{value: comment, pattern: NonEmptyString,
+             alert: {message: "Your comment must have value"}}];
+  }
 };
 
 Template.addSelfAndFriends.helpers({
@@ -330,12 +374,20 @@ Template.addSelfAndFriends.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
+    Alerts.clearSeen({where: "addSelfAndFriends"});
+    // rejects "empty" friends
     var friends = makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
+    if (! Alerts.test(alertables.addFriends(friends),
+                      {type: "danger", where: "addSelfAndFriends"}))
+      return;
     var email = template.find("input.email").value;
     var fullNameInput = template.find("input.full-name");
     if (fullNameInput) { // new user
       var fullName = fullNameInput.value;
+      if (! Alerts.test(alertables.signUp(email, fullName),
+                        {type: "danger", where: "addSelfAndFriends"}))
+        return;
       Meteor.call(
         "dev.unauth.addPlayers", game._id, email, fullName, friends,
         function (error, result) {
@@ -367,6 +419,9 @@ Template.addSelfAndFriends.events({
         });
     } else { // attempt to sign in, join game, and possibly add friends
       var password = template.find("input.password").value;
+      if (! Alerts.test(alertables.signIn(email, password),
+                        {type: "danger", where: "addSelfAndFriends"}))
+        return;
       Meteor.loginWithPassword(email, password, function (err) {
         if (!err) {
           Meteor.call(
@@ -420,8 +475,17 @@ Template.addFriends.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
+    Alerts.clearSeen({where: "addFriends"});
     var friends = makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
+    if (_.isEmpty(friends)) {
+      Alerts.throw({message: "Even imaginary friends have names",
+                    type: "danger", where: "addFriends"});
+      return;
+    }
+    if (! Alerts.test(alertables.addFriends(friends),
+                      {type: "danger", where: "addFriends"}))
+      return;
     Meteor.call(
       "dev.addFriends", friends, Meteor.userId(), game._id,
       function (error, result) {
@@ -768,10 +832,14 @@ Template.subscribe.destroyed = function () {
 Template.authenticateAndSubscribe.events({
   "submit form": function (event, template) {
     event.preventDefault();
+    Alerts.clearSeen({where: "authenticateAndSubscribe"});
     var email = template.find("input.email").value;
     var fullNameInput = template.find("input.full-name");
     if (fullNameInput) {
       var fullName = fullNameInput.value;
+      if (! Alerts.test(alertables.signUp(email, fullName),
+                        {type: "danger", where: "authenticateAndSubscribe"}))
+        return;
       Meteor.call(
         "dev.unauth.addUserSub", email, fullName,
         Session.get("gameTypes"), Session.get("gameDays"),
@@ -805,6 +873,9 @@ Template.authenticateAndSubscribe.events({
         });
     } else { // attempt to sign in and subscribe
       var password = template.find("input.password").value;
+      if (! Alerts.test(alertables.signIn(email, password),
+                        {type: "danger", where: "authenticateAndSubscribe"}))
+        return;
       Meteor.loginWithPassword(email, password, function (err) {
         if (! err) {
           Meteor.call(
@@ -1004,7 +1075,11 @@ Template.addComment.events({
   "submit form.add-comment": function (event, template) {
     event.preventDefault();
     var self = this;
+    Alerts.clearSeen({where: "addComment"});
     var comment = template.find("input.comment").value;
+    if (! Alerts.test(alertables.comment(comment),
+                      {type: "danger", where: "addComment"}))
+      return;
     if (! Meteor.userId()) {
       Session.set("unauth-comment", comment);
     } else {
@@ -1020,12 +1095,19 @@ Template.addComment.destroyed = function () {
 Template.authenticateAndComment.events({
   "submit form": function (event, template) {
     event.preventDefault();
+    Alerts.clearSeen({where: "authenticateAndComment"});
     var game = this;
     var comment = template.find("input.comment").value;
+    if (! Alerts.test(alertables.comment(comment),
+                      {type: "danger", where: "authenticateAndComment"}))
+      return;
     var email = template.find("input.email").value;
     var fullNameInput = template.find("input.full-name");
     if (fullNameInput) {
       var fullName = fullNameInput.value;
+      if (! Alerts.test(alertables.signUp(email, fullName),
+                        {type: "danger", where: "authenticateAndComment"}))
+        return;
       Meteor.call(
         "dev.unauth.addCommenter", game._id, email, fullName, comment,
         function (error, result) {
@@ -1057,6 +1139,9 @@ Template.authenticateAndComment.events({
         });
     } else { // attempt to sign in and add comment
       var password = template.find("input.password").value;
+      if (! Alerts.test(alertables.signIn(email, password),
+                        {type: "danger", where: "authenticateAndComment"}))
+        return;
       Meteor.loginWithPassword(email, password, function (err) {
         if (! err) {
           Meteor.call(
@@ -1266,6 +1351,7 @@ Template.devEditableGame.events({
   },
   "submit #addGameForm": function (event, template) {
     event.preventDefault();
+    Alerts.clearSeen({where: "editableGame"});
     var game = {
       type: template.find("#gameType").value,
       // status depends on requested.players
@@ -1323,6 +1409,9 @@ Template.devEditableGame.events({
       var fullNameInput = template.find("input.full-name");
       if (fullNameInput) { // new user
         var fullName = fullNameInput.value;
+        if (! Alerts.test(alertables.signUp(email, fullName),
+                          {type: "danger", where: "editableGame"}))
+          return;
         Meteor.call(
           "dev.unauth.addGame", email, fullName, game,
           function (error, result) {
@@ -1354,6 +1443,9 @@ Template.devEditableGame.events({
           });
       } else { // attempt to sign in, join game, and possibly add friends
         var password = template.find("input.password").value;
+        if (! Alerts.test(alertables.signIn(email, password),
+                          {type: "danger", where: "editableGame"}))
+          return;
         Meteor.loginWithPassword(email, password, function (error) {
           if (! error) {
             Meteor.call("addGame", game, function (error, result) {
@@ -1528,8 +1620,12 @@ Template.settingsItem.helpers({
 Template.devSignIn.events({
   "submit form": function (event, template) {
     event.preventDefault();
+    Alerts.clearSeen({where: "devSignIn"});
     var email = template.find("input.email").value;
     var password = template.find("input.password").value;
+    if (! Alerts.test(alertables.signIn(email, password),
+                      {type: "danger", where: "devSignIn"}))
+      return;
     Meteor.loginWithPassword(email, password, function (err) {
       if (err) {
         console.log(err);
@@ -1546,9 +1642,13 @@ Template.devSignIn.events({
 Template.devSignUp.events({
   "submit form": function (event, template) {
     event.preventDefault();
+    Alerts.clearSeen({where: "devSignUp"});
     var fullName = template.find("input.full-name").value;
     var email = template.find("input.email").value;
     var password = template.find("input.password").value;
+    if (! Alerts.test(alertables.signUp(email, fullName, password),
+                      {type: "danger", where: "devSignUp"}))
+      return;
     Meteor.call("dev.signUp", email, fullName, password, function (err) {
       if (err) {
         console.log(err);

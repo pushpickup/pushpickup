@@ -43,6 +43,12 @@
 //
 // To automatically remove an alert after N milliseconds, include
 // `autoremove: N` as a property of the argument to Alert.throw()
+//
+// For form input validation, you can clear alerts on resubmission by
+// including, for example, the following line at the top of a "submit form"
+// event:
+//
+// Alerts.collection.remove({where: "signIn", seen: true});
 
 Template.meteorAlerts.helpers({
   alerts: function(where) {

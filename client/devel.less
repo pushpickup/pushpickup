@@ -95,17 +95,38 @@ button {
   }
 }
 
+.tight.form-group {
+  // two inputs
+  input:nth-of-type(1):nth-last-of-type(2) {
+    margin-bottom: -1px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  input:nth-of-type(2):nth-last-of-type(1) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  // three inputs
+  input:nth-of-type(1):nth-last-of-type(3) {
+    margin-bottom: -1px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  input:nth-of-type(2):nth-last-of-type(2) {
+    margin-bottom: -1px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  input:nth-of-type(3):nth-last-of-type(1) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+}
+
 .dev-sign-in {
   .form-group {
-    input:nth-of-type(1):nth-last-of-type(2) {
-      margin-bottom: -1px;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-    input:nth-of-type(2):nth-last-of-type(1) {
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
-    }
   }
   .btn[type=submit] {
     .btn-primary;
@@ -116,22 +137,6 @@ button {
 
 .dev-sign-up {
   .form-group {
-    input:nth-of-type(1):nth-last-of-type(3) {
-      margin-bottom: -1px;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-    input:nth-of-type(2):nth-last-of-type(2) {
-      margin-bottom: -1px;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
-    }
-    input:nth-of-type(3):nth-last-of-type(1) {
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
-    }
   }
   .btn[type=submit] {
     .btn-primary;
