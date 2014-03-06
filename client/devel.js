@@ -1,16 +1,20 @@
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
-Session.setDefault("current-location", {
-	"type" : "Point",
-  // San Pablo Park, Berkeley, CA
-	"coordinates" : [-122.284786, 37.855271]
-});
+
+var sanPabloParkBerkeleyCA = {
+	"type" : "Point", "coordinates" : [-122.284786, 37.855271]
+};
+Session.setDefault("current-location", sanPabloParkBerkeleyCA);
+Session.setDefault("map-center", sanPabloParkBerkeleyCA);
+
 Session.setDefault(
   "game-types",
   _.pluck(GameOptions.find({option: "type"}).fetch(), 'value')
 );
 Session.setDefault("max-distance", 100000); // 100,000 m => 62 miles
-Session.setDefault("num-games-requested", 15);
+
+var initialNumGamesRequested = 15;
+Session.setDefault("num-games-requested", initialNumGamesRequested);
 
 var getUserLocation = function () {
   Session.set("get-user-location", "pending");
@@ -49,23 +53,31 @@ Deps.autorun(function () {
 });
 
 Deps.autorun(function (c) {
-  if (Session.equals("dev-mode", true))
+  if (Session.equals("dev-mode", true)) {
     getUserLocation();
+    c.stop();
+  }
 });
+
+PastGames = new Meteor.Collection(null);
+var setPastGames = function (arr) {
+  PastGames.remove({});
+  _.forEach(arr, function (doc) { PastGames.insert(doc); });
+};
 
 Deps.autorun(function () {
   if (! Session.equals("dev-mode", true))
     return;
 
   if (! Session.equals("searching", "after")) {
-    // No map, so no map bounds to poll. Get games user is involved in
-    // and games upcoming and nearby. If there aren't many user-involved
-    // or nearby upcoming games, pull in nearby past games.
+    // No map, so no map bounds to poll.
+    // Get nearby or user-involved games that are upcoming.
+    // Pull in up to initialNumGamesRequested of the nearest past games.
 
     Deps.autorun(function () {
       var handle;
       var userId = Meteor.userId();
-      handle = userId && Meteor.subscribe("user-games");
+      handle = userId && Meteor.subscribe("user-upcoming-games");
       if (handle && handle.ready()
           && (! Session.get("soloGame"))) {
         // These sets are mutually exclusive. If a user is playing *and*
@@ -73,8 +85,7 @@ Deps.autorun(function () {
         Session.set(
           "user-organizing-upcoming-initial",
           Games.find({
-            'creator.userId': userId,
-            startsAt: {$gte: new Date()}
+            'creator.userId': userId
           }, {
             reactive: false, fields: {_id: 1}
           }).fetch());
@@ -82,8 +93,7 @@ Deps.autorun(function () {
           "user-playing-upcoming-initial",
           Games.find({
             'players.userId': userId,
-            'creator.userId': {$ne: userId},
-            startsAt: {$gte: new Date()}
+            'creator.userId': {$ne: userId}
           }, {
             reactive: false, fields: {_id: 1}
           }).fetch());
@@ -100,44 +110,42 @@ Deps.autorun(function () {
         }, function () { Session.set("gamesReady", true); });
     });
 
+    // Grab up to initialNumGamesRequested past games
+    // as near as possible to current location
     Deps.autorun(function () {
-      if (Session.equals("gamesReady", true)) {
-        var numUpcoming = Games.find({startsAt: {$gte: new Date()}}).count();
-        var deficit =  Session.get("num-games-requested") - numUpcoming;
-        (deficit > 0) &&
-          Meteor.subscribe(
-            "nearby-past-games", Session.get("current-location"), {
-              types: Session.get("game-types"),
-              maxDistance: Session.get("max-distance"),
-              limit: deficit
-            });
-      }
+      var location = Session.get("current-location");
+      Meteor.call("nearest-past-games", location, function (err, res) {
+        if (!err) setPastGames(res);
+      });
     });
+
   } else {
     // after searching -- findingsMap is rendered
 
-    var geoWithinUpcomingGamesHandle = null;
     Deps.autorun(function () {
+      Session.set("gamesReady", false);
       geoWithinUpcomingGamesHandle = Meteor.subscribe(
         "geowithin-upcoming-games", Session.get("geoWithin"), {
           types: Session.get("game-types"),
           limit: Session.get("num-games-requested")
-        });
+        }, function () { Session.set("gamesReady", true); });
     });
 
+    // Grab up to initialNumGamesRequested past games
+    // as near as possible to map center
     Deps.autorun(function () {
-      if (geoWithinUpcomingGamesHandle.ready()) {
-        var numUpcoming = Games.find({startsAt: {$gte: new Date()}}).count();
-        var deficit =  Session.get("num-games-requested") - numUpcoming;
-        (deficit > 0) &&
-          Meteor.subscribe(
-            "geowithin-past-games", Session.get("geoWithin"), {
-              types: Session.get("game-types"),
-              limit: deficit
-            });
-      }
+      var location = Session.get("map-center");
+      Meteor.call("nearest-past-games", location, function (err, res) {
+        if (!err) setPastGames(res);
+      });
     });
   }
+
+  Deps.autorun(function () {
+    var numUpcoming = Games.find().count();
+    var deficit =  initialNumGamesRequested - numUpcoming;
+    Session.set("num-past-games-to-display", (deficit > 0) ? deficit: 0);
+  });
 });
 
 var handlebarsHelperMap = {
@@ -260,8 +268,8 @@ Template.listOfGames.helpers({
     }, {sort: {startsAt: 1}});
   },
   pastGames: function () {
-    return Games.find({'startsAt': {$lt: new Date()}},
-                      {sort: {startsAt: -1}});
+    var limit = Session.get("num-past-games-to-display") || 0;
+    return limit && PastGames.find({}, {sort: {startsAt: -1}, limit: limit});
   }
 });
 
@@ -768,8 +776,10 @@ Template.findingsMap.rendered = function () {
   };
 
   google.maps.event.addListener(map, 'idle', function () {
-    map.getBounds()
-      && Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+    if (map.getBounds()) {
+      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+      Session.set("map-center", geoUtils.toGeoJSONPoint(map.getCenter()));
+    }
     // asynchronous Session.set('selectedLocationName',...)
     locationName.sync();
     Alerts.collection.remove({where: "subscribe"});

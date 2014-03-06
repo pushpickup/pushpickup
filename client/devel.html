@@ -70,10 +70,9 @@
         {{> listedGame}}
       {{/each}}
     {{/if}}
-    {{#if gte upcomingGames.count 1}}
-      {{#each upcomingGames}}
-        {{> listedGame}}
-      {{/each}}
+
+    {{#each upcomingGames}}
+      {{> listedGame}}
     {{else}}
       <li class="list-group-item">
         {{#if SGet 'gamesReady'}}
@@ -82,7 +81,8 @@
           {{> spinner}}
         {{/if}}
       </li>
-    {{/if}}
+    {{/each}}
+
     {{#each pastGames}}
       {{> listedGame}}
     {{/each}}

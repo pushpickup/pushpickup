@@ -2,9 +2,11 @@ Meteor.publish("game", function (id) {
   return Games.find(id);
 });
 
-Meteor.publish("user-games", function () {
-  return Games.find({$or: [{'players.userId': this.userId || "null"},
-                           {'creator.userId': this.userId || "null"}]});
+Meteor.publish("user-upcoming-games", function () {
+  check(this.userId, String);
+  return Games.find({startsAt: {$gte: new Date()},
+                     $or: [{'players.userId': this.userId},
+                           {'creator.userId': this.userId}]});
 });
 
 var nearbyGamesQuery = function (location, options) {
@@ -37,16 +39,6 @@ Meteor.publish("nearby-upcoming-games", function (location, options) {
   });
 });
 
-Meteor.publish("nearby-past-games", function (location, options) {
-  var nearby = nearbyGamesQuery(location, options);
-  var limit = options.limit || 15; // `check`ed by nearbyGamesQuery
-  return Games.find(_.extend(nearby, {
-    'startsAt': {$lt: new Date()}
-  }), {
-    sort: {startsAt: -1}, limit: limit
-  });
-});
-
 var geoWithinGamesQuery =  function (geometry, options) {
   check(geometry, GeoJSONPolygon);
   check(options, Match.Optional({
@@ -70,16 +62,6 @@ Meteor.publish("geowithin-upcoming-games", function (geometry, options) {
     'startsAt': {$gte: new Date()}
   }), {
     sort: {startsAt: 1}, limit: limit
-  });
-});
-
-Meteor.publish("geowithin-past-games", function (location, options) {
-  var geoWithin = geoWithinGamesQuery(location, options);
-  var limit = options.limit || 15; // `check`ed by geoWithinGamesQuery
-  return Games.find(_.extend(geoWithin, {
-    'startsAt': {$lt: new Date()}
-  }), {
-    sort: {startsAt: -1}, limit: limit
   });
 });
 
