@@ -161,24 +161,39 @@ button {
 
 .share-game-link {
   position: absolute;
+  right: 60px;
+}
+
+.edit-game-link { 
+  display: inline-block;
+  position: absolute;
   right: 20px;
 }
 
 .dev-detail-nav .game-type-indicator {
   /* This is a hacky way to center align; needs different solution */
   margin-left: 70px;
+  display: none;
 }
 
-.join-game-link {
+.dev-detail-body .add-friends-link {
+  display: inline-block;
+  position: absolute;
+  top: 38%;
+  right: 18px;
+}
+
+.join-game-link, .listed-game .add-friends-link {
   display: inline-block;
   position: absolute;
   top: 40%;
   right: 10px;
 }
 
-.game-summary {
+.listed-game .game-summary {
   display: inline-block;
   padding-left: 10px;
+  width: 200px;
 }
 
 .listed-game .game-type-indicator {
