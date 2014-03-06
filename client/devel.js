@@ -1351,8 +1351,24 @@ var selectorValuesFromTemplate = function (selectors, templ) {
 };
 var asNumber = function (str) { return +str; };
 
+
+// Return an array of email addresses, or null if there are none in `str`
+//
+// If `str` is e.g. "joe@pp.com, jill, jack@pp.com", this function returns
+// the Array ["joe@pp.com", "jack@pp.com"].
+//
 // Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
-var getEmailsRegExp = /[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/g;
+var getEmails = function (str) {
+  if (/@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@/
+      .test(str)) {
+    // getEmailsRegExp will match e.g. "joe@foo.comdave@foo.com" as
+    // ["joe@foo.comdave"], so need to check for forgotten space between
+    // email addresses.
+    return null;
+  }
+  // str.match(regexp) -> null if no matches
+  return str.match(/[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/g);
+};
 
 Template.devEditableGame.events({
   "change #gameDay": function (evt, templ) {
@@ -1369,7 +1385,20 @@ Template.devEditableGame.events({
     var remainingPlayers = _.reject(self.players, function (p) {
       return _.contains(markedIds, p.userId || (! p.userId) && p.friendId);
     });
-    Meteor.call("editGame", Session.get("soloGame"), {
+
+    var inviteEmailsInput = templ.find("#inviteFriends").value;
+    var inviteEmails = getEmails(inviteEmailsInput);
+    if (!_.isEmpty(inviteEmailsInput) && !inviteEmails) {
+      Alerts.throw({
+        message: "Invite friends by listing email addresses, " +
+          "each separated by a comma.",
+        type: "danger", where: "editableGame"
+      });
+      Session.set("waiting-on", null);
+      return;
+    }
+
+    Meteor.call("editGame", self._id, {
       type: templ.find("#gameType").value,
       // status depends on (requested.players - players.length)
       startsAt: new Date(+templ.find("#gameTime").value),
@@ -1387,6 +1416,10 @@ Template.devEditableGame.events({
       requested: selectorValuesFromTemplate({
         players: ["#requestedNumPlayers", asNumber]
       }, templ)
+    }, function (error, result) {
+      if (!error) {
+        Meteor.call("inviteFriends", inviteEmails, self._id);
+      }
     });
     Router.go('devDetail', {_id: self._id});
   },
@@ -1445,12 +1478,17 @@ Template.devEditableGame.events({
           });
         }
       }
+      // TODO: fold Session.set("waiting-on", null) calls into a single
+      // Deps.autorun that nullifies "waiting-on" whenever there are
+      // unseen Alerts because just-thrown Alerts implies error
+      // or success of form action.
       Session.set("waiting-on", null);
       return;
     }
-    var inviteEmails = template.find("#inviteFriends").value
-          .match(getEmailsRegExp);
-    if (! Match.test(_.compact(inviteEmails), [ValidEmail])) {
+
+    var inviteEmailsInput = template.find("#inviteFriends").value;
+    var inviteEmails = getEmails(inviteEmailsInput);
+    if (!_.isEmpty(inviteEmailsInput) && !inviteEmails) {
       Alerts.throw({
         message: "Invite friends by listing email addresses, " +
           "each separated by a comma.",
@@ -1459,7 +1497,7 @@ Template.devEditableGame.events({
       Session.set("waiting-on", null);
       return;
     }
-    // TODO: actually invite friends upon successful adding of game
+
     if (! Meteor.userId()) {
       var email = template.find("input.email").value;
       var fullNameInput = template.find("input.full-name");
@@ -1470,37 +1508,39 @@ Template.devEditableGame.events({
           Session.set("waiting-on", null);
           return;
         }
-        Meteor.call(
-          "dev.unauth.addGame", email, fullName, game,
-          function (error, result) {
-            if (!error) {
-              Meteor.loginWithPassword(email, result.password);
-              Alerts.throw({
-                message: "Thanks, " + fullName +
-                  "! Check for an email from " +
-                  "support@pushpickup.com to verify your email address",
-                type: "success", where: result.gameId
-              });
-              Session.set("strange-passwd", result.password);
-              Router.go('devDetail', {_id: result.gameId});
-            } else {
-              // typical error: email in use
-              console.log(error);
-              if (error instanceof Meteor.Error) {
-                Alerts.throw({
-                  message: error.reason,
-                  type: "danger", where: "editableGame"
-                });
-              } else {
-                Alerts.throw({
-                  message: "Hmm, something went wrong. Try again?",
-                  type: "danger", where: "editableGame"
-                });
+        Meteor.call("dev.unauth.addGame", email, fullName, game, function (error, result) {
+          if (!error) {
+            Meteor.loginWithPassword(email, result.password, function (error) {
+              if (!error) {
+                Meteor.call("inviteFriends", inviteEmails, result.gameId);
               }
-              Session.set("waiting-on", null);
+            });
+            Alerts.throw({
+              message: "Thanks, " + fullName +
+                "! Check for an email from " +
+                "support@pushpickup.com to verify your email address",
+              type: "success", where: result.gameId
+            });
+            Session.set("strange-passwd", result.password);
+            Router.go('devDetail', {_id: result.gameId});
+          } else {
+            // typical error: email in use
+            console.log(error);
+            if (error instanceof Meteor.Error) {
+              Alerts.throw({
+                message: error.reason,
+                type: "danger", where: "editableGame"
+              });
+            } else {
+              Alerts.throw({
+                message: "Hmm, something went wrong. Try again?",
+                type: "danger", where: "editableGame"
+              });
             }
-          });
-      } else { // attempt to sign in, join game, and possibly add friends
+            Session.set("waiting-on", null);
+          }
+        });
+      } else { // attempt to sign in, add game, and possibly invite friends
         var password = template.find("input.password").value;
         if (! Alerts.test(alertables.signIn(email, password),
                           {type: "danger", where: "editableGame"})) {
@@ -1508,10 +1548,11 @@ Template.devEditableGame.events({
           return;
         }
         Meteor.loginWithPassword(email, password, function (error) {
-          if (! error) {
+          if (!error) {
             Meteor.call("addGame", game, function (error, result) {
               if (!error) {
                 Router.go('devDetail', {_id: result.gameId});
+                Meteor.call("inviteFriends", inviteEmails, result.gameId);
               } else {
                 console.log(error);
                 Alerts.throw({
@@ -1537,6 +1578,7 @@ Template.devEditableGame.events({
       Meteor.call("addGame", game, function (error, result) {
         if (!error) {
           Router.go('devDetail', {_id: result.gameId});
+          Meteor.call("inviteFriends", inviteEmails, result.gameId);
         } else {
           console.log(error);
           Alerts.throw({

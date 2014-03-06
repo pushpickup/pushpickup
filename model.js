@@ -84,6 +84,7 @@ Player = Match.Where(function (x) {
 });
 
 ValidEmail = Match.Where(function (x) {
+  check(x, String);
   // Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
   return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(x);
 });
