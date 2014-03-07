@@ -31,6 +31,7 @@ button {
     .btn-primary;
     .btn-lg;
     .btn-block;
+    background-color:#43828F;
   }
   &.leave-game {
     .btn-default;
@@ -65,11 +66,11 @@ button {
 }
 
 .settings-cog {
-  .make-xs-column(2);
+  .make-xs-column(1);
 }
 
 .start-search {
-  .make-xs-column(2);
+  .make-xs-column(1);
 }
 
 .add-game-link {
@@ -152,11 +153,22 @@ button {
 .dev-detail-body {
   .join-or-leave, .game-summary, .organizers-note, .whos-playing-summary {
     margin: 10px 0;
+    padding-left: (@grid-gutter-width / 2);
+    padding-right: (@grid-gutter-width / 2);
   }
+}
+
+.dev-detail-body .comments {
+    padding-left: (@grid-gutter-width / 2);
+    padding-right: (@grid-gutter-width / 2);
 }
 
 .back-to-list, .game-type-indicator, .share-game-link {
   display: inline-block;
+}
+
+.game-type-indicator {
+  opacity: .4;
 }
 
 .share-game-link {
@@ -199,4 +211,9 @@ button {
 .listed-game .game-type-indicator {
   float: left;
   margin-top: 20px;
+}
+
+.options-main {
+  padding: 5px 15px;
+  // background-color: #43828F;
 }
