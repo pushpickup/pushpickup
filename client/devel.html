@@ -71,17 +71,21 @@
       {{/each}}
     {{/if}}
 
-    {{#each upcomingGames}}
+    {{#each nonuserUpcoming}}
       {{> listedGame}}
+    {{/each}}
+
+    {{#if SGet 'gamesReady'}}
+      {{#if noneUpcoming}}
+        <li class="list-group-item">
+          There are no upcoming games within {{maxDistance}}. :(
+        </li>
+      {{/if}}
     {{else}}
       <li class="list-group-item">
-        {{#if SGet 'gamesReady'}}
-          There are no upcoming games within {{maxDistance}}. :(
-        {{else}}
-          {{> spinner}}
-        {{/if}}
+        {{> spinner}}
       </li>
-    {{/each}}
+    {{/if}}
 
     {{#each pastGames}}
       {{> listedGame}}
@@ -368,12 +372,6 @@
   </div>
 </template>
 
-<template name="clearSearch">
-  <div class="clear-search">
-    <span class="nav-icon ppicon-cancel"></span>
-  </div>
-</template>
-
 <template name="findingsMap">
   <div class="findings-map">
   {{#constant}}
@@ -481,10 +479,10 @@
 <template name="devDetailBody">
   <div class="dev-detail-body row">
     <div class="content-all">
+      {{{alerts}}}
       {{> soloGameMap}}
       {{> gameSummary}}
       {{#if userInGame}} {{> addFriendsLink}} {{/if}}
-      {{{alerts}}}
       {{> addPlayers}}
       {{> joinOrLeave}}
       {{> organizersNote}}

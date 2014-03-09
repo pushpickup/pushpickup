@@ -4,7 +4,13 @@
     "nprogress": {},
     "spin": {},
     "iron-router-progress": {},
+<<<<<<< HEAD
     "font-awesome": {},
     "bootstrap3-less": {}
+=======
+    "bootstrap3-less": {},
+    "font-awesome": {},
+    "moment": {}
+>>>>>>> origin/new-mobile-rough
   }
 }
