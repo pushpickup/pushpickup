@@ -259,13 +259,16 @@ Template.listOfGames.helpers({
       && Games.find({$or: upui}, {sort: {startsAt: 1}})
       || [];
   },
-  upcomingGames: function () {
+  nonuserUpcoming: function () {
     var uopui = _.union(Session.get("user-organizing-upcoming-initial") || [],
                         Session.get("user-playing-upcoming-initial") || []);
     return Games.find({
       '_id': {$nin: _.pluck(uopui || [], '_id')},
       'startsAt': {$gte: new Date()}
     }, {sort: {startsAt: 1}});
+  },
+  noneUpcoming: function () {
+    return Games.find().count() === 0;
   },
   pastGames: function () {
     var limit = Session.get("num-past-games-to-display") || 0;
@@ -632,6 +635,9 @@ var onPlaceChanged = function () {
 
 var onSelectLocationChanged = function () {
   var place = autocomplete.getPlace();
+  if (place.utc_offset) {
+    Session.set("selectedLocationUTCOffset", place.utc_offset / 60);
+  }
   if (place.geometry) {
     Session.set("selectedLocationPoint",
                 geoUtils.toGeoJSONPoint(place.geometry.location));
@@ -1404,8 +1410,10 @@ Template.devEditableGame.events({
       startsAt: new Date(+templ.find("#gameTime").value),
       location: {
         name: simplifyLocation(templ.find(".select-location input").value),
-        geoJSON: Session.get("selectedLocationPoint") ||
-          Games.findOne(Session.get("soloGame")).location.geoJSON
+        geoJSON: Session.get("selectedLocationPoint")
+          || Games.findOne(self._id).location.geoJSON,
+        utc_offset: Session.get("selectedLocationUTCOffset")
+          || Games.findOne(self._id).location.utc_offset
       },
       note: templ.find("#gameNote").value,
       players: remainingPlayers,
@@ -1445,7 +1453,8 @@ Template.devEditableGame.events({
       startsAt: new Date(+template.find("#gameTime").value),
       location: {
         name: simplifyLocation(template.find(".select-location input").value),
-        geoJSON: Session.get("selectedLocationPoint")
+        geoJSON: Session.get("selectedLocationPoint"),
+        utc_offset: Session.get("selectedLocationUTCOffset")
       },
       note: template.find("#gameNote").value,
       players: [],
