@@ -106,6 +106,11 @@ ValidComment = Match.Where(function (x) {
   return true;
 });
 
+UTCOffset = Match.Where(function (x) {
+  check(x, Number);
+  return (x < 16) && (x > -16);
+});
+
 ValidGame = {
   //creator: Match.Optional({name: String, userId: String}), <-- not passed in
   //notificationsSent: Match.Optional(Boolean)
@@ -113,7 +118,8 @@ ValidGame = {
   status: GameStatus,
   startsAt: WithinAWeekFromNow,
   location: {name: NonEmptyString,
-             geoJSON: GeoJSONPoint},
+             geoJSON: GeoJSONPoint,
+             utc_offset: Match.Optional(UTCOffset)},
   note: String,
   players: [Player],
   comments: [ValidComment],
