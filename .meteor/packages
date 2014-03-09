@@ -16,8 +16,5 @@ coffeescript
 underscore
 random
 font-awesome
-<<<<<<< HEAD
 bootstrap3-less
-=======
 moment
->>>>>>> origin/new-mobile-rough

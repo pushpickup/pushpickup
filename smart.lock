@@ -6,14 +6,9 @@
       "nprogress": {},
       "spin": {},
       "iron-router-progress": {},
-<<<<<<< HEAD
-      "font-awesome": {},
-      "bootstrap3-less": {}
-=======
       "bootstrap3-less": {},
       "font-awesome": {},
       "moment": {}
->>>>>>> origin/new-mobile-rough
     },
     "packages": {
       "iron-router": {
@@ -36,22 +31,20 @@
         "tag": "v0.2.0",
         "commit": "ce730d1d26feadb7c75ea25f22c5bfdb0c549a8b"
       },
+      "bootstrap3-less": {
+        "git": "https://github.com/eprochasson/bootstrap3-less",
+        "tag": "v0.1.9",
+        "commit": "5c812c4d7ce72917a065f0424c3cf54e5ff2d16a"
+      },
       "font-awesome": {
         "git": "https://github.com/nate-strauser/meteor-font-awesome.git",
         "tag": "v4.0.3",
         "commit": "61e9361384347547ae144f8228faa4deffda23db"
       },
-<<<<<<< HEAD
-      "bootstrap3-less": {
-        "git": "https://github.com/eprochasson/bootstrap3-less",
-        "tag": "v0.1.9",
-        "commit": "5c812c4d7ce72917a065f0424c3cf54e5ff2d16a"
-=======
       "moment": {
         "git": "https://github.com/acreeger/meteor-moment.git",
         "tag": "v2.5.1",
         "commit": "8c9bc5d3fc96705057737cb9743d555417f6e551"
->>>>>>> origin/new-mobile-rough
       }
     }
   }
