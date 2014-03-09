@@ -22,14 +22,16 @@ Meteor.methods({
     var game = Games.findOne(gameId);
     var user = Meteor.users.findOne(this.userId);
     if (!game || !user) return;
-    Email.send({
-      from: user.emails[0].address,
-      to: emails,
-      subject: user.profile.name + " invited you to play "+game.type+" "
-        + Meteor.call("utc-offset-startsAt-day-and-time", game),
-      text: "Want to join in? Below is a link to the game.\n\n"
-        + Meteor.absoluteUrl('dev/g/'+gameId)
-        + "\nThanks for helping to push pickup."
+    _.each(emails, function (email) {
+      Email.send({
+        from: user.emails[0].address,
+        to: email,
+        subject: user.profile.name + " invited you to play "+game.type+" "
+          + Meteor.call("utc-offset-startsAt-day-and-time", game),
+        text: "Want to join in? Below is a link to the game.\n\n"
+          + Meteor.absoluteUrl('dev/g/'+gameId)
+          + "\nThanks for helping to push pickup."
+      });
     });
   }
 });
