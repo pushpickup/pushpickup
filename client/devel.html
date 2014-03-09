@@ -480,10 +480,10 @@
 <template name="devDetailBody">
   <div class="dev-detail-body row">
     <div class="content-all">
+      {{{alerts}}}
       {{> soloGameMap}}
       {{> gameSummary}}
       {{#if userInGame}} {{> addFriendsLink}} {{/if}}
-      {{{alerts}}}
       {{> addPlayers}}
       {{> joinOrLeave}}
       {{> organizersNote}}
