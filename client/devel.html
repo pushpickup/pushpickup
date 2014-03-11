@@ -171,13 +171,13 @@
 <template name="whoIsPlaying">
   <div class="who-is-playing">
     {{#if organizing}}
-      <strong class="text-info">
+      <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
         {{participle startsAt past='Organized' present='Organizing'}}
       </strong>
         + {{numNeeded}} needed
     {{else}}
       {{#if playing}}
-        <strong class="text-success">
+        <strong class="text-{{#if past startsAt}}muted{{else}}success{{/if}}">
           {{participle startsAt past='Played' present='Playing'}}
         </strong>
         + {{numNeeded}} needed
