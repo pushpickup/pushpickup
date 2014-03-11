@@ -344,6 +344,26 @@ Meteor.methods({
     });
     Meteor.call("notifyCommentListeners", gameId, timestamp);
     return true;
+  },
+  sendFeedback: function (options) {
+    if (this.isSimulation) {
+      Alerts.throw({message: "Thanks!", type: "success",
+                    where: "settings"});
+      Session.set("settings-help-and-feedback", false);
+    } else {
+      this.unblock();
+      check(options, {type: String, message: String});
+      var user = this.userId && Meteor.users.findOne(this.userId);
+      var name = user && user.profile && user.profile.name;
+      var email = user && user.emails && user.emails[0].address;
+      Email.send({
+        from: (name || "Anonymous") + " <" +
+          (email || "support@pushpickup.com") + ">",
+        to: "support@pushpickup.com",
+        subject: "Push Pickup feedback: " + options.type,
+        text: options.message
+      });
+    }
   }
 });
 

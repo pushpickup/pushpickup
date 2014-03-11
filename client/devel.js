@@ -216,9 +216,7 @@ Template.layout.created = function () {
 Template.devNav.events({
   'click .start-search a': function () {
     Session.set('searching', 'during');
-    if (Session.equals("viewing-settings", true)) {
-      Router.go('dev');
-    }
+    Session.set("viewing-settings", false);
   },
   'click .search-input input': function () {
     Session.set('searching', 'during');
@@ -233,6 +231,12 @@ Template.devNav.events({
   'click .back a': function () {
     Session.set('searching', 'not');
     Session.set('search-results', false);
+  }
+});
+
+Template.settingsCog.events({
+  "click a": function () {
+    Session.toggle("viewing-settings");
   }
 });
 
@@ -1809,6 +1813,16 @@ Template.devSignUp.events({
           }
         });
       }
+    });
+  }
+});
+
+Template.devHelpAndFeedback.events({
+  "submit form": function (event, template) {
+    event.preventDefault();
+    Meteor.call("sendFeedback", {
+      type: template.find("input[type=radio]:checked").value,
+      message: template.find("textarea").value
     });
   }
 });

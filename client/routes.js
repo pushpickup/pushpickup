@@ -262,21 +262,6 @@ Meteor.startup(function () {
       layoutTemplate: 'devLayout'
     });
 
-    this.route('devSettings', {
-      path: '/dev/settings',
-      layoutTemplate: 'devLayout',
-      load: function () {
-        Session.set("viewing-settings", true);
-      },
-      unload: function () {
-        Session.set("viewing-settings", false);
-        Session.set("settings-sign-in", false);
-        Session.set("settings-sign-up", false);
-        Session.set("settings-forgot-password", false);
-        Session.set("settings-help-and-feedback", false);
-      }
-    });
-
     // typical user interaction with a single game
     this.route('devDetail', {
       path: '/dev/g/:_id',

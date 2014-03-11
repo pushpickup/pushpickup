@@ -52,6 +52,9 @@
 <template name="optionsExtended">
   <div class="options-extended row">
     <div class="content-all">
+      {{#if SGet 'viewing-settings'}}
+        {{> settings}}
+      {{/if}}
       {{#if SEql 'searching' 'during'}}
         {{> selectGameTypes}}
         {{> runSearch}}
@@ -300,13 +303,9 @@
 <template name="settingsCog">
   <div class="settings-cog">
     {{#if SGet 'viewing-settings'}}
-      {{#link route="dev"}}
-        <span class="nav-icon ppicon-cog text-muted"></span>
-      {{/link}}
+      <a><span class="nav-icon ppicon-cog text-muted"></span></a>
     {{else}}
-      {{#link route="devSettings"}}
-        <span class="nav-icon ppicon-cog"></span>
-      {{/link}}
+      <a><span class="nav-icon ppicon-cog"></span></a>
     {{/if}}
   </div>
 </template>
@@ -730,22 +729,19 @@
   {{/if}}
 </template>
 
-<template name="devSettings">
-  {{> devNav}}
-  {{> settings}}
-</template>
-
 <template name="settings">
-<ul class="settings list-group">
-  {{#if currentUser}}
-    <li class="sign-out trigger list-group-item">Sign Out</li>
-  {{else}}
-    {{{settingsItem 'sign-in'}}}
-    {{{settingsItem 'sign-up'}}}
-    {{{settingsItem 'forgot-password'}}}
-    {{{settingsItem 'help-and-feedback'}}}
-  {{/if}}
-</ul>
+  <ul class="settings list-group">
+    {{{alerts 'settings'}}}
+    {{#if currentUser}}
+      {{{settingsItem 'help-and-feedback'}}}
+      <li class="sign-out trigger list-group-item">Sign Out</li>
+    {{else}}
+      {{{settingsItem 'sign-in'}}}
+      {{{settingsItem 'sign-up'}}}
+      {{{settingsItem 'forgot-password'}}}
+      {{{settingsItem 'help-and-feedback'}}}
+    {{/if}}
+  </ul>
 </template>
 
 <template name="settingsItem">
@@ -799,7 +795,39 @@ Forgot password!
 </template>
 
 <template name="devHelpAndFeedback">
-Help and feedback!
+  <form class="dev-help-and-feedback" role="form">
+    <p class="form-heading">What kind of feedback are you sending?</p>
+    <div class="form-group">
+      <div class="radio">
+        <label>
+          <input type="radio" name="feedback" value="question" checked>
+          Question
+        </label>
+      </div>
+      <div class="radio">
+        <label>
+          <input type="radio" name="feedback" value="suggestion">
+          Suggestion
+        </label>
+      </div>
+      <div class="radio">
+        <label>
+          <input type="radio" name="feedback" value="bug-report">
+          Bug report
+        </label>
+      </div>
+      <div class="radio">
+        <label>
+          <input type="radio" name="feedback" value="love">
+          Love
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <textarea class="form-control" rows="3"></textarea>
+    </div>
+    <button class="btn help-and-feedback" type="submit">Send</button>
+  </form>
 </template>
 
 <template name="tinySpinner">
