@@ -160,7 +160,8 @@ Meteor.methods({
     game = _.extend(game, {
       creator: {name: user.profile.name, userId: user._id}
     });
-    return {gameId: Games.insert(game)};
+    var result = {gameId: Games.insert(game)};
+    return result;
   },
   editGame: function (id, game) {
     var self = this;
@@ -171,6 +172,7 @@ Meteor.methods({
     }
     check(game, ValidGame);
     var oldGame = Games.findOne(id);
+
     var isCreator = Match.test(
       oldGame.creator.userId,
       Match.Where(function (id) {
@@ -190,6 +192,8 @@ Meteor.methods({
     if (game.note.length > 1000)
       throw new Meteor.Error(413, "Game note too long");
 
+    var sameNote = oldGame.note === game.note;
+
     return Games.update(id, {$set: {
       type: game.type,
       status: game.status,
@@ -199,7 +203,12 @@ Meteor.methods({
       players: game.players,
       comments: oldGame.comments, // no comment edits
       requested: game.requested
-    }});
+    }}, function (err) {
+      if (!err && !sameNote) {
+        Meteor.call("notifyPlayers", id);
+      }
+
+    });
   },
   cancelGame: function (id) {
     var self = this;
@@ -222,7 +231,8 @@ Meteor.methods({
       this.unblock();
       var email;
       _.each(game.players, function (player) {
-        if (player.userId) {
+        if (player.userId && player.userId !== game.creator.userId) {
+          // notify all players other than organizer
           email = Meteor.users.findOne(player.userId).emails[0];
           if (email.verified) {
             Email.send({
@@ -232,7 +242,7 @@ Meteor.methods({
                 moment(game.startsAt).format('dddd h:mmA') + " at " +
                 game.location.name,
               text: "Sorry, " + player.name + ".\n" +
-                "This game has been cancelled by the organizer. Check out " +
+                "This game has been cancelled. Check out " +
                 Meteor.absoluteUrl('') + " for other games, or " +
                 "announce/propose your own!"
             });

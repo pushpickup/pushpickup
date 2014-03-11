@@ -16,7 +16,7 @@ Session.setDefault("max-distance", 100000); // 100,000 m => 62 miles
 var initialNumGamesRequested = 15;
 Session.setDefault("num-games-requested", initialNumGamesRequested);
 
-var getUserLocation = function () {
+var getUserLocation = function (onSuccess /* optional */) {
   Session.set("get-user-location", "pending");
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -27,8 +27,7 @@ var getUserLocation = function () {
       };
       Session.set("get-user-location", "success");
       Session.set("current-location", point);
-      Session.set("selectedLocationPoint", point);
-      Session.set("selectedLocationName", "Current Location");
+      onSuccess && onSuccess(point);
     }, function() {
       Session.set("get-user-location", "failure");
       alert('Error: The Geolocation service failed.');
@@ -669,7 +668,10 @@ Template.searchInput.rendered = function () {
 
 Template.getCurrentLocation.events({
   "click .get-current-location.btn": function (evt, templ) {
-    getUserLocation();
+    getUserLocation(function (point) {
+      Session.set("selectedLocationPoint", point);
+      Session.set("selectedLocationName", "Current Location");
+    });
   }
 });
 
@@ -1603,7 +1605,7 @@ Template.devEditableGame.events({
   "click .remove": function (evt, templ) {
     evt.preventDefault();
     if (confirm("Really cancel game? Players will be notified.")) {
-      Meteor.call("cancelGame", Session.get("soloGame"));
+      Meteor.call("cancelGame", this._id);
       Router.go('dev');
     }
   }
@@ -1618,53 +1620,73 @@ Template.devSelectLocation.rendered = function () {
     autocomplete, 'place_changed', onSelectLocationChanged);
 };
 
-Template.addGameMap.rendered = function () {
+Template.editableGameMap.helpers({
+  showMap: function () {
+    return this.location && this.location.geoJSON ||
+      Session.get("selectedLocationPoint");
+  }
+});
+
+Template.editableGameMap.rendered = function () {
   var self = this;
-  if (! Session.get("selectedLocationPoint")) return;
+  if (self.data.location && self.data.location.geoJSON && !self._locSet) {
+    Session.set("selectedLocationPoint", self.data.location.geoJSON);
+    self._locSet = true;
+  }
+  var map, marker, infowindow;
 
-  geoUtils.toLatLng = function (geoJSONPoint) {
-    var lat = geoJSONPoint.coordinates[1];
-    var lng = geoJSONPoint.coordinates[0];
-    return new google.maps.LatLng(lat, lng);
-  };
+  if (! self._initMap) {
+    self._initMap = Deps.autorun(function (c) {
+      if (! Session.get("selectedLocationPoint"))
+        return;
 
-  var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+      geoUtils.toLatLng = function (geoJSONPoint) {
+        var lat = geoJSONPoint.coordinates[1];
+        var lng = geoJSONPoint.coordinates[0];
+        return new google.maps.LatLng(lat, lng);
+      };
 
-  var map = new google.maps.Map(
-    self.find('.add-game-map-canvas'), {
-      zoom: 15, // 18 also good
-      center: latLng,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControl: false,
-      panControl: false,
-      streetViewControl: false,
-      minZoom: 3
+      var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+
+      map = new google.maps.Map(
+        self.find('.editable-game-map-canvas'), {
+          zoom: 15, // 18 also good
+          center: latLng,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          mapTypeControl: false,
+          panControl: false,
+          streetViewControl: false,
+          minZoom: 3
+        });
     });
+  }
 
-  var marker, infowindow;
+  if (! self._setMarker) {
+    self._setMarker = Deps.autorun(function () {
+      if (! Session.get("selectedLocationPoint"))
+        return;
 
-  self._setMarker = Deps.autorun(function () {
-    if (! Session.get("selectedLocationPoint")) return;
+      var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
 
-    latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+      marker && marker.setMap(null);
+      marker = new google.maps.Marker({
+        position: latLng, map: map
+      });
 
-    marker && marker.setMap(null);
-    marker = new google.maps.Marker({
-      position: latLng, map: map
+      infowindow = new google.maps.InfoWindow({
+        content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+      });
+
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map,marker);
+      });
     });
-
-    infowindow = new google.maps.InfoWindow({
-      content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
-    });
-
-    google.maps.event.addListener(marker, 'click', function() {
-      infowindow.open(map,marker);
-    });
-  });
+  }
 };
 
-Template.addGameMap.destroyed = function () {
+Template.editableGameMap.destroyed = function () {
   this._setMarker && this._setMarker.stop();
+  this._initMap && this._initMap.stop(); // b/c might not be already stopped
 };
 
 Template.loadMoreGames.events({
@@ -1681,12 +1703,6 @@ Template.loadMoreGames.helpers({
 });
 
 Template.gameWhen.helpers({
-  day: function () {
-    return moment(this.startsAt).format('ddd');
-  },
-  time: function () {
-    return moment(this.startsAt).format('h:mma');
-  },
   fromNow: function () {
     return moment(this.startsAt).fromNow();
   }

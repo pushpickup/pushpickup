@@ -1,9 +1,22 @@
+
+// Transforms are _not_ applied for the callbacks of `observeChanges`,
+// so need to reproduce transformation functions.
+var displayTime =  function (game) {
+  var offset = game.location.utc_offset;
+  if (! Match.test(offset, UTCOffset)) {
+    offset: -8; // Default to California
+  }
+  // UTC offsets returned by Google Places API differ in sign
+  // from what is expected by moment.js
+  return moment(game.startsAt).zone(-offset).format('ddd h:mma');
+};
+
 var gameOnEmail = function (playerName, emailAddress, game) {
   Email.send({
     from: "support@pushpickup.com",
     to: playerName + "<" + emailAddress + ">",
     subject: "Game ON: " + game.type + " " +
-      moment(game.startsAt).format('dddd h:mmA') + " at " +
+      displayTime(game) + " at " +
       game.location.name,
     text: "Have a great game, " + playerName + ".\n" +
       "For your reference, below is a link to the game.\n\n" +
@@ -18,7 +31,7 @@ var sendGameAddedNotification = function (user, gameId, game) {
       from: "support@pushpickup.com",
       to: user.profile.name + " <" + verifiedEmail.address + ">",
       subject: "Game " + game.status + ": " + game.type + " "
-        + moment(game.startsAt).format('ddd h:mma') + " at "
+        + displayTime(game) + " at "
         + game.location.name,
       text: user.profile.name + ",\n"
         + "Want to join in? Below is a link to the game.\n\n"

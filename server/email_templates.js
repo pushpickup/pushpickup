@@ -11,7 +11,7 @@ emailTemplates = {
       if (!adder || !game)
         throw new Error("Can't find user or game");
       return adder.profile.name + " added you to a "
-        + moment(game.startsAt).format('ddd h:mma') + " "
+        + game.displayTime() + " "
         + game.type + " game "
         + "on " + Accounts.emailTemplates.siteName;
     },
@@ -23,11 +23,11 @@ emailTemplates = {
         + "\n"
         + "An account has been created for you on "
         + Accounts.emailTemplates.siteName + ". "
-        + "To start using the service, simply click the link below.\n"
+        + "To verify your email and thus receive game updates, simply click the link below.\n"
         + "\n"
         + url + "\n"
         + "\n"
-        + "For your reference, below is a link to your game.\n\n"
+        + "For your reference, below is a link to the game.\n\n"
         + Meteor.absoluteUrl('dev/g/'+options.gameId) + "\n"
         + "\n"
         + "Thanks.\n";

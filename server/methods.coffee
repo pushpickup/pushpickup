@@ -198,8 +198,7 @@ Meteor.methods
       from: "support@pushpickup.com"
       to: "#{creator.profile.name} <#{creator.emails[0].address}>"
       subject: "New comment/question on your " +
-        moment(game.startsAt).format('ddd h:mma') +
-        " #{game.type} game"
+        "#{game.displayTime()} #{game.type} game"
       text: "#{comment.userName} just said: \"#{comment.message}\".\n" +
         "For your reference, below is a link to your game.\n\n" +
         "#{Meteor.absoluteUrl('dev/g/'+gameId)}\nThanks for organizing."

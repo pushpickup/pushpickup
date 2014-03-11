@@ -150,7 +150,7 @@
     {{#if past startsAt}}
       Ended {{fromNow}}
     {{else}}
-      {{day}} {{time}}
+      {{displayTime}}
     {{/if}}
   </div>
 </template>
@@ -611,11 +611,7 @@
           {{> devSelectLocation}}
         </div>
         <div class="form-group">
-          {{#if editingGame}}
-            {{> soloGameMap}}
-          {{else}}
-            {{> addGameMap}}
-          {{/if}}
+          {{> editableGameMap}}
         </div>
         <div class="form-group requested">
           {{{selectPlayersRequested}}}
@@ -639,6 +635,12 @@
                     placeholder="example@gmail.com, another@gmail.com"
                     >{{invitedFriends}}</textarea>
         </div>
+        {{#if editingGame}}
+          <span class="help-block">
+            Only game updates with a changed "Details" field will
+            notify players. Tell them what you updated and why.
+          </span>
+        {{/if}}
         <!-- <p class="form-control-static"> -->
         <!--   Please let players contact you (your email address -->
         <!--   will not be visible to them; we will forward messages -->
@@ -704,11 +706,11 @@
   </div>
 </template>
 
-<template name="addGameMap">
-  {{#if SGet 'selectedLocationPoint'}}
-    <div class="add-game-map">
-      <div class="add-game-map-wrapper">
-        <div class="add-game-map-canvas map-canvas"></div>
+<template name="editableGameMap">
+  {{#if showMap}}
+    <div class="editable-game-map">
+      <div class="editable-game-map-wrapper">
+        <div class="editable-game-map-canvas map-canvas"></div>
       </div>
     </div>
   {{/if}}

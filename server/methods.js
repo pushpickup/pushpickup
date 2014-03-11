@@ -7,14 +7,6 @@ Meteor.methods({
       'location.geoJSON': {$near: {$geometry: location}}
     }, {limit: 15}).fetch();
   },
-  "utc-offset-startsAt-day-and-time": function (game) {
-    var offset = game.location.utc_offset;
-    if (! Match.test(offset, UTCOffset)) {
-      offset = -8; // California knows how to party
-    }
-    // moment and google offsets differ in sign
-    return moment(game.startsAt).zone(-offset).format('ddd h:mma');
-  },
   "inviteFriends": function (emails, gameId) {
     this.unblock();
     check(emails, [ValidEmail]);
@@ -26,9 +18,41 @@ Meteor.methods({
       Email.send({
         from: user.emails[0].address,
         to: email,
-        subject: user.profile.name + " invited you to play "+game.type+" "
-          + Meteor.call("utc-offset-startsAt-day-and-time", game),
+        subject: user.profile.name + " invited you to play "+game.type+" at "
+          + game.displayTime(),
         text: "Want to join in? Below is a link to the game.\n\n"
+          + Meteor.absoluteUrl('dev/g/'+gameId)
+          + "\nThanks for helping to push pickup."
+      });
+    });
+  },
+  "notifyPlayers": function (gameId) {
+    this.unblock();
+    check(gameId, String);
+    var game = Games.findOne(gameId);
+    if (!game)
+      return;
+    var players = _.compact(_.map(game.players, function (player) {
+      var user = player.userId &&
+            player.userId !== game.creator.userId &&
+            Meteor.users.findOne(player.userId);
+      if (user && user.emails && user.emails[0].verified) {
+        return {
+          name: user.profile && user.profile.name || "Push Pickup User",
+          address: user.emails[0].address
+        };
+      } else {
+        return null;
+      }
+    }));
+    _.each(players, function (player) {
+      Email.send({
+        from: emailTemplates.from,
+        to: player.address,
+        subject: " Game *updated*: "+game.type+" at "
+          + game.displayTime(),
+        text: "Details for a game you're playing in have changed. " +
+          "Below is a link to the game.\n\n"
           + Meteor.absoluteUrl('dev/g/'+gameId)
           + "\nThanks for helping to push pickup."
       });

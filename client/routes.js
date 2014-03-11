@@ -299,15 +299,15 @@ Meteor.startup(function () {
       path: '/dev/addGame',
       template: 'devEditableGame',
       layoutTemplate: 'devLayout',
+      load: function () {
+        Session.set("selectedLocationPoint", null);
+      },
       data: function () {
         return {
           action: 'add',
           title: 'Add game',
           submit: 'Add game'
         };
-      },
-      unload: function () {
-        Session.set("selectedLocationPoint", null);
       }
     });
 
@@ -315,6 +315,9 @@ Meteor.startup(function () {
       path: '/dev/editGame/:_id',
       template: 'devEditableGame',
       layoutTemplate: 'devLayout',
+      load: function () {
+        Session.set("selectedLocationPoint", null);
+      },
       waitOn: function () {
         return Meteor.subscribe('game', this.params._id);
       },
