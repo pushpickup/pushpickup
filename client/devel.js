@@ -588,7 +588,22 @@ Template.addFriendsInput.helpers({
   }
 });
 
-Template.gameSummary.helpers({
+Template.listedGameSummary.helpers({
+  placeName: function () {
+    var game = this;
+    // return everything before first comma (if no comma, return everything)
+    return game.location.name.replace(/,.*/,'');
+  },
+  // diagnostic -- not intended for production use
+  placeDistance: function () {
+    return (0.00062137119 * gju.pointDistance(
+      this.location.geoJSON,
+      Session.get("current-location")
+    )).toFixed(1) + " mi"; // conversion from meters to miles
+  }
+});
+
+Template.soloGameSummary.helpers({
   type: function () {
     var game = this;
     return _.string.capitalize(game.type);
@@ -606,13 +621,6 @@ Template.gameSummary.helpers({
     } else {
       return comma_separated[1];
     }
-  },
-  // diagnostic -- not intended for production use
-  placeDistance: function () {
-    return (0.00062137119 * gju.pointDistance(
-      this.location.geoJSON,
-      Session.get("current-location")
-    )).toFixed(1) + " mi"; // conversion from meters to miles
   }
 });
 

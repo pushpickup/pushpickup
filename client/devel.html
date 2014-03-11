@@ -90,19 +90,23 @@
     {{#each pastGames}}
       {{> listedGame}}
     {{/each}}
+
+    {{> loadMoreGames}}
   </ul>
 </template>
 
 <template name="loadMoreGames">
-  <div class="load-more-games">
-    {{#unless noMoreGames}}<a>Load more</a>{{/unless}}
-  </div>
+  {{#unless noMoreGames}}
+    <div class="load-more-games">
+      <a>Load more</a>
+    </div>
+  {{/unless}}
 </template>
 
 <template name="listedGame">
   <li class="list-group-item listed-game {{#if past startsAt}}past{{/if}}">
     {{> gameTypeIndicator}}
-    {{> gameSummary}}
+    {{> listedGameSummary}}
     {{#unless past startsAt}}
       {{#if userInGame}}
         {{> addFriendsLink}}
@@ -121,11 +125,8 @@
   </div>
 </template>
 
-<template name="gameSummary">
+<template name="listedGameSummary">
   <div class="game-summary">
-    {{#if SEql 'soloGame' _id}}
-      <strong>{{type}}</strong>
-    {{/if}}
     {{> gameWhen}}
     {{> whoIsPlaying}}
     <div class="place">
@@ -133,15 +134,24 @@
         {{placeName}}
         <!-- <span class="place-distance">({{placeDistance}})</span> -->
       </div>
-      {{#if SEql 'soloGame' _id}}
-        <div class-"place-location">{{placeLocation}}</div>
-      {{/if}}
     </div>
-    {{#if SEql 'soloGame' _id}}
-      <div class="organizer-info">
-        Added by {{creator.name}}
+  </div>
+</template>
+
+<template name="soloGameSummary">
+  <div class="game-summary">
+    <strong>{{type}}</strong>
+    {{> gameWhen}}
+    {{> whoIsPlaying}}
+    <div class="place">
+      <div class="place-name">
+        {{placeName}}
       </div>
-    {{/if}}
+      <div class-"place-location">{{placeLocation}}</div>
+    </div>
+    <div class="organizer-info">
+      Added by {{creator.name}}
+    </div>
   </div>
 </template>
 
@@ -481,7 +491,7 @@
     <div class="content-all">
       {{{alerts}}}
       {{> soloGameMap}}
-      {{> gameSummary}}
+      {{> soloGameSummary}}
       {{#if userInGame}} {{> addFriendsLink}} {{/if}}
       {{> addPlayers}}
       {{> joinOrLeave}}
