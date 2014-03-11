@@ -492,11 +492,15 @@
       {{{alerts}}}
       {{> soloGameMap}}
       {{> soloGameSummary}}
-      {{#if userInGame}} {{> addFriendsLink}} {{/if}}
-      {{> addPlayers}}
-      {{> joinOrLeave}}
+      {{#unless past startsAt}}
+        {{#if userInGame}} {{> addFriendsLink}} {{/if}}
+        {{> addPlayers}}
+        {{> joinOrLeave}}
+      {{/unless}}
       {{> organizersNote}}
-      {{> whosPlayingSummary}}
+      {{#unless past startsAt}}
+        {{> whosPlayingSummary}}
+      {{/unless}}
       {{> comments}}
       {{> addComment}}
     </div>
