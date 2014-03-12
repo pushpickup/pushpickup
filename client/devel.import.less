@@ -54,10 +54,12 @@ button {
 
 .listed-game .game-summary {
   cursor: pointer;
+  padding-bottom: 10px;
 }
 
 .past.listed-game .game-summary {
   .text-muted;
+  width: 240px;
 }
 
 .whos-playing-summary, .whos-playing-editable, .comments {
@@ -253,8 +255,17 @@ button {
   padding-right: 15px;
 }
 
+.options-main .back {
+  display: inline-block;
+  padding-left: 15px;
+}
+
+.listed-game {
+  padding-bottom: 0;
+}
+
 .add-players {
-  margin: 10px -15px 0 -15px;
+  margin: 0px -15px 0 -15px;
 }
 
 .add-self-and-friends {
@@ -276,15 +287,15 @@ button {
   margin-top: 0;
 }
 
-.listed-game {
-  padding-bottom: 0px;
-}
-
 .settings.list-group {
   margin-bottom: 0;
 }
 
-.list-group-item:last-child {
+.settings .list-group-item:last-child {
   border-bottom-width: 0;
+}
+
+.subscribe-detail {
+  padding-top: 10px;
 }
 
