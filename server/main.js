@@ -6,7 +6,7 @@ Accounts.emailTemplates.enrollAccount.text = function(user, url) {
         ("Hello " + user.profile.name + ",") : "Hello,";
   return greeting + "\n"
     + "\n"
-    + "To start using Push Pickup, simply click the link below.\n"
+    + "Verify your email to get updates about your games. Simply click the link below.\n"
     + "\n"
     + url + "\n"
     + "\n"

@@ -52,6 +52,7 @@
 <template name="optionsExtended">
   <div class="options-extended row">
     <div class="content-all">
+      {{{alerts 'top'}}}
       {{#if SGet 'viewing-settings'}}
         {{> settings}}
       {{/if}}
@@ -738,7 +739,11 @@
     {{else}}
       {{{settingsItem 'sign-in'}}}
       {{{settingsItem 'sign-up'}}}
-      {{{settingsItem 'forgot-password'}}}
+      {{#if SGet 'set-password-token'}}
+        {{{settingsItem 'set-password'}}}
+      {{else}}
+        {{{settingsItem 'forgot-password'}}}
+      {{/if}}
       {{{settingsItem 'help-and-feedback'}}}
     {{/if}}
   </ul>
@@ -790,8 +795,28 @@
   </form>
 </template>
 
+<template name="devSetPassword">
+  <form class="dev-set-password" role="form">
+    <p class="form-heading">Set your password:</p>
+    <div class="form-group">
+      <input type="password" class="form-control"
+             placeholder="Your new password" required autofocus>
+    </div>
+    {{{alerts 'setPassword'}}}
+    <button class="btn set-password" type="submit">Set password</button>
+  </form>
+</template>
+
 <template name="devForgotPassword">
-Forgot password!
+  <form class="dev-forgot-password" role="form">
+    <p class="form-heading">Get a link to reset your password:</p>
+    <div class="form-group">
+      <input type="email" class="form-control"
+             placeholder="Your email" required autofocus>
+    </div>
+    {{{alerts 'forgotPassword'}}}
+    <button class="btn forgot-password" type="submit">Send reset link</button>
+  </form>
 </template>
 
 <template name="devHelpAndFeedback">

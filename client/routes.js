@@ -47,9 +47,16 @@ Meteor.startup(function () {
     });
 
     this.route('reset-password', {
-      template: 'setPassword',
-      data: function () {
-        return {token: this.params.hash};
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      load: function () {
+        var token = this.params.hash;
+        Meteor.logout(function () {
+          Session.set("viewing-settings", true);
+          Session.set("set-password-token", token);
+          Session.set("settings-set-password", true);
+          // Session.set("enrolling", true) // do something special?
+        });
       }
     });
 
@@ -96,9 +103,16 @@ Meteor.startup(function () {
     });
 
     this.route('enroll-account', {
-      template: 'setPassword',
-      data: function () {
-        return {enrolling: true, token: this.params.hash};
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      load: function () {
+        var token = this.params.hash;
+        Meteor.logout(function () {
+          Session.set("viewing-settings", true);
+          Session.set("set-password-token", token);
+          Session.set("settings-set-password", true);
+          // Session.set("enrolling", true) // do something special?
+        });
       }
     });
 
