@@ -1,5 +1,7 @@
 @media (max-width: @screen-xs) {
-  input:focus { font-size: 16px; } // prevent Auto Zoom
+  input, select, textarea {
+    &:focus { font-size: 16px; } // prevent Auto Zoom.
+  }
 }
 
 .content-all {
