@@ -734,6 +734,14 @@
   <ul class="settings list-group">
     {{{alerts 'settings'}}}
     {{#if currentUser}}
+      <li class="user-info list-group-item">
+        <div class="user-full-name">
+          {{currentUser.profile.name}}
+        </div>
+        <div class="user-email-address">
+          {{currentUser.emails.0.address}}
+        </div>
+      </li>
       {{{settingsItem 'subscriptions'}}}
       {{{settingsItem 'change-email-address'}}}
       {{{settingsItem 'change-password'}}}
