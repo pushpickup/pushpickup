@@ -348,7 +348,7 @@ Meteor.methods({
   sendFeedback: function (options) {
     if (this.isSimulation) {
       Alerts.throw({message: "Thanks!", type: "success",
-                    where: "settings"});
+                    where: "settings", autoremove: 3000});
       Session.set("settings-help-and-feedback", false);
     } else {
       this.unblock();

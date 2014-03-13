@@ -1725,24 +1725,29 @@ Template.settings.events({
   "click .sign-out.trigger": function () {
     Meteor.logout();
     Router.go('dev');
-  },
-
-  // not signed in
-  "click .sign-in.trigger": function () {
-    Session.toggle("settings-sign-in");
-  },
-  "click .sign-up.trigger": function () {
-    Session.toggle("settings-sign-up");
-  },
-  "click .forgot-password.trigger": function () {
-    Session.toggle("settings-forgot-password");
-  },
-  "click .help-and-feedback.trigger": function () {
-    Session.toggle("settings-help-and-feedback");
-  },
-  "click .set-password.trigger": function () {
-    Session.toggle("settings-set-password");
   }
+});
+
+
+// Set several Template.settings.events of the form:
+//
+// "click .sign-in.trigger": function () {
+//   Session.toggle("settings-sign-in");
+// }
+var sessionToggler = function (action) {
+  return function () {
+    Session.toggle("settings-"+action);
+  };
+};
+_.each([
+  'sign-in', 'sign-up', 'forgot-password', 'set-password',
+  'subscriptions', 'change-email-address', 'change-password',
+  'help-and-feedback'
+], function (action) {
+  var key =  "click ."+action+".trigger";
+  var eventMap = {};
+  eventMap[key] = sessionToggler(action);
+  Template.settings.events(eventMap);
 });
 
 Template.settings.helpers({

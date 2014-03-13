@@ -734,6 +734,9 @@
   <ul class="settings list-group">
     {{{alerts 'settings'}}}
     {{#if currentUser}}
+      {{{settingsItem 'subscriptions'}}}
+      {{{settingsItem 'change-email-address'}}}
+      {{{settingsItem 'change-password'}}}
       {{{settingsItem 'help-and-feedback'}}}
       <li class="sign-out trigger list-group-item">Sign Out</li>
     {{else}}
@@ -853,6 +856,18 @@
     </div>
     <button class="btn help-and-feedback" type="submit">Send</button>
   </form>
+</template>
+
+<template name="devSubscriptions">
+Subscriptions!
+</template>
+
+<template name="devChangeEmailAddress">
+Change email address!
+</template>
+
+<template name="devChangePassword">
+Change password!
 </template>
 
 <template name="tinySpinner">
