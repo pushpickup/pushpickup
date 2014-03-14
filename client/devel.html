@@ -82,7 +82,7 @@
     {{#if SGet 'gamesReady'}}
       {{#if noneUpcoming}}
         <li class="list-group-item">
-          There are no upcoming games within {{maxDistance}}. :(
+          There are no upcoming games within {{maxDistance}}. You should {{#link route="devAddGame"}}add a game{{/link}} and invite your friends!
         </li>
       {{/if}}
     {{else}}

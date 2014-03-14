@@ -245,7 +245,7 @@ Template.listOfGames.helpers({
     var m = Session.get("max-distance");
     return m &&
       (0.00062137119 * m).toFixed(0)
-      + " miles / " + (m/1000).toFixed(0) + " km";
+      + "mi (" + (m/1000).toFixed(0) + "km)";
   },
   userOrganizingUpcoming: function () {
     var uoui = Session.get("user-organizing-upcoming-initial");
