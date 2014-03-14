@@ -1521,6 +1521,8 @@ Template.devEditableGame.events({
       return;
     }
 
+    var playing = !! template.find("input[type=checkbox].playing:checked");
+
     if (! Meteor.userId()) {
       var email = template.find("input.email").value;
       var fullNameInput = template.find("input.full-name");
@@ -1535,6 +1537,7 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.loginWithPassword(email, result.password, function (error) {
               if (!error) {
+                playing && Meteor.call("addPlayer", result.gameId, fullName);
                 Meteor.call("inviteFriends", inviteEmails, result.gameId);
               }
             });
@@ -1574,6 +1577,7 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.call("addGame", game, function (error, result) {
               if (!error) {
+                playing && Meteor.call("addPlayer", result.gameId);
                 Router.go('devDetail', {_id: result.gameId});
                 Meteor.call("inviteFriends", inviteEmails, result.gameId);
               } else {
@@ -1600,6 +1604,7 @@ Template.devEditableGame.events({
     } else { // authenticated user
       Meteor.call("addGame", game, function (error, result) {
         if (!error) {
+          playing && Meteor.call("addPlayer", result.gameId);
           Router.go('devDetail', {_id: result.gameId});
           Meteor.call("inviteFriends", inviteEmails, result.gameId);
         } else {

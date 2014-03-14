@@ -662,6 +662,14 @@
         <!--   you verify your email address (confirmation sent from -->
         <!--   support@pushpickup.com). Thanks! -->
         <!-- </p> -->
+        {{#unless editingGame}}
+          <div class="form-group">
+            <label>
+              <input type="checkbox" class="playing" value="playing" checked>
+              Join game
+            </label>
+          </div>
+        {{/unless}}
         {{{alerts}}}
         <button for="{{action}}GameForm" type="submit"
                 class="btn {{action}}-game">
