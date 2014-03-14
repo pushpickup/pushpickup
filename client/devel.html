@@ -875,7 +875,18 @@ Change email address!
 </template>
 
 <template name="devChangePassword">
-Change password!
+<form class="change-password" role="form">
+  <div class="tight form-group">
+    <!-- Session 'strange-passwd' only supplied during first session -->
+    <input type="password" class="old-password form-control"
+           value="{{SGet 'strange-passwd'}}"
+           placeholder="Current password" required autofocus>
+    <input type="password" class="new-password form-control"
+           placeholder="New password" required>
+  </div>
+  {{{alerts 'changePassword'}}}
+  <button class="btn change-password" type="submit">Change password</button>
+</form>
 </template>
 
 <template name="tinySpinner">

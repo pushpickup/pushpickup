@@ -23,11 +23,11 @@ button {
   &.add-friends, &.add-comment,
   &.subscribe, &.add-game, &.edit-game,
   &.find-games, &.help-and-feedback,
-  &.set-password, &.forgot-password {
+  &.set-password, &.forgot-password,
+  &.change-password {
     .btn-primary;
     .btn-lg;
     .btn-block;
-    //background-color:#43828F;
   }
   &.leave-game {
     .btn-default;
@@ -125,6 +125,11 @@ button {
     border-top-right-radius: 0;
   }
 }
+
+// Address mismatch between .list-group-item padding (10px)
+// and .form-group margin-bottom (15px)
+// in the case of no <p> or <hx> preceding first .form-group
+form > .form-group:first-child { margin-top: 5px; }
 
 .dev-sign-in {
   .form-group {
