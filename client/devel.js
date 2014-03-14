@@ -1280,7 +1280,7 @@ Template.devEditableGame.helpers({
   selectPlayersRequested: function () {
     var self = this;
     var numRequested = self.requested && self.requested.players || 10;
-    var them =  _.map(_.range(21), function (i) {
+    var them =  _.map(_.range(2, 29, 2), function (i) {
       return { value: i, text: i, selected: (i === numRequested) };
     });
     var numPlayers = {includeLabel: true,
