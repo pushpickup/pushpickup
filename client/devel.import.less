@@ -66,11 +66,16 @@ button {
 
 .settings-cog {
   .make-xs-column(1);
-  padding-left: 30px;
+  padding-left: 10px;
+}
+
+.nav-icon.ppicon-cog, .nav-icon.ppicon-search {
+  padding: 20px;
 }
 
 .start-search {
   .make-xs-column(1);
+  padding-left: 25px;
 }
 
 .add-game-link {
@@ -204,7 +209,11 @@ form > .form-group:first-child { margin-top: 5px; }
   display: inline-block;
   position: absolute;
   top: 32px;
-  right: 10px;
+  right: 1px;
+}
+
+.join-game-link a, .ppicon-add-friend {
+  padding: 20px;
 }
 
 .listed-game .game-summary {
@@ -219,7 +228,7 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .options-main {
-  padding: 5px 0;
+  padding: 20px 0 5px 0;
 }
 
 .list-group:first-child {
@@ -275,13 +284,27 @@ form > .form-group:first-child { margin-top: 5px; }
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   margin-bottom: 0;
+  border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
   border-bottom-width: 0;
 }
 
-.add-self-and-friends .close {
-  margin-top: -5px;
+.add-friends.well {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-bottom: 0;
+  border-top-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 0;
+}
+
+.add-self-and-friends .close, .add-friends.well .close {
+  margin-top: -9px;
+  padding: 8px;
 }
 
 .add-info-or-sign-in {
@@ -334,3 +357,13 @@ label[for="requestedNumPlayers"] {
   width: 33%;
 }
 
+#addGame .header h3.title {
+  font-size: 21px;
+  padding-left: 40px;
+  margin-bottom: 15px;
+}
+
+#addGame .close {
+  padding-top: 2px;
+  padding-left: 10px;
+}
