@@ -176,13 +176,13 @@
       <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
         {{participle startsAt past='Organized' present='Organizing'}}
       </strong>
-        + {{numNeeded}} needed
+        {{#unless past startsAt}}+ {{numNeeded}} needed{{else}}for {{numNeeded}} others{{/unless}}
     {{else}}
       {{#if playing}}
         <strong class="text-{{#if past startsAt}}muted{{else}}success{{/if}}">
           {{participle startsAt past='Played' present='Playing'}}
         </strong>
-        + {{numNeeded}} needed
+        {{#unless past startsAt}}+ {{numNeeded}} needed{{else}}with {{numNeeded}} others{{/unless}}
       {{else}}
         {{players.length}}
         {{participle startsAt past='played' present='playing'}}
