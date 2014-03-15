@@ -1499,7 +1499,16 @@ Template.devEditableGame.events({
             type: "danger", where: "editableGame",
             autoremove: 5000
           });
+        } else {
+          Alerts.throw({
+            message: e.message, type: "danger", where: "editableGame"
+          });
         }
+      } else {
+        Alerts.throw({
+          message: "Hmm, something went wrong. Try again?",
+          type: "danger", where: "editableGame"
+        });
       }
       // TODO: fold Session.set("waiting-on", null) calls into a single
       // Deps.autorun that nullifies "waiting-on" whenever there are
@@ -1730,6 +1739,14 @@ Template.settings.events({
   "click .sign-out.trigger": function () {
     Meteor.logout();
     Router.go('dev');
+  },
+  "click .send-verification-email": function () {
+    Meteor.call("sendVerificationEmail");
+    Alerts.throw({
+      message: "Thanks. Look out for an email from support@pushpickup.com" +
+        " to verify your email address.",
+      type: "info", where: "settings", autoremove: 3000
+    });
   }
 });
 

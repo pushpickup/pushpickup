@@ -57,5 +57,9 @@ Meteor.methods({
           + "\nThanks for helping to push pickup."
       });
     });
+  },
+  "sendVerificationEmail": function () {
+    this.unblock();
+    this.userId && Accounts.sendVerificationEmail(this.userId);
   }
 });
