@@ -1393,6 +1393,7 @@ var getEmails = function (str) {
 Template.devEditableGame.events({
   "change #gameDay": function (evt, templ) {
     Session.set("newGameDay", +evt.currentTarget.value);
+    Deps.flush(); // update selectable game times immediately
   },
   "change #gameTime": function (evt, templ) {
     Session.set("newGameTime", +evt.currentTarget.value);
