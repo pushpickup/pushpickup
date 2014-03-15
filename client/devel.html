@@ -185,7 +185,7 @@
       {{else}}
         {{players.length}}
         {{participle startsAt past='played' present='playing'}}
-        ({{numNeeded}} needed)
+        {{#unless past startsAt}}({{numNeeded}} needed){{/unless}}
       {{/if}}
     {{/if}}
   </div>
