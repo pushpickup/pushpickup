@@ -61,6 +61,8 @@ Meteor.startup(function () {
     });
 
     this.route('verify-email', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
       action: function () {
         var self = this;
         var token = self.params.hash;
@@ -68,16 +70,18 @@ Meteor.startup(function () {
           if (!err) {
             Alerts.throw({
               message: "Your email address is now verified!",
-              type: "success", where: "top",
+              type: "success", where: "main",
               autoremove: 3000
             });
-            self.render('home');
+            Router.go('dev');
           } else {
             Alerts.throw({
-              message: "Hmm, something went wrong: \""+err.reason+"\". Try again?",
-              type: "danger", where: "top"
+              message: "Hmm, something went wrong: \""+err.reason +
+                "\". Try again?",
+              type: "danger", where: "main"
             });
-            self.render('sendVerificationEmail');
+            Session.set("viewing-settings", true);
+            Router.go('dev');
           }
         });
       }

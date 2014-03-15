@@ -10,6 +10,7 @@
 
 <template name="devMain">
   {{> devNav}}
+  {{{alerts 'main'}}}
   {{> devBody}}
 </template>
 
@@ -748,6 +749,9 @@
         </div>
         <div class="user-email-address">
           {{currentUser.emails.0.address}}
+          {{#unless currentUser.emails.0.verified}}
+            (<a class="send-verification-email text-info">verify</a>)
+          {{/unless}}
         </div>
       </li>
       {{{settingsItem 'subscriptions'}}}

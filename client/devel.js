@@ -1393,6 +1393,7 @@ var getEmails = function (str) {
 Template.devEditableGame.events({
   "change #gameDay": function (evt, templ) {
     Session.set("newGameDay", +evt.currentTarget.value);
+    Deps.flush(); // update selectable game times immediately
   },
   "change #gameTime": function (evt, templ) {
     Session.set("newGameTime", +evt.currentTarget.value);
@@ -1418,16 +1419,14 @@ Template.devEditableGame.events({
       return;
     }
 
-    Meteor.call("editGame", self._id, {
+    var game = {
       type: templ.find("#gameType").value,
       // status depends on (requested.players - players.length)
       startsAt: new Date(+templ.find("#gameTime").value),
       location: {
         name: simplifyLocation(templ.find(".select-location input").value),
         geoJSON: Session.get("selectedLocationPoint")
-          || Games.findOne(self._id).location.geoJSON,
-        utc_offset: Session.get("selectedLocationUTCOffset")
-          || Games.findOne(self._id).location.utc_offset
+          || Games.findOne(self._id).location.geoJSON
       },
       note: templ.find("#gameNote").value,
       players: remainingPlayers,
@@ -1438,7 +1437,15 @@ Template.devEditableGame.events({
       requested: selectorValuesFromTemplate({
         players: ["#requestedNumPlayers", asNumber]
       }, templ)
-    }, function (error, result) {
+    };
+
+    var utc_offset = Session.get("selectedLocationUTCOffset")
+          || Games.findOne(self._id).location.utc_offset;
+    if (utc_offset) {
+      game.location.utc_offset = utc_offset;
+    }
+
+    Meteor.call("editGame", self._id, game, function (error, result) {
       if (!error) {
         Meteor.call("inviteFriends", inviteEmails, self._id);
       }
@@ -1467,8 +1474,7 @@ Template.devEditableGame.events({
       startsAt: new Date(+template.find("#gameTime").value),
       location: {
         name: simplifyLocation(template.find(".select-location input").value),
-        geoJSON: Session.get("selectedLocationPoint"),
-        utc_offset: Session.get("selectedLocationUTCOffset")
+        geoJSON: Session.get("selectedLocationPoint")
       },
       note: template.find("#gameNote").value,
       players: [],
@@ -1481,6 +1487,9 @@ Template.devEditableGame.events({
       game.status = "on";
     } else {
       game.status = "proposed";
+    }
+    if (Session.get("selectedLocationUTCOffset")) {
+      game.location.utc_offset = Session.get("selectedLocationUTCOffset");
     }
     try {
       check(game, ValidGame);
@@ -1499,7 +1508,16 @@ Template.devEditableGame.events({
             type: "danger", where: "editableGame",
             autoremove: 5000
           });
+        } else {
+          Alerts.throw({
+            message: e.message, type: "danger", where: "editableGame"
+          });
         }
+      } else {
+        Alerts.throw({
+          message: "Hmm, something went wrong. Try again?",
+          type: "danger", where: "editableGame"
+        });
       }
       // TODO: fold Session.set("waiting-on", null) calls into a single
       // Deps.autorun that nullifies "waiting-on" whenever there are
@@ -1730,6 +1748,14 @@ Template.settings.events({
   "click .sign-out.trigger": function () {
     Meteor.logout();
     Router.go('dev');
+  },
+  "click .send-verification-email": function () {
+    Meteor.call("sendVerificationEmail");
+    Alerts.throw({
+      message: "Thanks. Look out for an email from support@pushpickup.com" +
+        " to verify your email address.",
+      type: "info", where: "settings", autoremove: 3000
+    });
   }
 });
 
