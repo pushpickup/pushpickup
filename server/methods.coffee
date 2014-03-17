@@ -211,7 +211,7 @@ Meteor.methods
         "#{game.displayTime()} #{game.type} game"
       text: "#{comment.userName} just said: \"#{comment.message}\".\n" +
         "For your reference, below is a link to your game.\n\n" +
-        "#{Meteor.absoluteUrl('dev/g/'+gameId)}\nThanks for organizing."
+        "#{Meteor.absoluteUrl('g/'+gameId)}\nThanks for organizing."
 
 Meteor.startup ->
   adverbs = _.string.lines(Assets.getText("positive-adverbs-that-are-adjectives-without-ly.txt"))

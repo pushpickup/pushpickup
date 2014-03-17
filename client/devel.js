@@ -1656,7 +1656,7 @@ Template.devEditableGame.events({
     evt.preventDefault();
     if (confirm("Really cancel game? Players will be notified.")) {
       Meteor.call("cancelGame", this._id);
-      Router.go('dev');
+      Router.go('home');
     }
   }
 });
@@ -1762,7 +1762,7 @@ Template.settings.events({
   // signed in
   "click .sign-out.trigger": function () {
     Meteor.logout();
-    Router.go('dev');
+    Router.go('home');
   },
   "click .send-verification-email": function () {
     Meteor.call("sendVerificationEmail");
@@ -1832,7 +1832,7 @@ Template.devSignIn.events({
           message: err.reason, type: "danger", where: "devSignIn"
         });
       } else {
-        Router.go('dev');
+        Router.go('home');
       }
     });
   }
@@ -1863,7 +1863,7 @@ Template.devSignUp.events({
               message: err.reason, type: "danger", where: "devSignUp"
             });
           } else {
-            Router.go('dev');
+            Router.go('home');
           }
         });
       }

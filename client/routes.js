@@ -1,6 +1,6 @@
 Router.configure({
-  layoutTemplate: 'layout',
-  notFoundTemplate: 'home',
+  layoutTemplate: 'devLayout',
+  notFoundTemplate: 'devMain',
   loadingTemplate: 'loading'
 });
 
@@ -38,14 +38,6 @@ Meteor.startup(function () {
     // strings so that the reset password token is not sent over the wire
     // on the http request
 
-    this.route('get-reset-link', {
-      template: 'sendResetPasswordEmail'
-    });
-
-    this.route('change-password', {
-      template: 'changePassword'
-    });
-
     this.route('reset-password', {
       template: 'devMain',
       layoutTemplate: 'devLayout',
@@ -73,7 +65,7 @@ Meteor.startup(function () {
               type: "success", where: "main",
               autoremove: 3000
             });
-            Router.go('dev');
+            Router.go('home');
           } else {
             Alerts.throw({
               message: "Hmm, something went wrong: \""+err.reason +
@@ -81,28 +73,9 @@ Meteor.startup(function () {
               type: "danger", where: "main"
             });
             Session.set("viewing-settings", true);
-            Router.go('dev');
+            Router.go('home');
           }
         });
-      }
-    });
-
-    this.route('get-verify-link', {
-      template: 'sendVerificationEmail'
-    });
-
-    this.route('manage-subscriptions', {
-      template: 'manageUserSubs',
-
-      waitOn: function () {
-        return Meteor.subscribe('user_subs');
-      },
-
-      data: function () {
-        return {
-          subsCount: UserSubs.find().count(),
-          hasSubs: UserSubs.find().count() > 0
-        };
       }
     });
 
@@ -120,169 +93,16 @@ Meteor.startup(function () {
       }
     });
 
+    // the home page. listing and searching for games
     this.route('home', {
       path: '/',
-
-      load: function () {
-        // TODO: load Session "gameTypes" and "gameDays"
-        // from user profile
-        Session.set("need_location_set", undefined);
-      },
-
-      unload: function () {
-      }
-    });
-
-    this.route('about');
-    this.route('help');
-
-    this.route('signIn', {
-      action: function () {
-        if (Meteor.userId()) {
-          this.render('home');
-        } else {
-          this.render();
-        }
-      }
-    });
-
-    this.route('signOut', {
-      action: function () {
-        Meteor.logout();
-        this.render('home');
-        Router.go('home'); // o/w, refreshes/hot-code pushes log users out (!)
-      }
-    });
-
-    this.route('addGame', {
-      path: '/games/add',
-      template: 'editableGame',
-
-      load: function () {
-        Session.set("newGameDay", null);
-        Session.set("newGameTime", null);
-        Session.set("addingGame", true);
-        // if (!google) Session.set("selectedLocationPoint", {
-        //   type: "Point",
-        //   coordinates: [-122.272301, 37.856386]
-        // }); // Grove Park, Berkeley, CA
-      },
-
-      data: function () {
-        return _.extend({
-          id: 'addGame',
-          title: 'Add a game',
-          submit: 'Add'
-        }, Games.findOne(this.params._id));
-      },
-
-      unload: function () {
-        Session.set("addingGame", false);
-        Session.set("selectedLocationPoint", null);
-      }
-    });
-
-    this.route('oneGame', {
-      path: '/games/:_id',
-
-
-      waitOn: function () {
-        return Meteor.subscribe('game', this.params._id);
-      },
-
-      before: [
-        function () {
-          // may not correspond to a legit game id
-          Session.set("soloGame", this.params._id);
-          Session.set("selectedGame", this.params._id);
-        }
-      ],
-
-      data: function () {
-        return Games.findOne(this.params._id);
-      },
-
-      unload: function () {
-        Session.set("soloGame", null);
-        Session.set("selectedGame", null);
-        // crufty. don't do this for a 'back' link
-        Session.set("pageNum", 0);
-      }
-    });
-
-    this.route('editGame', {
-      path: '/games/:_id/edit',
-      template: 'editableGame',
-
-      load: function () {
-        Session.set("newGameDay", null);
-        Session.set("newGameTime", null);
-        Session.set("editingGame", true);
-      },
-
-      waitOn: function () {
-        return Meteor.subscribe('game', this.params._id);
-      },
-
-      before: [
-        filters.mustBeSignedIn,
-        function () {
-          // may not correspond to a legit game id
-          Session.set("soloGame", this.params._id);
-          Session.set("selectedGame", this.params._id);
-        }
-      ],
-
-      data: function () {
-        return _.extend({
-          id: 'editGame',
-          title: 'Edit game',
-          submit: 'Submit changes'
-        }, Games.findOne(this.params._id));
-      },
-
-      action: function () {
-        var self = this;
-        if (Meteor.userId() === self.getData().creator.userId) {
-          self.render();
-        } else {
-          Meteor.call("getDonnyId", function (error, result) {
-            if (!error && Meteor.userId() === result) {
-              self.render();
-            } else {
-              self.render('home');
-            }
-          });
-        }
-      },
-
-      after: function () {
-      },
-
-      unload: function () {
-        Session.set("soloGame", null);
-        Session.set("selectedGame", null);
-        // crufty. don't do this for a 'back' link
-        Session.set("pageNum", 0);
-        Session.set("editingGame", false);
-        Session.set("selectedLocationPoint", null);
-      }
-    });
-
-    //// 'dev' routes
-    //
-    // Routes for the next beta release of the site,
-    // accessible via '/dev'
-
-    // the home page. listing and searching for games
-    this.route('dev', {
       template: 'devMain',
       layoutTemplate: 'devLayout'
     });
 
     // typical user interaction with a single game
     this.route('devDetail', {
-      path: '/dev/g/:_id',
+      path: '/g/:_id',
       layoutTemplate: 'devLayout',
       waitOn: function () {
         return Meteor.subscribe('game', this.params._id);
@@ -299,7 +119,7 @@ Meteor.startup(function () {
     });
 
     this.route('devAddGame', {
-      path: '/dev/addGame',
+      path: '/addGame',
       template: 'devEditableGame',
       layoutTemplate: 'devLayout',
       load: function () {
@@ -315,7 +135,7 @@ Meteor.startup(function () {
     });
 
     this.route('devEditGame', {
-      path: '/dev/editGame/:_id',
+      path: '/editGame/:_id',
       template: 'devEditableGame',
       layoutTemplate: 'devLayout',
       load: function () {

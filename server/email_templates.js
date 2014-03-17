@@ -28,7 +28,7 @@ emailTemplates = {
         + url + "\n"
         + "\n"
         + "For your reference, below is a link to the game.\n\n"
-        + Meteor.absoluteUrl('dev/g/'+options.gameId) + "\n"
+        + Meteor.absoluteUrl('g/'+options.gameId) + "\n"
         + "\n"
         + "Thanks.\n";
     }

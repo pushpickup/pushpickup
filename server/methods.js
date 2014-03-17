@@ -21,7 +21,7 @@ Meteor.methods({
         subject: user.profile.name + " invited you to play "+game.type+" at "
           + game.displayTime(),
         text: "Want to join in? Below is a link to the game.\n\n"
-          + Meteor.absoluteUrl('dev/g/'+gameId)
+          + Meteor.absoluteUrl('g/'+gameId)
           + "\nThanks for helping to push pickup."
       });
     });
@@ -53,7 +53,7 @@ Meteor.methods({
           + game.displayTime(),
         text: "Details for a game you're playing in have changed. " +
           "Below is a link to the game.\n\n"
-          + Meteor.absoluteUrl('dev/g/'+gameId)
+          + Meteor.absoluteUrl('g/'+gameId)
           + "\nThanks for helping to push pickup."
       });
     });
