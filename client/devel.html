@@ -145,8 +145,7 @@
 
 <template name="soloGameSummary">
   <div class="game-summary">
-    <strong>{{type}}</strong>
-    {{> gameWhen}}
+    <strong>{{type}}</strong> {{> gameWhen}}
     {{> whoIsPlaying}}
     <div class="place">
       <div class="place-name">
@@ -179,7 +178,7 @@
         {{#unless past startsAt}}+ {{numNeeded}} needed{{else}}for {{numNeeded}} others{{/unless}}
     {{else}}
       {{#if playing}}
-        <strong class="text-{{#if past startsAt}}muted{{else}}success{{/if}}">
+        <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
           {{participle startsAt past='Played' present='Playing'}}
         </strong>
         {{#unless past startsAt}}+ {{numNeeded}} needed{{else}}with {{numNeeded}} others{{/unless}}
@@ -444,8 +443,8 @@
     <div class="content-all">
       {{> backToList}}
       {{> gameTypeIndicator}}
-      {{> shareGameLink}}
       {{> editGameLink}}
+      {{> shareGameLink}}
       {{> copyGameLink}}
     </div>
   </div>
