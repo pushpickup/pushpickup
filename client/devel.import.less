@@ -67,15 +67,36 @@ button {
 .settings-cog {
   .make-xs-column(1);
   padding-left: 10px;
+  margin-right: 35px;
 }
 
-.nav-icon.ppicon-cog, .nav-icon.ppicon-search {
+.settings-cog a {
   padding: 20px;
+}
+
+.nav-icon.ppicon-search {
+  padding: 20px 20px 20px 0;
 }
 
 .start-search {
   .make-xs-column(1);
-  padding-left: 25px;
+  margin-left: 5px;
+  padding: 0px;
+}
+
+.exit-search {
+  display: inline-block;
+  padding-left: 5px;
+}
+
+.exit-search a {
+  padding: 20px 5px 20px 20px;
+}
+
+.options-main .back {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 20px 15px 20px 20px;
 }
 
 .add-game-link {
@@ -252,23 +273,12 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .search-input {
   display: inline-block;
-  width: 80%;
-  padding-left: 10px;
-}
-
-.exit-search {
-  display: inline-block;
-  padding-left: 25px;
+  width: 78%;
 }
 
 .run-search, .select-game-types {
   padding-left: 15px;
   padding-right: 15px;
-}
-
-.options-main .back {
-  display: inline-block;
-  padding-left: 15px;
 }
 
 .listed-game {
@@ -323,6 +333,7 @@ form > .form-group:first-child { margin-top: 5px; }
 .subscribe-detail {
   padding-top: 10px;
   padding-left: 15px;
+  margin-right: 15px;
 }
 
 .subscribe-detail:first-letter {
