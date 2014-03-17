@@ -147,6 +147,13 @@ Deps.autorun(function () {
   });
 });
 
+Deps.autorun(function () {
+  Session.set("user_subs_ready", false);
+  Meteor.userId() && Meteor.subscribe('user_subs', function () {
+    Session.set("user_subs_ready", true);
+  });
+});
+
 var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
   SEql: function (key, val) { return Session.equals(key, val); },
@@ -2029,5 +2036,26 @@ Template.devChangeEmailAddress.events({
         });
       }
     });
+  }
+});
+
+Template.devSubscriptions.events({
+  "click .unsubscribe-all": function () {
+    _.forEach(
+      _.pluck(UserSubs.find().fetch(), '_id'),
+      function (id) {
+        UserSubs.remove(id); });
+  }
+});
+
+Template.devSubscriptions.helpers({
+  loading: function () {
+    return ! Session.equals("user_subs_ready", true);
+  },
+  hasSubs: function () {
+    return UserSubs.find().count() > 0;
+  },
+  subsCount: function () {
+    return UserSubs.find().count();
   }
 });
