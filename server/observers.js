@@ -20,7 +20,7 @@ var gameOnEmail = function (playerName, emailAddress, game) {
       game.location.name,
     text: "Have a great game, " + playerName + ".\n" +
       "For your reference, below is a link to the game.\n\n" +
-      Meteor.absoluteUrl('games/'+game._id) + "\nThanks for playing."
+      Meteor.absoluteUrl('g/'+game._id) + "\nThanks for playing."
   });
 };
 
@@ -35,7 +35,7 @@ var sendGameAddedNotification = function (user, gameId, game) {
         + game.location.name,
       text: user.profile.name + ",\n"
         + "Want to join in? Below is a link to the game.\n\n"
-        + Meteor.absoluteUrl('games/'+gameId)
+        + Meteor.absoluteUrl('g/'+gameId)
         + "\nThanks for helping to push pickup."
     });
   }
