@@ -147,6 +147,13 @@ Deps.autorun(function () {
   });
 });
 
+Deps.autorun(function () {
+  Session.set("user_subs_ready", false);
+  Meteor.userId() && Meteor.subscribe('user_subs', function () {
+    Session.set("user_subs_ready", true);
+  });
+});
+
 var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
   SEql: function (key, val) { return Session.equals(key, val); },
@@ -1063,6 +1070,7 @@ Template.soloGameMap.rendered = function () {
       mapTypeControl: false,
       panControl: false,
       streetViewControl: false,
+      zoomControl: false,
       minZoom: 3
     });
 
@@ -1077,6 +1085,13 @@ Template.soloGameMap.rendered = function () {
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.open(map,marker);
   });
+
+  // A weird hack -- I don't know why an immediate `infowindow.open`
+  // escapes notice of the default AutoPan. By waiting one second,
+  // the map will autopan to accomodate the infowindow.
+  Meteor.setTimeout(function () {
+    infowindow.open(map,marker);
+  }, 1000);
 };
 
 Template.joinOrLeave.helpers({
@@ -2029,5 +2044,26 @@ Template.devChangeEmailAddress.events({
         });
       }
     });
+  }
+});
+
+Template.devSubscriptions.events({
+  "click .unsubscribe-all": function () {
+    _.forEach(
+      _.pluck(UserSubs.find().fetch(), '_id'),
+      function (id) {
+        UserSubs.remove(id); });
+  }
+});
+
+Template.devSubscriptions.helpers({
+  loading: function () {
+    return ! Session.equals("user_subs_ready", true);
+  },
+  hasSubs: function () {
+    return UserSubs.find().count() > 0;
+  },
+  subsCount: function () {
+    return UserSubs.find().count();
   }
 });

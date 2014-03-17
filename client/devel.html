@@ -304,7 +304,7 @@
 <template name="settingsCog">
   <div class="settings-cog">
     {{#if SGet 'viewing-settings'}}
-      <a><span class="nav-icon ppicon-cog text-muted"></span></a>
+      <a><span class="nav-icon ppicon-cancel text-muted"></span></a>
     {{else}}
       <a><span class="nav-icon ppicon-cog"></span></a>
     {{/if}}
@@ -878,7 +878,25 @@
 </template>
 
 <template name="devSubscriptions">
-Subscriptions!
+  <strong class="heading">Get emails for new games</strong>
+  <p>You can use search to find locations and game types
+    to which you want to subscribe.</p>
+  {{#if loading}}
+    loading your subscriptions...
+  {{else}}
+    {{#if hasSubs}}
+      <p> You have {{subsCount}} subscriptions.</p>
+      <p>
+        <a class="text-danger unsubscribe-all">Unsubscribe completely.</a>
+      </p>
+      <p>
+        This page will get fancier soon,
+        enabling you to view and edit subscriptions.
+      </p>
+    {{else}}
+      You have no subscriptions.
+    {{/if}}
+  {{/if}}
 </template>
 
 <template name="devChangeEmailAddress">
