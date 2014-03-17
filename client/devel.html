@@ -428,7 +428,7 @@
 <template name="subscribeButton">
   <div class="subscribe-button">
     <button type="button"
-            class="btn btn-primary center-block">
+            class="btn subscribe">
       <span class="glyphicon glyphicon-envelope"></span>
       Subscribe</button>
   </div>
@@ -883,7 +883,22 @@ Subscriptions!
 </template>
 
 <template name="devChangeEmailAddress">
-Change email address!
+<form class="change-email-address" role="form">
+  <div class="tight form-group">
+    <p class="form-header">Add your new email address and we'll send you
+    a verification email.</p>
+    <input type="email" class="form-control"
+           placeholder="Your new email address" required autofocus>
+    <!-- Session 'strange-passwd' only supplied during first session -->
+    <input type="password" class="form-control"
+           value="{{SGet 'strange-passwd'}}"
+           placeholder="Your password" required>
+  </div>
+  {{{alerts 'changeEmailAddress'}}}
+  <button class="btn change-email-address" type="submit">
+    Update my email address
+  </button>
+</form>
 </template>
 
 <template name="devChangePassword">

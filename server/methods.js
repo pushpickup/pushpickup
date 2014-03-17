@@ -61,5 +61,29 @@ Meteor.methods({
   "sendVerificationEmail": function () {
     this.unblock();
     this.userId && Accounts.sendVerificationEmail(this.userId);
+  },
+  "changeEmailAddress": function (newEmail) {
+    this.unblock();
+    check(newEmail, ValidEmail);
+    if (! this.userId) {
+      throw new Meteor.Error(
+        401, "You must be signed in to change your email address.");
+    }
+    var available = Meteor.call("isEmailAvailable", newEmail);
+    console.log("got here");
+    if (! available) {
+      throw new Meteor.Error(
+        403, "Someone has already added and verified that email address");
+    }
+    var user = Meteor.users.findOne(this.userId);
+    var oldEmail = user.emails[0].address;
+    Meteor.users.update(this.userId, {
+      $push: {emails: {address: newEmail, verified: false}}
+    });
+    Meteor.users.update(this.userId, {
+      $pull: {emails: {address: oldEmail}}
+    });
+    Accounts.sendVerificationEmail(this.userId, newEmail);
+    return true;
   }
 });

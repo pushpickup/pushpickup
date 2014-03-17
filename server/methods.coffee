@@ -45,6 +45,16 @@ Meteor.methods
         $push: players: name: name, userId: userId, rsvp: "in"
     maybeMakeGameOn gameId
     username: username, password: password
+  "isEmailAvailable": (email) ->
+    check(email, ValidEmail)
+    emailOwner = Meteor.users.findOne({'emails.address': email})
+    if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
+      return false
+    if emailOwner
+      # email is in system but unverified. remove it before proceeding.
+      Meteor.users.update emailOwner?._id,
+        $pull: emails: address: email
+    true
   "addUserEmail": (email) ->
     self = this
     emailOwner = Meteor.users.findOne({'emails.address': email})
