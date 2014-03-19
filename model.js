@@ -332,6 +332,33 @@ Meteor.methods({
     Meteor.call("notifyCommentListeners", gameId, timestamp);
     return true;
   },
+  removeComment: function (comment) {
+    var self = this;
+    check(comment, Match.Where(function (c) {
+      check(_.omit(c, 'gameId'), ValidComment);
+      check(c.gameId, String);
+      return true;
+    }));
+
+    var user = Meteor.users.findOne(self.userId);
+    if (! user)
+      throw new Meteor.Error(401, "Must be signed in.");
+
+    var game = Games.findOne(comment.gameId);
+    if (! game)
+      throw new Meteor.Error(400, "Not an active game.");
+
+    if (user._id === comment.userId ||
+        user._id === game.creator.userId ||
+        user.admin) {
+      Games.update(comment.gameId, {
+        $pull: {comments: _.omit(comment, 'gameId')}
+      });
+      return true;
+    } else {
+      return false;
+    }
+  },
   sendFeedback: function (options) {
     if (this.isSimulation) {
       Alerts.throw({message: "Thanks!", type: "success",

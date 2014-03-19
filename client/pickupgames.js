@@ -980,6 +980,15 @@ Template.gameComment.helpers({
   timestamp: function () {
     var self = this;
     return moment(self.timestamp).fromNow();
+  },
+  canRemove: function () {
+    var comment = this;
+    var user = Meteor.user();
+    if (! user) return false;
+    var game = Games.findOne(comment.gameId);
+    return user._id === comment.userId ||
+      user._id === game.creator.userId ||
+      user.admin;
   }
 });
 

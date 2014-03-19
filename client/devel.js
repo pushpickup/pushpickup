@@ -152,6 +152,8 @@ Deps.autorun(function () {
   Meteor.userId() && Meteor.subscribe('user_subs', function () {
     Session.set("user_subs_ready", true);
   });
+
+  Meteor.subscribe("user-data");
 });
 
 var handlebarsHelperMap = {
@@ -1143,6 +1145,19 @@ Template.editGameLink.helpers({
 Template.comments.helpers({
   numComments: function () {
     return (this.comments.length === 0) ? "No" : this.comments.length;
+  },
+  comments: function () {
+    var self = this;
+    return _.map(self.comments, function (comment) {
+      return _.extend({gameId: self._id}, comment);
+    });
+  }
+});
+
+Template.comments.events({
+  "click .remove-comment": function (event, template) {
+    var self = this;
+    Meteor.call("removeComment", self);
   }
 });
 

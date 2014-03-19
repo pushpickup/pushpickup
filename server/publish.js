@@ -2,6 +2,11 @@ Meteor.publish("game", function (id) {
   return Games.find(id);
 });
 
+Meteor.publish("user-data", function () {
+  return Meteor.users.find({_id: this.userId},
+                           {fields: {'admin': 1}});
+});
+
 Meteor.publish("user-upcoming-games", function () {
   check(this.userId, String);
   return Games.find({startsAt: {$gte: new Date()},

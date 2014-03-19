@@ -66,7 +66,7 @@ bootstrap = function () {
   var admins = [{name: "Donny Winston", email: "donny@pushpickup.com"},
                 {name: "Stewart McCoy", email: "mccoy.stewart@gmail.com"}];
 
-  _forEach(admins, function (admin) {
+  _.forEach(admins, function (admin) {
     admin._id = Accounts.createUser({
       email: admin.email,
       password: 'foobar',
