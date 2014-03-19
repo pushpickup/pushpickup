@@ -85,5 +85,16 @@ Meteor.methods({
     });
     Accounts.sendVerificationEmail(this.userId, newEmail);
     return true;
+  },
+  "makeAdmin": function (userId) {
+    var self = this;
+    check(userId, String);
+    var requester = Meteor.users.findOne(self.userId);
+    if (requester && requester.admin) {
+      Meteor.users.update(userId, {$set: {admin: true}});
+      return true;
+    } else {
+      return false;
+    }
   }
 });

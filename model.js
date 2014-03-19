@@ -137,14 +137,23 @@ maybeMakeGameOn = function (gameId) {
   }
 };
 
-// Donny can edit all games without ssh access to database
-var donny = Meteor.users.findOne({
-  'emails.address': 'donny@pushpickup.com'
-});
-var donnyId = donny && donny._id;
-
 Meteor.methods({
-  getDonnyId: function () { return donnyId; },
+  checkIsGameOrganizerOrAdmin: function (game) {
+    var self = this;
+    check(game, Match.ObjectIncluding({
+      creator: Match.ObjectIncluding({ userId: String })
+    }));
+    var user = Meteor.users.findOne(self.userId);
+
+    if (! user)
+      throw new Meteor.Error(401, "Must be signed in.");
+
+    check(user, Match.Where(function (user) {
+      return user._id === game.creator.userId || user.admin;
+    }));
+
+    return true;
+  },
   // assumes this.userId is not null
   // see unauthenticated.addGame for when this.userId is null
   addGame: function (game) {
@@ -170,22 +179,11 @@ Meteor.methods({
     } else {
       game.status = "proposed";
     }
+    check(id, String);
     check(game, ValidGame);
     var oldGame = Games.findOne(id);
 
-    var isCreator = Match.test(
-      oldGame.creator.userId,
-      Match.Where(function (id) {
-        return id === self.userId;
-      }));
-
-    if (! isCreator) {
-      if (Meteor.isServer) {
-        check(self.userId, Match.Where(function (id) {
-          return (id === donnyId);
-        }));
-      }
-    }
+    Meteor.call("checkIsGameOrganizerOrAdmin", game);
 
     if (game.location.name.length > 100)
       throw new Meteor.Error(413, "Location name too long");
@@ -213,19 +211,8 @@ Meteor.methods({
   cancelGame: function (id) {
     var self = this;
     var game = Games.findOne(id);
-    var isCreator = Match.test(
-      game.creator.userId,
-      Match.Where(function (id) {
-        return id === self.userId;
-      }));
 
-    if (! isCreator) {
-      if (Meteor.isServer) {
-        check(self.userId, Match.Where(function (id) {
-          return (id === donnyId);
-        }));
-      }
-    }
+    Meteor.call("checkIsGameOrganizerOrAdmin", game);
 
     if (Meteor.isServer) {
       this.unblock();

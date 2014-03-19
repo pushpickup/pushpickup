@@ -60,13 +60,23 @@ bootstrap = function () {
     userNumGames[user._id] = 0;
   });
 
-  // establish donny, a power user (can edit any game)
-  var donnyId = Accounts.createUser({
-    email: 'donny@pushpickup.com',
-    password: 'foobar',
-    profile: {name: 'Donny Winston'}
+  // establish donny and stewart, admins who
+  // can edit any game and delete comments.
+
+  var admins = [{name: "Donny Winston", email: "donny@pushpickup.com"},
+                {name: "Stewart McCoy", email: "mccoy.stewart@gmail.com"}];
+
+  _forEach(admins, function (admin) {
+    admin._id = Accounts.createUser({
+      email: admin.email,
+      password: 'foobar',
+      profile: {name: admin.name}
+    });
+    Meteor.users.update(admin._id, {$set: {
+      'emails.0.verified': true,
+      admin: true
+    }});
   });
-  Meteor.users.update(donnyId, {$set: {'emails.0.verified': true}});
 
   // establish Tim Tester, who creates test games
   var timId = Accounts.createUser({
@@ -113,10 +123,14 @@ bootstrap = function () {
                    [-122.409603,37.774920],
                    [-122.409603,37.937563]]]
   };
-  UserSubs.insert({
-    userId: donnyId,
-    types: types,
-    days: days,
-    region: berkeley
+
+  // Start all admins off with an initial game subscription.
+  _.forEach(admins, function (admin) {
+    UserSubs.insert({
+      userId: admin._id,
+      types: types,
+      days: days,
+      region: berkeley
+    });
   });
 };

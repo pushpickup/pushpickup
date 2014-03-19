@@ -45,11 +45,6 @@ Session.setDefault(
   _.pluck(GameOptions.find({option: "type"}).fetch(), 'value')
 );
 
-var donnyId;
-Meteor.call("getDonnyId", function (error, result) {
-  if (!error) { donnyId = result; }
-});
-
 // subscribe to games
 Deps.autorun(function () {
   if (Session.equals("dev-mode", true))
@@ -879,8 +874,8 @@ Template.game.helpers({
   },
   userCanEdit: function () {
     var self = this;
-    var userId  = Meteor.userId();
-    return self.creator.userId === userId || donnyId === userId;
+    var user  = Meteor.user();
+    return self.creator.userId === user._id || user.admin;
   },
   showShareLink: function () {
     return Session.equals("showShareLink", Session.get("selectedGame"));
