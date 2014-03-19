@@ -138,22 +138,6 @@ maybeMakeGameOn = function (gameId) {
 };
 
 Meteor.methods({
-  checkIsGameOrganizerOrAdmin: function (game) {
-    var self = this;
-    check(game, Match.ObjectIncluding({
-      creator: Match.ObjectIncluding({ userId: String })
-    }));
-    var user = Meteor.users.findOne(self.userId);
-
-    if (! user)
-      throw new Meteor.Error(401, "Must be signed in.");
-
-    check(user, Match.Where(function (user) {
-      return user._id === game.creator.userId || user.admin;
-    }));
-
-    return true;
-  },
   // assumes this.userId is not null
   // see unauthenticated.addGame for when this.userId is null
   addGame: function (game) {
@@ -181,9 +165,18 @@ Meteor.methods({
     }
     check(id, String);
     check(game, ValidGame);
-    var oldGame = Games.findOne(id);
 
-    Meteor.call("checkIsGameOrganizerOrAdmin", game);
+    var oldGame = Games.findOne(id);
+    if (! oldGame)
+      throw new Meteor.Error(404, "Game not found.");
+
+    var user = Meteor.users.findOne(self.userId);
+    if (! user)
+      throw new Meteor.Error(401, "Must be signed in.");
+
+    check(user, Match.Where(function (user) {
+      return user._id === oldGame.creator.userId || user.admin;
+    }));
 
     if (game.location.name.length > 100)
       throw new Meteor.Error(413, "Location name too long");
@@ -205,14 +198,23 @@ Meteor.methods({
       if (!err && !sameNote) {
         Meteor.call("notifyPlayers", id);
       }
-
     });
   },
   cancelGame: function (id) {
     var self = this;
-    var game = Games.findOne(id);
+    check(id, String);
 
-    Meteor.call("checkIsGameOrganizerOrAdmin", game);
+    var game = Games.findOne(id);
+    if (! game)
+      throw new Meteor.Error(404, "Game not found.");
+
+    var user = Meteor.users.findOne(self.userId);
+    if (! user)
+      throw new Meteor.Error(401, "Must be signed in.");
+
+    check(user, Match.Where(function (user) {
+      return user._id === game.creator.userId || user.admin;
+    }));
 
     if (Meteor.isServer) {
       this.unblock();
