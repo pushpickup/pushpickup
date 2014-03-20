@@ -243,7 +243,13 @@ Meteor.methods({
   },
   // this.userId is not null
   // for unauthenticated adds, see "unauthenticated.addPlayer"
-  addPlayer: function (gameId, name /* optional */) {
+  addPlayer: function (args) {
+    check(args, {
+      gameId: String,
+      name: Match.Optional(NonEmptyString)
+    });
+    var gameId = args.gameId,
+        name = args.name;
     var userId = this.userId;
     if (! userId) return false;
     if (Games.findOne({_id: gameId, 'players.userId': userId})) {

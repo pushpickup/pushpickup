@@ -318,7 +318,10 @@ Template.joinGameLink.events({
 
 var addSelfToGame = function (gameId) {
   if (! gameId) { return; }
-  Meteor.call("addPlayer", gameId, Meteor.user().profile.name, function (err) {
+  Meteor.call("addPlayer", {
+    gameId: gameId,
+    name: Meteor.user().profile.name
+  }, function (err) {
     if (!err) {
       Session.set("joined-game", gameId);
       Session.set("unauth-join", null);
@@ -899,6 +902,11 @@ Template.subscribe.destroyed = function () {
 };
 
 Template.subscribeAfterJoined.helpers({
+  placeName: function () {
+    var game = this;
+    // return everything before first comma (if no comma, return everything)
+    return game.location.name.replace(/,.*/,'');
+  },
   subscribed: function () {
     // TODO: return true if map bounds are $geoWithin any UserSubs
     //  May need to user $near if that's all minimongo offers.
@@ -1615,7 +1623,14 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.loginWithPassword(email, result.password, function (error) {
               if (!error) {
-                playing && Meteor.call("addPlayer", result.gameId, fullName);
+                playing && Meteor.call("addPlayer", {
+                  gameId: result.gameId,
+                  name: fullName
+                }, function (err) {
+                  if (!err) {
+                    Session.set("joined-game", result.gameId);
+                  }
+                });
                 Meteor.call("inviteFriends", inviteEmails, result.gameId);
               }
             });
@@ -1655,7 +1670,13 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.call("addGame", game, function (error, result) {
               if (!error) {
-                playing && Meteor.call("addPlayer", result.gameId);
+                playing && Meteor.call("addPlayer", {
+                  gameId: result.gameId
+                }, function (err) {
+                  if (!err) {
+                    Session.set("joined-game", result.gameId);
+                  }
+                });
                 Router.go('devDetail', {_id: result.gameId});
                 Meteor.call("inviteFriends", inviteEmails, result.gameId);
               } else {
@@ -1682,7 +1703,13 @@ Template.devEditableGame.events({
     } else { // authenticated user
       Meteor.call("addGame", game, function (error, result) {
         if (!error) {
-          playing && Meteor.call("addPlayer", result.gameId);
+          playing && Meteor.call("addPlayer", {
+            gameId: result.gameId
+          }, function (err) {
+            if (!err) {
+              Session.set("joined-game", result.gameId);
+            }
+          });
           Router.go('devDetail', {_id: result.gameId});
           Meteor.call("inviteFriends", inviteEmails, result.gameId);
         } else {
