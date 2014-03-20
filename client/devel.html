@@ -490,6 +490,7 @@
   <div class="dev-detail-body row">
     <div class="content-all">
       {{{alerts}}}
+      {{> subscribeAfterJoined}}
       {{> soloGameMap}}
       {{> soloGameSummary}}
       {{#unless past startsAt}}
@@ -505,6 +506,22 @@
       {{> addComment}}
     </div>
   </div>
+</template>
+
+<template name="subscribeAfterJoined">
+  {{#if SEql 'joined-game' _id}}
+    <div class="subscribe-after-joined well">
+      <button type="button" class="close" aria-hidden="true">&times;</button>
+      <strong>You joined!</strong>
+      <p>Check your email for more info.</p>
+      {{{alerts 'subscribe'}}}
+      {{#unless subscribed}}
+        <p> Would you like to receive email when new {{type}} games
+          are posted near {{location.name}}? </p>
+        {{> subscribeButton}}
+      {{/unless}}
+    </div>
+  {{/if}}
 </template>
 
 <template name="soloGameMap">

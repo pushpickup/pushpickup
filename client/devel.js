@@ -320,6 +320,7 @@ var addSelfToGame = function (gameId) {
   if (! gameId) { return; }
   Meteor.call("addPlayer", gameId, Meteor.user().profile.name, function (err) {
     if (!err) {
+      Session.set("joined-game", gameId);
       Session.set("unauth-join", null);
     } else {
       console.log(err);
@@ -441,15 +442,15 @@ Template.addSelfAndFriends.events({
         "dev.unauth.addPlayers", game._id, email, fullName, friends,
         function (error, result) {
           if (!error) {
-            Meteor.loginWithPassword(email, result.password);
-            Alerts.throw({
-              message: "Thanks, " + fullName +
-                "! Check for an email from " +
-                "support@pushpickup.com to verify your email address",
-              type: "success", where: game._id
+            Meteor.loginWithPassword(email, result.password, function (err) {
+              if (!err) {
+                Session.set("joined-game", game._id);
+                Session.set("unauth-join", null);
+                Session.set("strange-passwd", result.password);
+              } else {
+                console.log(err);
+              }
             });
-            Session.set("unauth-join", null);
-            Session.set("strange-passwd", result.password);
           } else {
             // typical error: email in use
             console.log(error);
@@ -477,8 +478,9 @@ Template.addSelfAndFriends.events({
           Meteor.call(
             "dev.addSelf.addFriends", friends, game._id,
             function (error, result) {
-              Session.set("unauth-join", null); // logged in now
               if (! error) {
+                Session.set("joined-game", game._id);
+                Session.set("unauth-join", null); // logged in now
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +
@@ -896,6 +898,18 @@ Template.subscribe.destroyed = function () {
   Alerts.collection.remove({where: "subscribe"});
 };
 
+Template.subscribeAfterJoined.helpers({
+  subscribed: function () {
+    // TODO: return true if map bounds are $geoWithin any UserSubs
+    //  May need to user $near if that's all minimongo offers.
+    return Alerts.collection.findOne({where: "subscribe"});
+  }
+});
+
+Template.subscribeAfterJoined.destroyed = function () {
+  Alerts.collection.remove({where: "subscribe"});
+};
+
 Template.authenticateAndSubscribe.events({
   "submit form": function (event, template) {
     event.preventDefault();
@@ -1023,7 +1037,8 @@ Template.subscribeButton.events({
         var game = Games.findOne(Session.get("soloGame"));
         Meteor.call("addUserSub",
                     [game.type],
-                    [moment(game.startsAt).day()],
+                    Session.get("gameDays"),
+                    // above can also be e.g. [moment(game.startsAt).day()],
                     Session.get("geoWithin"),
                     addUserSub.callback);
       } else {
@@ -1043,6 +1058,9 @@ Template.devDetail.events({
   },
   "click .copy-game-link .close": function () {
     Session.set("copy-game-link", null);
+  },
+  "click .subscribe-after-joined .close": function () {
+    Session.set("joined-game", null);
   }
 });
 
@@ -1075,6 +1093,14 @@ Template.soloGameMap.rendered = function () {
       zoomControl: false,
       minZoom: 3
     });
+
+  // set geoWithin for subscription
+  var idleListener = google.maps.event.addListener(map, 'idle', function () {
+    if (map.getBounds()) {
+      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+      google.maps.event.removeListener(idleListener);
+    }
+  });
 
   var marker = new google.maps.Marker({
     position: latLng, map: map
