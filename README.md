@@ -21,6 +21,10 @@ This project uses [Meteor](http://www.meteor.com) and [Meteorite](http://oortclo
     mrt install # Meteorite installs third-party smart packages
     meteor --settings settings.json.example # load example data for development
 
-Load `http://localhost:3000/` in your browser and play around. In general, the `devel` branch is the "stable" edge, from which feature branches (such as `new-mobile-rough`) are created and merged, and `master` corresponds to what is (or should be) up at [pushpickup.com](http://pushpickup.com).
+Load `http://localhost:3000/` in your browser and play around.
 
-If you have an issue with the code, please [let us know](https://github.com/dwinston/pushpickup/issues/new).
+The `devel` branch is the "stable" edge, from which feature branches (such as `new-mobile-rough`) are created and merged, and corresponds to what is (or should be) up at [pushpickup.meteor.com](http://pushpickup.meteor.com)
+
+The `master` branch corresponds to what is (or should be) up at [pushpickup.com](http://pushpickup.com).
+
+If you have an issue with the code, please [let us know](https://github.com/dwinston/pushpickup/issues/new). :)
