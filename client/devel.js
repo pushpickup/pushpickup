@@ -1162,9 +1162,13 @@ Template.whosPlayingSummary.helpers(whosPlayingHelpers);
 Template.whosPlayingEditable.helpers(whosPlayingHelpers);
 
 Template.editGameLink.helpers({
-  isCreator: function () {
-    return (!! Meteor.userId()) &&
-      Meteor.userId() === this.creator.userId;
+  canEdit: function () {
+    var user = Meteor.user();
+    if (user) {
+      return user._id === this.creator.userId || user.admin;
+    } else {
+      return false;
+    }
   }
 });
 

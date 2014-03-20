@@ -159,16 +159,13 @@ Meteor.startup(function () {
       },
       action: function () {
         var self = this;
-        if (Meteor.userId() === self.getData().creator.userId) {
+        var user = Meteor.user();
+        var game = self.getData();
+        if (user && user._id === game.creator.userId ||
+            user && user.admin) {
           self.render();
         } else {
-          Meteor.call("getDonnyId", function (error, result) {
-            if (!error && Meteor.userId() === result) {
-              self.render();
-            } else {
-              self.render('home');
-            }
-          });
+          self.render('home');
         }
       }
     });
