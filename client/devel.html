@@ -400,7 +400,6 @@
     {{#if SEql 'unauth-subscribe' true}}
       {{> authenticateAndSubscribe}}
     {{else}}
-      {{{alerts}}}
       {{#unless subscribed}}
         {{> subscribeButton}}
       {{/unless}}
@@ -435,6 +434,7 @@
 
 <template name="devDetail">
   {{> devDetailNav}}
+  {{{alerts 'main'}}}
   {{> devDetailBody}}
 </template>
 
@@ -509,19 +509,19 @@
 </template>
 
 <template name="subscribeAfterJoined">
-  {{#if SEql 'joined-game' _id}}
-    <div class="subscribe-after-joined well">
-      <button type="button" class="close" aria-hidden="true">&times;</button>
-      <strong>You joined!</strong>
-      <p>Check your email for more info.</p>
-      {{{alerts 'subscribe'}}}
-      {{#unless subscribed}}
+  {{#unless subscribed}}
+    {{#if SEql 'joined-game' _id}}
+      <div class="subscribe-after-joined well">
+        <button type="button" class="close" aria-hidden="true">&times;</button>
+        <strong>You joined!</strong>
+        <p>Check your email for more info.</p>
+        {{{alerts 'subscribe'}}}
         <p> Would you like to receive email when new {{type}} games
           are posted near {{placeName}}? </p>
         {{> subscribeButton}}
-      {{/unless}}
-    </div>
-  {{/if}}
+      </div>
+    {{/if}}
+  {{/unless}}
 </template>
 
 <template name="soloGameMap">

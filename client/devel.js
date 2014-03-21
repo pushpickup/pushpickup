@@ -614,7 +614,7 @@ Template.listedGameSummary.helpers({
   },
   // diagnostic -- not intended for production use
   placeDistance: function () {
-    return (0.00062137119 * gju.pointDistance(
+    return (0.00062137119 * GeoJSON.pointDistance(
       this.location.geoJSON,
       Session.get("current-location")
     )).toFixed(1) + " mi"; // conversion from meters to miles
@@ -749,10 +749,13 @@ Template.findingsMap.rendered = function () {
     return new google.maps.LatLng(lat, lng);
   };
 
-  geoUtils.toLatLngBounds = function (geoJSONMultiPoint) {
-    var SW = geoJSONMultiPoint.coordinates[0];
+  geoUtils.toLatLngBounds = function (geoJSONBounds) {
+    // Assumes geoJSONPolygon input with no interior (holes)
+    // and with coordinates[0]: 0->SW, 1->NW, 2->NE, 3->SE, 4->SW
+    var points = geoJSONBounds.coordinates[0];
+    var SW = points[0];
     SW = new google.maps.LatLng(SW[1], SW[0]);
-    var NE = geoJSONMultiPoint.coordinates[1];
+    var NE = points[2];
     NE = new google.maps.LatLng(NE[1], NE[0]);
     return new google.maps.LatLngBounds(SW, NE);
   };
@@ -852,7 +855,8 @@ Template.findingsMap.rendered = function () {
       var marker = self._dict[game._id];
       if (marker) {
         self._dict[game._id] = undefined;
-        marker.setMap(null);
+        marker.setMap(null); // remove from map
+        marker = null; // delete
         return true;
       } else {
         return false;
@@ -874,11 +878,80 @@ Template.findingsMap.rendered = function () {
   };
 
   self._manageMapMarkers = markers.manage();
+
+
+  // Display subscriptions
+
+  var subs = {
+    _dict: {}, // "dictionary"
+
+    _add: function (sub) {
+      var self = this;
+      if (self._dict[sub._id]) {
+        return self._dict[sub._id];
+      } else {
+        var bounds, rectangle;
+        bounds = geoUtils.toLatLngBounds(sub.region);
+        rectangle = new google.maps.Rectangle({
+          strokeColor: '#43828F', // @brand-primary
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#43828F',
+          fillOpacity: 0.35,
+          map: map,
+          bounds: bounds
+        });
+        return self._dict[sub._id] = rectangle;
+      }
+    },
+
+    _remove: function (sub) {
+      var self = this;
+      var rectangle = self._dict[sub._id];
+      if (rectangle) {
+        self._dict[sub._id] = undefined;
+        rectangle.setMap(null);
+        rectangle = null;
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    manage: function () {
+      var self = this;
+      return UserSubs.find().observe({
+        added: function (sub) {
+          self._add(sub);
+        },
+        removed: function (sub) {
+          self._remove(sub);
+        }
+      });
+    }
+  };
+
+  self._manageSubsDisplay = subs.manage();
 };
 
 Template.findingsMap.destroyed = function () {
   this._manageMapMarkers && this._manageMapMarkers.stop();
+  this._manageSubsDisplay && this._manageSubsDisplay.stop();
   this._syncMapWithSearch && this._syncMapWithSearch.stop();
+};
+
+// Do map bounds intersect with any of user's game subscription regions?
+var hasUserSubs = function (bounds) {
+  check(bounds, GeoJSONPolygon);
+
+  return _.some(UserSubs.find().fetch(), function (sub) {
+    var points = _.map(sub.region.coordinates[0], function (lngLat) {
+      return { type: "Point", coordinates: lngLat };
+    });
+    return _.some(points, function (p) {
+      return GeoJSON.pointInPolygon(p, bounds);
+    });
+  });
 };
 
 Template.subscribe.helpers({
@@ -886,14 +959,8 @@ Template.subscribe.helpers({
     return ppConjunction(Session.get('game-types')) +
       " around " + ppRegion(Session.get('selectedLocationName'));
   },
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "subscribe"});
-  },
   subscribed: function () {
-    // TODO: return true if map bounds are $geoWithin any UserSubs
-    //  May need to user $near if that's all minimongo offers.
-    return Alerts.collection.findOne({where: "subscribe"});
+    return hasUserSubs(Session.get("geoWithin"));
   }
 });
 
@@ -908,9 +975,7 @@ Template.subscribeAfterJoined.helpers({
     return game.location.name.replace(/,.*/,'');
   },
   subscribed: function () {
-    // TODO: return true if map bounds are $geoWithin any UserSubs
-    //  May need to user $near if that's all minimongo offers.
-    return Alerts.collection.findOne({where: "subscribe"});
+    return hasUserSubs(Session.get("geoWithin"));
   }
 });
 
@@ -1010,7 +1075,7 @@ var addUserSub = {
         type: "success",
         message: "**Subscribed!** We'll let you know " +
           "when there are new games.",
-        where: "subscribe"
+        where: "main"
       });
       if (! _.find(Meteor.user().emails, function (email) {
         return email.verified;
@@ -1020,7 +1085,7 @@ var addUserSub = {
           message: "You must have a verified email address to subscribe." +
             "check for an email from support@pushpickup.com to " +
             "verify your email address.",
-          where: "subscribe"
+          where: "main"
         });
       }
     } else {

@@ -104,6 +104,9 @@ Meteor.startup(function () {
     this.route('devDetail', {
       path: '/g/:_id',
       layoutTemplate: 'devLayout',
+      load: function () {
+        Session.set("joined-game", null);
+      },
       waitOn: function () {
         return Meteor.subscribe('game', this.params._id);
       },
