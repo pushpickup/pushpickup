@@ -813,8 +813,14 @@ Template.findingsMap.rendered = function () {
   };
 
   google.maps.event.addListener(map, 'idle', function () {
-    if (map.getBounds()) {
-      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+    var mapBounds = map.getBounds();
+    if (mapBounds) {
+      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(mapBounds));
+      Session.set("user-sub-intersects-map", (function () {
+        return _.some(UserSubs.find().fetch(), function (sub) {
+          return mapBounds.intersects(geoUtils.toLatLngBounds(sub.region));
+        });
+      })());
       Session.set("map-center", geoUtils.toGeoJSONPoint(map.getCenter()));
     }
     // asynchronous Session.set('selectedLocationName',...)
@@ -940,27 +946,13 @@ Template.findingsMap.destroyed = function () {
   this._syncMapWithSearch && this._syncMapWithSearch.stop();
 };
 
-// Do map bounds intersect with any of user's game subscription regions?
-var hasUserSubs = function (bounds) {
-  check(bounds, GeoJSONPolygon);
-
-  return _.some(UserSubs.find().fetch(), function (sub) {
-    var points = _.map(sub.region.coordinates[0], function (lngLat) {
-      return { type: "Point", coordinates: lngLat };
-    });
-    return _.some(points, function (p) {
-      return GeoJSON.pointInPolygon(p, bounds);
-    });
-  });
-};
-
 Template.subscribe.helpers({
   detail: function () {
     return ppConjunction(Session.get('game-types')) +
       " around " + ppRegion(Session.get('selectedLocationName'));
   },
   subscribed: function () {
-    return hasUserSubs(Session.get("geoWithin"));
+    return Session.equals("user-sub-intersects-map", true);
   }
 });
 
@@ -975,7 +967,7 @@ Template.subscribeAfterJoined.helpers({
     return game.location.name.replace(/,.*/,'');
   },
   subscribed: function () {
-    return hasUserSubs(Session.get("geoWithin"));
+    return Session.equals("user-sub-intersects-map", true);
   }
 });
 
@@ -1071,6 +1063,7 @@ Template.authenticateAndSubscribe.destroyed = function () {
 var addUserSub = {
   callback: function (error, result) {
     if (!error) {
+      Session.set("user-sub-intersects-map", true);
       Alerts.throw({
         type: "success",
         message: "**Subscribed!** We'll let you know " +
@@ -1167,14 +1160,6 @@ Template.soloGameMap.rendered = function () {
       minZoom: 3
     });
 
-  // set geoWithin for subscription
-  var idleListener = google.maps.event.addListener(map, 'idle', function () {
-    if (map.getBounds()) {
-      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
-      google.maps.event.removeListener(idleListener);
-    }
-  });
-
   var marker = new google.maps.Marker({
     position: latLng, map: map
   });
@@ -1193,6 +1178,34 @@ Template.soloGameMap.rendered = function () {
   Meteor.setTimeout(function () {
     infowindow.open(map,marker);
   }, 1000);
+
+
+  // Set geoWithin for subscription and determine if subscription exists.
+  // Do once only.
+
+  geoUtils.toLatLngBounds = function (geoJSONBounds) {
+    // Assumes geoJSONPolygon input with no interior (holes)
+    // and with coordinates[0]: 0->SW, 1->NW, 2->NE, 3->SE, 4->SW
+    var points = geoJSONBounds.coordinates[0];
+    var SW = points[0];
+    SW = new google.maps.LatLng(SW[1], SW[0]);
+    var NE = points[2];
+    NE = new google.maps.LatLng(NE[1], NE[0]);
+    return new google.maps.LatLngBounds(SW, NE);
+  };
+
+  var idleListener = google.maps.event.addListener(map, 'idle', function () {
+    var mapBounds = map.getBounds();
+    if (mapBounds) {
+      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(mapBounds));
+      Session.set("user-sub-intersects-map", (function () {
+        return _.some(UserSubs.find().fetch(), function (sub) {
+          return mapBounds.intersects(geoUtils.toLatLngBounds(sub.region));
+        });
+      })());
+      google.maps.event.removeListener(idleListener);
+    }
+  });
 };
 
 Template.joinOrLeave.helpers({
