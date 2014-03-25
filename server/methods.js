@@ -96,5 +96,48 @@ Meteor.methods({
     } else {
       return false;
     }
+  },
+  "notifyAddedFriend": function (options) {
+    this.unblock();
+    check(options, {
+      addedId: String,
+      adderId: String,
+      gameId: String
+    });
+    var added = Meteor.users.findOne(options.addedId);
+    var adder = Meteor.users.findOne(options.adderId);
+    var game = Games.findOne(options.gameId);
+    if (!added || !adder || !game)
+      throw new Meteor.Error(404, "One of adder, added or game not found.");
+
+    var offset = game.location.utc_offset;
+    if (! Match.test(offset, UTCOffset)) {
+      offset: -8; // Default to California
+    }
+    // UTC offsets returned by Google Places API differ in sign
+    // from what is expected by moment.js
+    var correctMoment = moment(game.startsAt).zone(-offset);
+
+    var dayLong = correctMoment.format('dddd');
+    var day = correctMoment.format('ddd');
+    var time = correctMoment.format('h:mma');
+
+    var ifUnverified = (added.emails[0].verified) ? "" :
+          "Please **verify** your account so you can receive updates "
+          + "made to the game.\n\n";
+    Email.send({
+      from: emailTemplates.from,
+      to: added.emails[0].address,
+      subject: " You're in: "+game.type+" on "+dayLong+" at "+time,
+      text: "- "+game.location.name+"\n"
+        + "- "+day+". "+time+" w/ "+game.requested.players+" others "
+        + "(**View details**)\n\n"
+        + "You were added to this game by "+adder.profile.name
+        + " ("+adder.emails[0].address+").\n\n"
+        + ifUnverified
+        + "If you can't make it, please **leave the game** "
+        +"so others will know.\n\n"
+        + "--\n**Unsubscribe** from all emails from Push Pickup."
+    });
   }
 });

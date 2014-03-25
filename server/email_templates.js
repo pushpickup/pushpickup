@@ -3,7 +3,7 @@ emailTemplates = {
   siteName: Meteor.absoluteUrl().replace(/^https?:\/\//, '').replace(/\/$/, ''),
 
   // Send only immediately after creating an account for the added friend.
-  addedAsFriend: {
+  newUserAddedAsFriend: {
     subject: function(user, options) {
       check(options, {gameId: String, adderId: String});
       var adder = Meteor.users.findOne(options.adderId);

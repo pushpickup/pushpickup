@@ -165,6 +165,8 @@ Meteor.methods
               friendId: userId
               userId: emailOwner._id
               rsvp: "in"
+          Meteor.call "notifyAddedFriend",
+            addedId: emailOwner._id, gameId: gameId, adderId: userId
       else
         newUserId = Accounts.createUser
           email: friend.email
@@ -175,7 +177,7 @@ Meteor.methods
             friendId: userId
             userId: newUserId
             rsvp: "in"
-        sendEnrollmentEmail newUserId, friend.email, "addedAsFriend",
+        sendEnrollmentEmail newUserId, friend.email, "newUserAddedAsFriend",
           gameId: gameId, adderId: userId
     maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
