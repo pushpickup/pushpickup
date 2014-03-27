@@ -798,7 +798,7 @@ Template.game.helpers({
   },
   note: function () {
     var self = this;
-    return converter.makeHtml(self.note);
+    return utils.converter.makeHtml(self.note);
   },
   context: function () {
     if (Session.equals("selectedGame", this._id)) {

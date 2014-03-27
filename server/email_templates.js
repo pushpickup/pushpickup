@@ -11,7 +11,7 @@ emailTemplates = {
       if (!adder || !game)
         throw new Error("Can't find user or game");
       return adder.profile.name + " added you to a "
-        + game.displayTime() + " "
+        + utils.displayTime(game) + " "
         + game.type + " game "
         + "on " + Accounts.emailTemplates.siteName;
     },

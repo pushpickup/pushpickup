@@ -64,7 +64,7 @@ Template.meteorAlerts.events({
 });
 
 // Markdown->HTML
-converter = new Showdown.converter();
+var converter = new Showdown.converter();
 
 Template.meteorAlert.helpers({
   message: function() {

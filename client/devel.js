@@ -1518,24 +1518,6 @@ var selectorValuesFromTemplate = function (selectors, templ) {
 var asNumber = function (str) { return +str; };
 
 
-// Return an array of email addresses, or null if there are none in `str`
-//
-// If `str` is e.g. "joe@pp.com, jill, jack@pp.com", this function returns
-// the Array ["joe@pp.com", "jack@pp.com"].
-//
-// Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
-var getEmails = function (str) {
-  if (/@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@/
-      .test(str)) {
-    // getEmailsRegExp will match e.g. "joe@foo.comdave@foo.com" as
-    // ["joe@foo.comdave"], so need to check for forgotten space between
-    // email addresses.
-    return null;
-  }
-  // str.match(regexp) -> null if no matches
-  return str.match(/[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/g);
-};
-
 Template.devEditableGame.events({
   "change #gameDay": function (evt, templ) {
     Session.set("newGameDay", +evt.currentTarget.value);
@@ -1552,18 +1534,6 @@ Template.devEditableGame.events({
     var remainingPlayers = _.reject(self.players, function (p) {
       return _.contains(markedIds, p.userId || (! p.userId) && p.friendId);
     });
-
-    var inviteEmailsInput = templ.find("#inviteFriends").value;
-    var inviteEmails = getEmails(inviteEmailsInput);
-    if (!_.isEmpty(inviteEmailsInput) && !inviteEmails) {
-      Alerts.throw({
-        message: "Invite friends by listing email addresses, " +
-          "each separated by a comma.",
-        type: "danger", where: "editableGame"
-      });
-      Session.set("waiting-on", null);
-      return;
-    }
 
     var game = {
       type: templ.find("#gameType").value,
@@ -1591,11 +1561,7 @@ Template.devEditableGame.events({
       game.location.utc_offset = utc_offset;
     }
 
-    Meteor.call("editGame", self._id, game, function (error, result) {
-      if (!error) {
-        Meteor.call("inviteFriends", inviteEmails, self._id);
-      }
-    });
+    Meteor.call("editGame", self._id, game);
     Router.go('devDetail', {_id: self._id});
   },
   "keypress .select-location input": function (event, template) {
@@ -1673,19 +1639,14 @@ Template.devEditableGame.events({
       return;
     }
 
-    var inviteEmailsInput = template.find("#inviteFriends").value;
-    var inviteEmails = getEmails(inviteEmailsInput);
-    if (!_.isEmpty(inviteEmailsInput) && !inviteEmails) {
-      Alerts.throw({
-        message: "Invite friends by listing email addresses, " +
-          "each separated by a comma.",
-        type: "danger", where: "editableGame"
-      });
-      Session.set("waiting-on", null);
-      return;
-    }
-
     var playing = !! template.find("input[type=checkbox].playing:checked");
+
+    var addedAlert = {
+      message: "Game added! Check your email and be sure to forward "
+        + " the invitation to your friends.",
+      type: "success"
+      // add "where" when game _id is available
+    };
 
     if (! Meteor.userId()) {
       var email = template.find("input.email").value;
@@ -1709,15 +1670,10 @@ Template.devEditableGame.events({
                     Session.set("joined-game", result.gameId);
                   }
                 });
-                Meteor.call("inviteFriends", inviteEmails, result.gameId);
               }
             });
-            Alerts.throw({
-              message: "Thanks, " + fullName +
-                "! Check for an email from " +
-                "support@pushpickup.com to verify your email address",
-              type: "success", where: result.gameId
-            });
+            Meteor.call("sendForwardableInvite", result.gameId);
+            Alerts.throw(_.extend({where: result.gameId}, addedAlert));
             Session.set("strange-passwd", result.password);
             Router.go('devDetail', {_id: result.gameId});
           } else {
@@ -1756,7 +1712,8 @@ Template.devEditableGame.events({
                   }
                 });
                 Router.go('devDetail', {_id: result.gameId});
-                Meteor.call("inviteFriends", inviteEmails, result.gameId);
+                Meteor.call("sendForwardableInvite", result.gameId);
+                Alerts.throw(_.extend({where: result.gameId}, addedAlert));
               } else {
                 console.log(error);
                 Alerts.throw({
@@ -1789,7 +1746,8 @@ Template.devEditableGame.events({
             }
           });
           Router.go('devDetail', {_id: result.gameId});
-          Meteor.call("inviteFriends", inviteEmails, result.gameId);
+          Meteor.call("sendForwardableInvite", result.gameId);
+          Alerts.throw(_.extend({where: result.gameId}, addedAlert));
         } else {
           console.log(error);
           Alerts.throw({
@@ -1905,6 +1863,9 @@ Template.loadMoreGames.helpers({
 Template.gameWhen.helpers({
   fromNow: function () {
     return moment(this.startsAt).fromNow();
+  },
+  displayTime: function () {
+    return utils.displayTime(this);
   }
 });
 

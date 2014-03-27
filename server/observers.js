@@ -1,23 +1,11 @@
 
-// Transforms are _not_ applied for the callbacks of `observeChanges`,
-// so need to reproduce transformation functions.
-var displayTime =  function (game) {
-  var offset = game.location.utc_offset;
-  if (! Match.test(offset, UTCOffset)) {
-    offset: -8; // Default to California
-  }
-  // UTC offsets returned by Google Places API differ in sign
-  // from what is expected by moment.js
-  return moment(game.startsAt).zone(-offset).format('ddd h:mma');
-};
-
 var gameOnEmail = function (playerName, emailAddress, game) {
   Email.send({
-    from: "support@pushpickup.com",
+    from: emailTemplates.from,
     to: playerName + "<" + emailAddress + ">",
     subject: "Game ON: " + game.type + " " +
-      displayTime(game) + " at " +
-      game.location.name,
+      utils.displayTime(game) + " at " +
+      game.location.name.replace(/,.*/,''),
     text: "Have a great game, " + playerName + ".\n" +
       "For your reference, below is a link to the game.\n\n" +
       Meteor.absoluteUrl('g/'+game._id) + "\nThanks for playing."
@@ -28,10 +16,10 @@ var sendGameAddedNotification = function (user, gameId, game) {
   var verifiedEmail = _.find(user.emails, function (e) { return e.verified; });
   if (verifiedEmail) {
     Email.send({
-      from: "support@pushpickup.com",
+      from: emailTemplates.from,
       to: user.profile.name + " <" + verifiedEmail.address + ">",
       subject: "Game " + game.status + ": " + game.type + " "
-        + displayTime(game) + " at "
+        + utils.displayTime(game) + " at "
         + game.location.name,
       text: user.profile.name + ",\n"
         + "Want to join in? Below is a link to the game.\n\n"

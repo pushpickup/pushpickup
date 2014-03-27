@@ -660,12 +660,14 @@
                     placeholder="e.g. Don’t forget to bring your equipment and the $5 field fee"
                     maxlength="500">{{note}}</textarea>
         </div>
-        <div class="form-group">
-          <label for="inviteFriends" class="control-label">Invite friends</label>
-          <textarea class="form-control" id="inviteFriends"
-                    placeholder="example@gmail.com, another@gmail.com"
-                    >{{invitedFriends}}</textarea>
-        </div>
+        {{#unless editingGame}}
+          <div class="form-group">
+            <p class="form-control-static">
+              (<strong>Note:</strong> You'll get an email invite
+              to forward to your friends.)
+            </p>
+          </div>
+        {{/unless}}
         {{#if editingGame}}
           <span class="help-block">
             Only game updates with a changed "Details" field will

@@ -210,7 +210,7 @@ Meteor.methods
       from: "support@pushpickup.com"
       to: "#{creator.profile.name} <#{creator.emails[0].address}>"
       subject: "New comment/question on your " +
-        "#{game.displayTime()} #{game.type} game"
+        "#{utils.displayTime(game)} #{game.type} game"
       text: "#{comment.userName} just said: \"#{comment.message}\".\n" +
         "For your reference, below is a link to your game.\n\n" +
         "#{Meteor.absoluteUrl('g/'+gameId)}\nThanks for organizing."
