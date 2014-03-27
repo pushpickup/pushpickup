@@ -318,8 +318,12 @@ Template.joinGameLink.events({
 
 var addSelfToGame = function (gameId) {
   if (! gameId) { return; }
-  Meteor.call("addPlayer", gameId, Meteor.user().profile.name, function (err) {
+  Meteor.call("addPlayer", {
+    gameId: gameId,
+    name: Meteor.user().profile.name
+  }, function (err) {
     if (!err) {
+      Session.set("joined-game", gameId);
       Session.set("unauth-join", null);
     } else {
       console.log(err);
@@ -441,15 +445,15 @@ Template.addSelfAndFriends.events({
         "dev.unauth.addPlayers", game._id, email, fullName, friends,
         function (error, result) {
           if (!error) {
-            Meteor.loginWithPassword(email, result.password);
-            Alerts.throw({
-              message: "Thanks, " + fullName +
-                "! Check for an email from " +
-                "support@pushpickup.com to verify your email address",
-              type: "success", where: game._id
+            Meteor.loginWithPassword(email, result.password, function (err) {
+              if (!err) {
+                Session.set("joined-game", game._id);
+                Session.set("unauth-join", null);
+                Session.set("strange-passwd", result.password);
+              } else {
+                console.log(err);
+              }
             });
-            Session.set("unauth-join", null);
-            Session.set("strange-passwd", result.password);
           } else {
             // typical error: email in use
             console.log(error);
@@ -477,8 +481,9 @@ Template.addSelfAndFriends.events({
           Meteor.call(
             "dev.addSelf.addFriends", friends, game._id,
             function (error, result) {
-              Session.set("unauth-join", null); // logged in now
               if (! error) {
+                Session.set("joined-game", game._id);
+                Session.set("unauth-join", null); // logged in now
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +
@@ -609,7 +614,7 @@ Template.listedGameSummary.helpers({
   },
   // diagnostic -- not intended for production use
   placeDistance: function () {
-    return (0.00062137119 * gju.pointDistance(
+    return (0.00062137119 * GeoJSON.pointDistance(
       this.location.geoJSON,
       Session.get("current-location")
     )).toFixed(1) + " mi"; // conversion from meters to miles
@@ -744,10 +749,13 @@ Template.findingsMap.rendered = function () {
     return new google.maps.LatLng(lat, lng);
   };
 
-  geoUtils.toLatLngBounds = function (geoJSONMultiPoint) {
-    var SW = geoJSONMultiPoint.coordinates[0];
+  geoUtils.toLatLngBounds = function (geoJSONBounds) {
+    // Assumes geoJSONPolygon input with no interior (holes)
+    // and with coordinates[0]: 0->SW, 1->NW, 2->NE, 3->SE, 4->SW
+    var points = geoJSONBounds.coordinates[0];
+    var SW = points[0];
     SW = new google.maps.LatLng(SW[1], SW[0]);
-    var NE = geoJSONMultiPoint.coordinates[1];
+    var NE = points[2];
     NE = new google.maps.LatLng(NE[1], NE[0]);
     return new google.maps.LatLngBounds(SW, NE);
   };
@@ -805,8 +813,14 @@ Template.findingsMap.rendered = function () {
   };
 
   google.maps.event.addListener(map, 'idle', function () {
-    if (map.getBounds()) {
-      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(map.getBounds()));
+    var mapBounds = map.getBounds();
+    if (mapBounds) {
+      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(mapBounds));
+      Session.set("user-sub-intersects-map", (function () {
+        return _.some(UserSubs.find().fetch(), function (sub) {
+          return mapBounds.intersects(geoUtils.toLatLngBounds(sub.region));
+        });
+      })());
       Session.set("map-center", geoUtils.toGeoJSONPoint(map.getCenter()));
     }
     // asynchronous Session.set('selectedLocationName',...)
@@ -847,7 +861,8 @@ Template.findingsMap.rendered = function () {
       var marker = self._dict[game._id];
       if (marker) {
         self._dict[game._id] = undefined;
-        marker.setMap(null);
+        marker.setMap(null); // remove from map
+        marker = null; // delete
         return true;
       } else {
         return false;
@@ -869,10 +884,65 @@ Template.findingsMap.rendered = function () {
   };
 
   self._manageMapMarkers = markers.manage();
+
+
+  // Display subscriptions
+
+  var subs = {
+    _dict: {}, // "dictionary"
+
+    _add: function (sub) {
+      var self = this;
+      if (self._dict[sub._id]) {
+        return self._dict[sub._id];
+      } else {
+        var bounds, rectangle;
+        bounds = geoUtils.toLatLngBounds(sub.region);
+        rectangle = new google.maps.Rectangle({
+          strokeColor: '#43828F', // @brand-primary
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#43828F',
+          fillOpacity: 0.35,
+          map: map,
+          bounds: bounds
+        });
+        return self._dict[sub._id] = rectangle;
+      }
+    },
+
+    _remove: function (sub) {
+      var self = this;
+      var rectangle = self._dict[sub._id];
+      if (rectangle) {
+        self._dict[sub._id] = undefined;
+        rectangle.setMap(null);
+        rectangle = null;
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    manage: function () {
+      var self = this;
+      return UserSubs.find().observe({
+        added: function (sub) {
+          self._add(sub);
+        },
+        removed: function (sub) {
+          self._remove(sub);
+        }
+      });
+    }
+  };
+
+  self._manageSubsDisplay = subs.manage();
 };
 
 Template.findingsMap.destroyed = function () {
   this._manageMapMarkers && this._manageMapMarkers.stop();
+  this._manageSubsDisplay && this._manageSubsDisplay.stop();
   this._syncMapWithSearch && this._syncMapWithSearch.stop();
 };
 
@@ -881,18 +951,27 @@ Template.subscribe.helpers({
     return ppConjunction(Session.get('game-types')) +
       " around " + ppRegion(Session.get('selectedLocationName'));
   },
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "subscribe"});
-  },
   subscribed: function () {
-    // TODO: return true if map bounds are $geoWithin any UserSubs
-    //  May need to user $near if that's all minimongo offers.
-    return Alerts.collection.findOne({where: "subscribe"});
+    return Session.equals("user-sub-intersects-map", true);
   }
 });
 
 Template.subscribe.destroyed = function () {
+  Alerts.collection.remove({where: "subscribe"});
+};
+
+Template.subscribeAfterJoined.helpers({
+  placeName: function () {
+    var game = this;
+    // return everything before first comma (if no comma, return everything)
+    return game.location.name.replace(/,.*/,'');
+  },
+  subscribed: function () {
+    return Session.equals("user-sub-intersects-map", true);
+  }
+});
+
+Template.subscribeAfterJoined.destroyed = function () {
   Alerts.collection.remove({where: "subscribe"});
 };
 
@@ -984,11 +1063,12 @@ Template.authenticateAndSubscribe.destroyed = function () {
 var addUserSub = {
   callback: function (error, result) {
     if (!error) {
+      Session.set("user-sub-intersects-map", true);
       Alerts.throw({
         type: "success",
         message: "**Subscribed!** We'll let you know " +
           "when there are new games.",
-        where: "subscribe"
+        where: "main"
       });
       if (! _.find(Meteor.user().emails, function (email) {
         return email.verified;
@@ -998,7 +1078,7 @@ var addUserSub = {
           message: "You must have a verified email address to subscribe." +
             "check for an email from support@pushpickup.com to " +
             "verify your email address.",
-          where: "subscribe"
+          where: "main"
         });
       }
     } else {
@@ -1023,7 +1103,8 @@ Template.subscribeButton.events({
         var game = Games.findOne(Session.get("soloGame"));
         Meteor.call("addUserSub",
                     [game.type],
-                    [moment(game.startsAt).day()],
+                    Session.get("gameDays"),
+                    // above can also be e.g. [moment(game.startsAt).day()],
                     Session.get("geoWithin"),
                     addUserSub.callback);
       } else {
@@ -1043,6 +1124,9 @@ Template.devDetail.events({
   },
   "click .copy-game-link .close": function () {
     Session.set("copy-game-link", null);
+  },
+  "click .subscribe-after-joined .close": function () {
+    Session.set("joined-game", null);
   }
 });
 
@@ -1094,6 +1178,34 @@ Template.soloGameMap.rendered = function () {
   Meteor.setTimeout(function () {
     infowindow.open(map,marker);
   }, 1000);
+
+
+  // Set geoWithin for subscription and determine if subscription exists.
+  // Do once only.
+
+  geoUtils.toLatLngBounds = function (geoJSONBounds) {
+    // Assumes geoJSONPolygon input with no interior (holes)
+    // and with coordinates[0]: 0->SW, 1->NW, 2->NE, 3->SE, 4->SW
+    var points = geoJSONBounds.coordinates[0];
+    var SW = points[0];
+    SW = new google.maps.LatLng(SW[1], SW[0]);
+    var NE = points[2];
+    NE = new google.maps.LatLng(NE[1], NE[0]);
+    return new google.maps.LatLngBounds(SW, NE);
+  };
+
+  var idleListener = google.maps.event.addListener(map, 'idle', function () {
+    var mapBounds = map.getBounds();
+    if (mapBounds) {
+      Session.set("geoWithin", geoUtils.toGeoJSONPolygon(mapBounds));
+      Session.set("user-sub-intersects-map", (function () {
+        return _.some(UserSubs.find().fetch(), function (sub) {
+          return mapBounds.intersects(geoUtils.toLatLngBounds(sub.region));
+        });
+      })());
+      google.maps.event.removeListener(idleListener);
+    }
+  });
 };
 
 Template.joinOrLeave.helpers({
@@ -1136,9 +1248,13 @@ Template.whosPlayingSummary.helpers(whosPlayingHelpers);
 Template.whosPlayingEditable.helpers(whosPlayingHelpers);
 
 Template.editGameLink.helpers({
-  isCreator: function () {
-    return (!! Meteor.userId()) &&
-      Meteor.userId() === this.creator.userId;
+  canEdit: function () {
+    var user = Meteor.user();
+    if (user) {
+      return user._id === this.creator.userId || user.admin;
+    } else {
+      return false;
+    }
   }
 });
 
@@ -1402,24 +1518,6 @@ var selectorValuesFromTemplate = function (selectors, templ) {
 var asNumber = function (str) { return +str; };
 
 
-// Return an array of email addresses, or null if there are none in `str`
-//
-// If `str` is e.g. "joe@pp.com, jill, jack@pp.com", this function returns
-// the Array ["joe@pp.com", "jack@pp.com"].
-//
-// Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
-var getEmails = function (str) {
-  if (/@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@/
-      .test(str)) {
-    // getEmailsRegExp will match e.g. "joe@foo.comdave@foo.com" as
-    // ["joe@foo.comdave"], so need to check for forgotten space between
-    // email addresses.
-    return null;
-  }
-  // str.match(regexp) -> null if no matches
-  return str.match(/[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/g);
-};
-
 Template.devEditableGame.events({
   "change #gameDay": function (evt, templ) {
     Session.set("newGameDay", +evt.currentTarget.value);
@@ -1436,18 +1534,6 @@ Template.devEditableGame.events({
     var remainingPlayers = _.reject(self.players, function (p) {
       return _.contains(markedIds, p.userId || (! p.userId) && p.friendId);
     });
-
-    var inviteEmailsInput = templ.find("#inviteFriends").value;
-    var inviteEmails = getEmails(inviteEmailsInput);
-    if (!_.isEmpty(inviteEmailsInput) && !inviteEmails) {
-      Alerts.throw({
-        message: "Invite friends by listing email addresses, " +
-          "each separated by a comma.",
-        type: "danger", where: "editableGame"
-      });
-      Session.set("waiting-on", null);
-      return;
-    }
 
     var game = {
       type: templ.find("#gameType").value,
@@ -1475,11 +1561,7 @@ Template.devEditableGame.events({
       game.location.utc_offset = utc_offset;
     }
 
-    Meteor.call("editGame", self._id, game, function (error, result) {
-      if (!error) {
-        Meteor.call("inviteFriends", inviteEmails, self._id);
-      }
-    });
+    Meteor.call("editGame", self._id, game);
     Router.go('devDetail', {_id: self._id});
   },
   "keypress .select-location input": function (event, template) {
@@ -1557,19 +1639,14 @@ Template.devEditableGame.events({
       return;
     }
 
-    var inviteEmailsInput = template.find("#inviteFriends").value;
-    var inviteEmails = getEmails(inviteEmailsInput);
-    if (!_.isEmpty(inviteEmailsInput) && !inviteEmails) {
-      Alerts.throw({
-        message: "Invite friends by listing email addresses, " +
-          "each separated by a comma.",
-        type: "danger", where: "editableGame"
-      });
-      Session.set("waiting-on", null);
-      return;
-    }
-
     var playing = !! template.find("input[type=checkbox].playing:checked");
+
+    var addedAlert = {
+      message: "Game added! Check your email and be sure to forward "
+        + " the invitation to your friends.",
+      type: "success"
+      // add "where" when game _id is available
+    };
 
     if (! Meteor.userId()) {
       var email = template.find("input.email").value;
@@ -1585,16 +1662,18 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.loginWithPassword(email, result.password, function (error) {
               if (!error) {
-                playing && Meteor.call("addPlayer", result.gameId, fullName);
-                Meteor.call("inviteFriends", inviteEmails, result.gameId);
+                playing && Meteor.call("addPlayer", {
+                  gameId: result.gameId,
+                  name: fullName
+                }, function (err) {
+                  if (!err) {
+                    Session.set("joined-game", result.gameId);
+                  }
+                });
               }
             });
-            Alerts.throw({
-              message: "Thanks, " + fullName +
-                "! Check for an email from " +
-                "support@pushpickup.com to verify your email address",
-              type: "success", where: result.gameId
-            });
+            Meteor.call("sendForwardableInvite", result.gameId);
+            Alerts.throw(_.extend({where: result.gameId}, addedAlert));
             Session.set("strange-passwd", result.password);
             Router.go('devDetail', {_id: result.gameId});
           } else {
@@ -1625,9 +1704,16 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.call("addGame", game, function (error, result) {
               if (!error) {
-                playing && Meteor.call("addPlayer", result.gameId);
+                playing && Meteor.call("addPlayer", {
+                  gameId: result.gameId
+                }, function (err) {
+                  if (!err) {
+                    Session.set("joined-game", result.gameId);
+                  }
+                });
                 Router.go('devDetail', {_id: result.gameId});
-                Meteor.call("inviteFriends", inviteEmails, result.gameId);
+                Meteor.call("sendForwardableInvite", result.gameId);
+                Alerts.throw(_.extend({where: result.gameId}, addedAlert));
               } else {
                 console.log(error);
                 Alerts.throw({
@@ -1652,9 +1738,16 @@ Template.devEditableGame.events({
     } else { // authenticated user
       Meteor.call("addGame", game, function (error, result) {
         if (!error) {
-          playing && Meteor.call("addPlayer", result.gameId);
+          playing && Meteor.call("addPlayer", {
+            gameId: result.gameId
+          }, function (err) {
+            if (!err) {
+              Session.set("joined-game", result.gameId);
+            }
+          });
           Router.go('devDetail', {_id: result.gameId});
-          Meteor.call("inviteFriends", inviteEmails, result.gameId);
+          Meteor.call("sendForwardableInvite", result.gameId);
+          Alerts.throw(_.extend({where: result.gameId}, addedAlert));
         } else {
           console.log(error);
           Alerts.throw({
@@ -1770,6 +1863,9 @@ Template.loadMoreGames.helpers({
 Template.gameWhen.helpers({
   fromNow: function () {
     return moment(this.startsAt).fromNow();
+  },
+  displayTime: function () {
+    return utils.displayTime(this);
   }
 });
 

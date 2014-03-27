@@ -54,28 +54,9 @@ bootstrap = function () {
     Meteor.users.update(id, {$set: {'emails.0.verified': true}});
   });
 
-  // inserted test games will not include donny@pushpickup.com as a player
   examplePlayers = Meteor.users.find().fetch();
   _.forEach(examplePlayers, function (user) {
     userNumGames[user._id] = 0;
-  });
-
-  // establish donny and stewart, admins who
-  // can edit any game and delete comments.
-
-  var admins = [{name: "Donny Winston", email: "donny@pushpickup.com"},
-                {name: "Stewart McCoy", email: "mccoy.stewart@gmail.com"}];
-
-  _.forEach(admins, function (admin) {
-    admin._id = Accounts.createUser({
-      email: admin.email,
-      password: 'foobar',
-      profile: {name: admin.name}
-    });
-    Meteor.users.update(admin._id, {$set: {
-      'emails.0.verified': true,
-      admin: true
-    }});
   });
 
   // establish Tim Tester, who creates test games
@@ -124,13 +105,11 @@ bootstrap = function () {
                    [-122.409603,37.937563]]]
   };
 
-  // Start all admins off with an initial game subscription.
-  _.forEach(admins, function (admin) {
-    UserSubs.insert({
-      userId: admin._id,
-      types: types,
-      days: days,
-      region: berkeley
-    });
+  // Subscribe Tim Tester to all games all days around Berkeley
+  UserSubs.insert({
+    userId: timId,
+    types: types,
+    days: days,
+    region: berkeley
   });
 };

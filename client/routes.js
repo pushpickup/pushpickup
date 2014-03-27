@@ -104,6 +104,9 @@ Meteor.startup(function () {
     this.route('devDetail', {
       path: '/g/:_id',
       layoutTemplate: 'devLayout',
+      load: function () {
+        Session.set("joined-game", null);
+      },
       waitOn: function () {
         return Meteor.subscribe('game', this.params._id);
       },
@@ -159,16 +162,13 @@ Meteor.startup(function () {
       },
       action: function () {
         var self = this;
-        if (Meteor.userId() === self.getData().creator.userId) {
+        var user = Meteor.user();
+        var game = self.getData();
+        if (user && user._id === game.creator.userId ||
+            user && user.admin) {
           self.render();
         } else {
-          Meteor.call("getDonnyId", function (error, result) {
-            if (!error && Meteor.userId() === result) {
-              self.render();
-            } else {
-              self.render('home');
-            }
-          });
+          self.render('home');
         }
       }
     });

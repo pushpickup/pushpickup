@@ -165,6 +165,8 @@ Meteor.methods
               friendId: userId
               userId: emailOwner._id
               rsvp: "in"
+          Meteor.call "notifyAddedFriend",
+            addedId: emailOwner._id, gameId: gameId, adderId: userId
       else
         newUserId = Accounts.createUser
           email: friend.email
@@ -175,7 +177,7 @@ Meteor.methods
             friendId: userId
             userId: newUserId
             rsvp: "in"
-        sendEnrollmentEmail newUserId, friend.email, "addedAsFriend",
+        sendEnrollmentEmail newUserId, friend.email, "newUserAddedAsFriend",
           gameId: gameId, adderId: userId
     maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
@@ -208,7 +210,7 @@ Meteor.methods
       from: "support@pushpickup.com"
       to: "#{creator.profile.name} <#{creator.emails[0].address}>"
       subject: "New comment/question on your " +
-        "#{game.displayTime()} #{game.type} game"
+        "#{utils.displayTime(game)} #{game.type} game"
       text: "#{comment.userName} just said: \"#{comment.message}\".\n" +
         "For your reference, below is a link to your game.\n\n" +
         "#{Meteor.absoluteUrl('g/'+gameId)}\nThanks for organizing."

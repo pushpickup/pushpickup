@@ -74,3 +74,4 @@ sendEnrollmentEmail = function (userId, email, template, options) {
     text: emailTemplates[template].text(user, enrollAccountUrl, options)
   });
 };
+

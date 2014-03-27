@@ -400,7 +400,6 @@
     {{#if SEql 'unauth-subscribe' true}}
       {{> authenticateAndSubscribe}}
     {{else}}
-      {{{alerts}}}
       {{#unless subscribed}}
         {{> subscribeButton}}
       {{/unless}}
@@ -435,6 +434,7 @@
 
 <template name="devDetail">
   {{> devDetailNav}}
+  {{{alerts 'main'}}}
   {{> devDetailBody}}
 </template>
 
@@ -479,7 +479,7 @@
 </template>
 
 <template name="editGameLink">
-  {{#if isCreator}}
+  {{#if canEdit}}
     <div class="edit-game-link">
       <a href="{{pathFor 'devEditGame'}}">Edit</a>
     </div>
@@ -490,6 +490,7 @@
   <div class="dev-detail-body row">
     <div class="content-all">
       {{{alerts}}}
+      {{> subscribeAfterJoined}}
       {{> soloGameMap}}
       {{> soloGameSummary}}
       {{#unless past startsAt}}
@@ -505,6 +506,22 @@
       {{> addComment}}
     </div>
   </div>
+</template>
+
+<template name="subscribeAfterJoined">
+  {{#unless subscribed}}
+    {{#if SEql 'joined-game' _id}}
+      <div class="subscribe-after-joined well">
+        <button type="button" class="close" aria-hidden="true">&times;</button>
+        <strong>You joined!</strong>
+        <p>Check your email for more info.</p>
+        {{{alerts 'subscribe'}}}
+        <p> Would you like to receive email when new {{type}} games
+          are posted near {{placeName}}? </p>
+        {{> subscribeButton}}
+      </div>
+    {{/if}}
+  {{/unless}}
 </template>
 
 <template name="soloGameMap">
@@ -643,12 +660,14 @@
                     placeholder="e.g. Don’t forget to bring your equipment and the $5 field fee"
                     maxlength="500">{{note}}</textarea>
         </div>
-        <div class="form-group">
-          <label for="inviteFriends" class="control-label">Invite friends</label>
-          <textarea class="form-control" id="inviteFriends"
-                    placeholder="example@gmail.com, another@gmail.com"
-                    >{{invitedFriends}}</textarea>
-        </div>
+        {{#unless editingGame}}
+          <div class="form-group">
+            <p class="form-control-static">
+              (<strong>Note:</strong> You'll get an email invite
+              to forward to your friends.)
+            </p>
+          </div>
+        {{/unless}}
         {{#if editingGame}}
           <span class="help-block">
             Only game updates with a changed "Details" field will
