@@ -8,16 +8,18 @@ Router.onRun(function () {Session.set("waiting-on", null); });
 Router.onBeforeAction(function() { Alerts.clearSeen(); });
 
 var filters = {
-  nProgressHook: function () {
+  nProgressHook: function (pause) {
     // we're done waiting on all subs
     if (this.ready()) {
       NProgress.done();
     } else {
       NProgress.start();
-      this.stop(); // stop downstream funcs from running
+      pause(); // stop downstream funcs from running
     }
   }
 };
+
+Router.onBeforeAction(filters.nProgressHook);
 
 Meteor.startup(function () {
   Router.map(function () {
@@ -101,9 +103,6 @@ Meteor.startup(function () {
       },
       onBeforeAction: function (pause) {
         Session.set("soloGame", this.params._id);
-        if (! this.ready()) {
-          pause();
-        }
       },
       data: function () {
         return Games.findOne(this.params._id);
@@ -154,9 +153,6 @@ Meteor.startup(function () {
       },
       onBeforeAction: function (pause) {
         Session.set("soloGame", this.params._id);
-        if (! this.ready()) {
-          pause();
-        }
       },
       data: function () {
         return _.extend({
