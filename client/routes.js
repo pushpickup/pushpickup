@@ -127,6 +127,8 @@ Meteor.startup(function () {
       layoutTemplate: 'devLayout',
       load: function () {
         Session.set("selectedLocationPoint", null);
+        Session.set("newGameDay", null);
+        Session.set("newGameTime", null);
       },
       data: function () {
         return {
@@ -163,7 +165,7 @@ Meteor.startup(function () {
       action: function () {
         var self = this;
         var user = Meteor.user();
-        var game = self.getData();
+        var game = self.data();
         if (user && user._id === game.creator.userId ||
             user && user.admin) {
           self.render();

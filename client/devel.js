@@ -178,17 +178,6 @@ var handlebarsHelperMap = {
   baseURL: function () {
     return Meteor.absoluteUrl().slice(0,-1);
   },
-  // Yield part of a <form> to either sign in a user or to
-  // add user info and create an account, in order to
-  // complete ACTION when the enclosing form is submitted.
-  // Use for actions like joining a game, commenting on a game,
-  // subscribing to game announcements, and adding a game.
-  addInfoOrSignInTo: function (action) {
-    if (! Meteor.userId()) {
-      return Template.addInfoOrSignIn({action: action});
-    } else
-      return "";
-  },
   past: function (date) {
     return date < new Date();
   },
@@ -196,17 +185,8 @@ var handlebarsHelperMap = {
     check(options.hash, {past: String, present: String});
     return (date < new Date()) ? options.hash.past : options.hash.present;
   },
-  alerts: function (where) {
-    var self = this;
-    check(where, String);
-    return Template.meteorAlerts({where: where});
-  },
-  spinnerIfWaiting: function (spinnerable, options) {
-    if (Session.equals("waiting-on", spinnerable)) {
-      return Template.tinySpinner();
-    } else {
-      return options.fn(this);
-    }
+  alerts: function () {
+    return Template.meteorAlerts;
   }
 };
 (function (handlebarsHelperMap) {
@@ -336,13 +316,6 @@ var addSelfToGame = function (gameId) {
   });
 };
 
-Template.listedGame.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: self._id});
-  }
-});
-
 Template.whoIsPlaying.helpers({
   organizing: function () {
     return this.creator.userId == Meteor.userId();
@@ -413,13 +386,6 @@ var alertables = {
              alert: {message: "Your comment must have value"}}];
   }
 };
-
-Template.addSelfAndFriends.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "addSelfAndFriends"});
-  }
-});
 
 Template.addSelfAndFriends.events({
   "submit form": function (event, template) {
@@ -518,13 +484,6 @@ Template.addSelfAndFriends.events({
 Template.addSelfAndFriends.destroyed = function () {
   Alerts.collection.remove({where: "addSelfAndFriends"});
 };
-
-Template.addFriends.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "addFriends"});
-  }
-});
 
 Template.addFriends.events({
   "submit form": function (event, template) {
@@ -828,15 +787,13 @@ Template.findingsMap.rendered = function () {
     Alerts.collection.remove({where: "subscribe"});
   });
 
-  if (! self._syncMapWithSearch) {
-    self._syncMapWithSearch = Deps.autorun(function () {
-      if (Session.equals("searching", "after")) {
-        map.panTo(geoUtils.toLatLng(Session.get("selectedLocationPoint")));
-        map.setZoom(12);
-        // implicit Session.set('geoWithin',...) via map 'idle' listener
-      }
-    });
-  }
+  self._syncMapWithSearch = Deps.autorun(function () {
+    if (Session.equals("searching", "after")) {
+      map.panTo(geoUtils.toLatLng(Session.get("selectedLocationPoint")));
+      map.setZoom(12);
+      // implicit Session.set('geoWithin',...) via map 'idle' listener
+    }
+  });
 
   var markers = {
     _dict: {}, // "dictionary"
@@ -1049,13 +1006,6 @@ Template.authenticateAndSubscribe.events({
   }
 });
 
-Template.authenticateAndSubscribe.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "authenticateAndSubscribe"});
-  }
-});
-
 Template.authenticateAndSubscribe.destroyed = function () {
   Session.set("unauth-subscribe", null);
 };
@@ -1127,13 +1077,6 @@ Template.devDetail.events({
   },
   "click .subscribe-after-joined .close": function () {
     Session.set("joined-game", null);
-  }
-});
-
-Template.devDetailBody.helpers({
-  alerts: function () {
-    var self = this; // the game
-    return Template.meteorAlerts({where: self._id});
   }
 });
 
@@ -1382,13 +1325,6 @@ Template.authenticateAndComment.events({
   }
 });
 
-Template.authenticateAndComment.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "authenticateAndComment"});
-  }
-});
-
 Template.addInfoOrSignIn.helpers({
   email: function () { return Session.get("sign-in.email"); }
 });
@@ -1420,8 +1356,7 @@ Template.devEditableGame.helpers({
         selected: (type.value === self.type)
       };
     });
-    return Template.selectForm({label: 'What', id: 'gameType',
-                                options: them});
+    return {label: 'What', id: 'gameType', options: them};
   },
   selectPlayersRequested: function () {
     var self = this;
@@ -1429,20 +1364,15 @@ Template.devEditableGame.helpers({
     var them =  _.map(_.range(2, 29, 2), function (i) {
       return { value: i, text: i, selected: (i === numRequested) };
     });
-    var numPlayers = {includeLabel: true,
-                      label: "Players needed", id: "requestedNumPlayers",
-                      options: them};
-    return Template.selectForm(numPlayers);
+    return {includeLabel: true,
+            label: "Players needed", id: "requestedNumPlayers",
+            options: them};
   },
   editingGame: function () {
     return this.title === "Edit game";
   },
   atLeastOnePlayer: function () {
     return this.players && (! _.isEmpty(this.players));
-  },
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "editableGame"});
   }
 });
 
@@ -1476,8 +1406,7 @@ Template.devSelectWhen.helpers({
     them = _.reject(them, function (t) {
       return t.value < +moment() || t.value > +moment().add('weeks', 1);
     });
-    return Template.selectForm({label: 'Time', id: 'gameTime',
-                                options: them});
+    return {label: 'Time', id: 'gameTime', options: them};
   },
   selectDay: function () {
     var self = this;
@@ -1493,9 +1422,8 @@ Template.devSelectWhen.helpers({
     });
     them[0].text = 'Today';
     them[1].text = 'Tomorrow';
-    var days = {label: "When", id: "gameDay",
-                options: them};
-    return Template.selectForm(days);
+    return {label: "When", id: "gameDay",
+            options: them};
   }
 });
 
@@ -1779,67 +1707,69 @@ Template.devSelectLocation.rendered = function () {
 };
 
 Template.editableGameMap.helpers({
-  showMap: function () {
-    return this.location && this.location.geoJSON ||
-      Session.get("selectedLocationPoint");
+  hidden: function () {
+    return (this.location && this.location.geoJSON ||
+            Session.get("selectedLocationPoint")) ?
+      "": "hidden";
   }
 });
 
+Template.editableGameMap.created = function () {
+  var self = this;
+  if (self.data.location && self.data.location.geoJSON) {
+    Session.set("selectedLocationPoint", self.data.location.geoJSON);
+  }
+};
+
 Template.editableGameMap.rendered = function () {
   var self = this;
-  if (self.data.location && self.data.location.geoJSON && !self._locSet) {
-    Session.set("selectedLocationPoint", self.data.location.geoJSON);
-    self._locSet = true;
-  }
   var map, marker, infowindow;
 
-  if (! self._initMap) {
-    self._initMap = Deps.autorun(function (c) {
-      if (! Session.get("selectedLocationPoint"))
-        return;
+  geoUtils.toLatLng = function (geoJSONPoint) {
+    var lat = geoJSONPoint.coordinates[1];
+    var lng = geoJSONPoint.coordinates[0];
+    return new google.maps.LatLng(lat, lng);
+  };
 
-      geoUtils.toLatLng = function (geoJSONPoint) {
-        var lat = geoJSONPoint.coordinates[1];
-        var lng = geoJSONPoint.coordinates[0];
-        return new google.maps.LatLng(lat, lng);
-      };
+  self._initMap = Deps.autorun(function (c) {
+    if (! Session.get("selectedLocationPoint"))
+      return;
+    c.stop();
 
-      var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+    var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
 
-      map = new google.maps.Map(
-        self.find('.editable-game-map-canvas'), {
-          zoom: 15, // 18 also good
-          center: latLng,
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
-          mapTypeControl: false,
-          panControl: false,
-          streetViewControl: false,
-          minZoom: 3
-        });
+    map = new google.maps.Map(
+      self.find('.editable-game-map-canvas'), {
+        zoom: 15, // 18 also good
+        center: latLng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeControl: false,
+        panControl: false,
+        streetViewControl: false,
+        minZoom: 3
+      });
+  });
+
+  self._setMarker = Deps.autorun(function () {
+    if (! Session.get("selectedLocationPoint") || !map)
+      return;
+
+    var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
+
+    marker && marker.setMap(null);
+    marker = new google.maps.Marker({
+      position: latLng, map: map
     });
-  }
+    map.panTo(latLng);
 
-  if (! self._setMarker) {
-    self._setMarker = Deps.autorun(function () {
-      if (! Session.get("selectedLocationPoint"))
-        return;
-
-      var latLng = geoUtils.toLatLng(Session.get("selectedLocationPoint"));
-
-      marker && marker.setMap(null);
-      marker = new google.maps.Marker({
-        position: latLng, map: map
-      });
-
-      infowindow = new google.maps.InfoWindow({
-        content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
-      });
-
-      google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map,marker);
-      });
+    infowindow = new google.maps.InfoWindow({
+      content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
     });
-  }
+
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.open(map,marker);
+    });
+  });
 };
 
 Template.editableGameMap.destroyed = function () {
@@ -1907,12 +1837,6 @@ _.each([
   Template.settings.events(eventMap);
 });
 
-Template.settings.helpers({
-  settingsItem: function (name) {
-    return Template.settingsItem({name: name});
-  }
-});
-
 Template.settingsItem.helpers({
   title: function () {
     return _.string.titleize(_.string.humanize(this.name))
@@ -1922,7 +1846,7 @@ Template.settingsItem.helpers({
     return Session.get("settings-" + this.name);
   },
   action: function () {
-    return Template[_.string.camelize("dev-"+this.name)](this);
+    return Template[_.string.camelize("dev-"+this.name)];
   }
 });
 
