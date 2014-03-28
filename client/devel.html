@@ -4,13 +4,13 @@
       <div id="alerts">
       </div>
     </div>
-    {{yield}}
+    {{> yield}}
   </div>
 </template>
 
 <template name="devMain">
   {{> devNav}}
-  {{{alerts 'main'}}}
+  {{> alerts where="main"}}
   {{> devBody}}
 </template>
 
@@ -53,7 +53,7 @@
 <template name="optionsExtended">
   <div class="options-extended row">
     <div class="content-all">
-      {{{alerts 'top'}}}
+      {{> alerts where="top"}}
       {{#if SGet 'viewing-settings'}}
         {{> settings}}
       {{/if}}
@@ -83,7 +83,8 @@
     {{#if SGet 'gamesReady'}}
       {{#if noneUpcoming}}
         <li class="list-group-item">
-          There are no upcoming games within {{maxDistance}}. You should {{#link route="devAddGame"}}add a game{{/link}} and invite your friends!
+          There are no upcoming games within {{maxDistance}}. You should
+          <a href="/addGame">add a game</a> and invite your friends!
         </li>
       {{/if}}
     {{else}}
@@ -118,7 +119,7 @@
       {{else}}
         {{> joinGameLink}}
       {{/if}}
-      {{{alerts}}}
+      {{> alerts where=_id}}
       {{> addPlayers}}
     {{/unless}}
   </li>
@@ -151,7 +152,7 @@
       <div class="place-name">
         {{placeName}}
       </div>
-      <div class-"place-location">{{placeLocation}}</div>
+      <div class="place-location">{{placeLocation}}</div>
     </div>
     <div class="organizer-info">
       Added by {{creator.name}}
@@ -242,9 +243,11 @@
   <div class="add-self-and-friends well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form class="add-self-and-friends" role="form">
-      {{{addInfoOrSignInTo 'join'}}}
+      {{#unless currentUser}}
+        {{> addInfoOrSignIn action="join"}}
+      {{/unless}}
       {{> unauthAddFriends}}
-      {{{alerts}}}
+      {{> alerts where="addSelfAndFriends"}}
       <button type="submit" class="btn join-game">Join Game</button>
     </form>
   </div>
@@ -255,7 +258,7 @@
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form class="add-friends" role="form">
       {{> addFriendsInput}}
-      {{{alerts}}}
+      {{> alerts where="addFriends"}}
       <button type="submit" class="btn add-friends">Add friends</button>
     </form>
   </div>
@@ -319,7 +322,7 @@
 
 <template name="addGameLink">
   <div class="add-game-link">
-    {{#link route="devAddGame"}}Add game{{/link}}
+    <a href="/addGame">Add game</a>
   </div>
 </template>
 
@@ -384,11 +387,9 @@
 
 <template name="findingsMap">
   <div class="findings-map">
-  {{#constant}}
     <div class="findings-map-wrapper">
       <div class="findings-map-canvas map-canvas"></div>
     </div>
-  {{/constant}}
   </div>
 </template>
 
@@ -411,8 +412,10 @@
   <div class="authenticate-and-subscribe well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form class="authenticate-and-subscribe" role="form">
-      {{{addInfoOrSignInTo 'subscribe'}}}
-      {{{alerts}}}
+      {{#unless currentUser}}
+        {{> addInfoOrSignIn action="subscribe"}}
+      {{/unless}}
+      {{> alerts where="authenticateAndSubscribe"}}
 
       <!-- Not Template.subscribeButton because we don't want to trigger
            its event handlers-->
@@ -434,7 +437,7 @@
 
 <template name="devDetail">
   {{> devDetailNav}}
-  {{{alerts 'main'}}}
+  {{> alerts where="main"}}
   {{> devDetailBody}}
 </template>
 
@@ -452,10 +455,10 @@
 
 <template name="backToList">
   <div class="back-to-list">
-    {{#link route="home"}}
+    <a href="/">
       <span class="ppicon-left-open"></span>
       Pickups
-    {{/link}}
+    </a>
   </div>
 </template>
 
@@ -489,7 +492,7 @@
 <template name="devDetailBody">
   <div class="dev-detail-body row">
     <div class="content-all">
-      {{{alerts}}}
+      {{> alerts where=_id}}
       {{> subscribeAfterJoined}}
       {{> soloGameMap}}
       {{> soloGameSummary}}
@@ -515,7 +518,7 @@
         <button type="button" class="close" aria-hidden="true">&times;</button>
         <strong>You joined!</strong>
         <p>Check your email for more info.</p>
-        {{{alerts 'subscribe'}}}
+        {{> alerts where="subscribe"}}
         <p> Would you like to receive email when new {{type}} games
           are posted near {{placeName}}? </p>
         {{> subscribeButton}}
@@ -526,11 +529,9 @@
 
 <template name="soloGameMap">
   <div class="solo-game-map">
-    {{#constant}}
-      <div class="solo-game-map-wrapper">
-        <div class="solo-game-map-canvas map-canvas"></div>
-      </div>
-    {{/constant}}
+    <div class="solo-game-map-wrapper">
+      <div class="solo-game-map-canvas map-canvas"></div>
+    </div>
   </div>
 </template>
 
@@ -591,7 +592,7 @@
       {{> authenticateAndComment}}
     {{else}}
       <form class="add-comment" role="form">
-        {{{alerts 'addComment'}}}
+        {{> alerts where="addComment"}}
         <div class="form-group">
           <input class="form-control comment"
                  type="text"
@@ -606,14 +607,16 @@
   <div class="authenticate-and-comment">
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form class="authenticate-and-comment" role="form">
-      {{{addInfoOrSignInTo 'comment'}}}
+      {{#unless currentUser}}
+        {{> addInfoOrSignIn action="comment"}}
+      {{/unless}}
       <div class="form-group">
         <input class="form-control comment"
                type="text"
                placeholder="Add comment or question"
                value="{{SGet 'unauth-comment'}}">
       </div>
-      {{{alerts}}}
+      {{> alerts where="authenticateAndComment"}}
       <button type="submit" class="btn add-comment">Add Comment</button>
     </form>
   </div>
@@ -623,17 +626,19 @@
   <div id="{{action}}Game">
     <div class="header">
       <div class="close pull-left">
-        {{#link route="home"}}
+        <a href="/">
           <span class="nav-icon ppicon-cancel"></span>
-        {{/link}}
+        </a>
       </div>
       <h3 class="title">{{title}}</h3>
     </div>
     <div class="body">
       <form id="{{action}}GameForm" role="form">
-        {{{addInfoOrSignInTo 'add this game'}}}
+        {{#unless currentUser}}
+          {{> addInfoOrSignIn action='add this game'}}
+        {{/unless}}
         <div class="form-group">
-          {{{selectType}}}
+          {{> selectForm selectType}}
         </div>
         <div class="form-group">
           {{> devSelectWhen}}
@@ -645,7 +650,7 @@
           {{> editableGameMap}}
         </div>
         <div class="form-group requested">
-          {{{selectPlayersRequested}}}
+          {{> selectForm selectPlayersRequested}}
         </div>
         {{#if atLeastOnePlayer}}
           <div class="form-group gamePlayers">
@@ -689,7 +694,7 @@
             </label>
           </div>
         {{/unless}}
-        {{{alerts}}}
+        {{> alerts where="editableGame"}}
         <button for="{{action}}GameForm" type="submit"
                 class="btn {{action}}-game">
           {{> submitAndWait}}
@@ -703,14 +708,22 @@
 </template>
 
 <template name="devSelectWhen">
-  {{{selectDay}}}
-  {{{selectTime}}}
+  {{> selectForm selectDay}}
+  {{> selectForm selectTime}}
 </template>
 
 <template name="submitAndWait">
-  {{#spinnerIfWaiting action}}
+  {{#spinnerIfWaiting toComplete=action}}
     {{submit}}
   {{/spinnerIfWaiting}}
+</template>
+
+<template name="spinnerIfWaiting">
+  {{#if SEql 'waiting-on' toComplete}}
+    {{> tinySpinner}}
+  {{else}}
+    {{> UI.contentBlock}}
+  {{/if}}
 </template>
 
 <template name="whosPlayingEditable">
@@ -748,44 +761,42 @@
 </template>
 
 <template name="editableGameMap">
-  {{#if showMap}}
-    <div class="editable-game-map">
-      <div class="editable-game-map-wrapper">
-        <div class="editable-game-map-canvas map-canvas"></div>
-      </div>
+  <div class="editable-game-map {{hidden}}">
+    <div class="editable-game-map-wrapper">
+      <div class="editable-game-map-canvas map-canvas"></div>
     </div>
-  {{/if}}
+  </div>
 </template>
 
 <template name="settings">
   <ul class="settings list-group">
-    {{{alerts 'settings'}}}
+    {{> alerts where="settings"}}
     {{#if currentUser}}
       <li class="user-info list-group-item">
         <div class="user-full-name">
           {{currentUser.profile.name}}
         </div>
         <div class="user-email-address">
-          {{currentUser.emails.0.address}}
-          {{#unless currentUser.emails.0.verified}}
+          {{currentUser.emails.[0].address}}
+          {{#unless currentUser.emails.[0].verified}}
             (<a class="send-verification-email text-info">verify</a>)
           {{/unless}}
         </div>
       </li>
-      {{{settingsItem 'subscriptions'}}}
-      {{{settingsItem 'change-email-address'}}}
-      {{{settingsItem 'change-password'}}}
-      {{{settingsItem 'help-and-feedback'}}}
+      {{> settingsItem name="subscriptions"}}
+      {{> settingsItem name="change-email-address"}}
+      {{> settingsItem name="change-password"}}
+      {{> settingsItem name="help-and-feedback"}}
       <li class="sign-out trigger list-group-item">Sign Out</li>
     {{else}}
-      {{{settingsItem 'sign-in'}}}
-      {{{settingsItem 'sign-up'}}}
+      {{> settingsItem name="sign-in"}}
+      {{> settingsItem name="sign-up"}}
       {{#if SGet 'set-password-token'}}
-        {{{settingsItem 'set-password'}}}
+        {{> settingsItem name="set-password"}}
       {{else}}
-        {{{settingsItem 'forgot-password'}}}
+        {{> settingsItem name="forgot-password"}}
       {{/if}}
-      {{{settingsItem 'help-and-feedback'}}}
+      {{> settingsItem name="help-and-feedback"}}
     {{/if}}
   </ul>
 </template>
@@ -801,7 +812,7 @@
   </li>
   {{#if isSetting}}
     <li class="{{name}} action list-group-item">
-      {{{action}}}
+      {{> action}}
     </li>
   {{/if}}
 </template>
@@ -814,7 +825,7 @@
       <input type="password" class="form-control password"
              placeholder="Your password" required>
     </div>
-    {{{alerts 'devSignIn'}}}
+    {{> alerts where="devSignIn"}}
     <button class="btn sign-in" type="submit">Sign in</button>
   </form>
 </template>
@@ -831,7 +842,7 @@
       <input type="password" class="form-control password"
              placeholder="Your password" required>
     </div>
-    {{{alerts 'devSignUp'}}}
+    {{> alerts where="devSignUp"}}
     <button class="btn sign-up" type="submit">Sign up</button>
   </form>
 </template>
@@ -843,7 +854,7 @@
       <input type="password" class="form-control"
              placeholder="Your new password" required autofocus>
     </div>
-    {{{alerts 'setPassword'}}}
+    {{> alerts where="setPassword"}}
     <button class="btn set-password" type="submit">Set password</button>
   </form>
 </template>
@@ -855,7 +866,7 @@
       <input type="email" class="form-control"
              placeholder="Your email" required autofocus>
     </div>
-    {{{alerts 'forgotPassword'}}}
+    {{> alerts where="forgotPassword"}}
     <button class="btn forgot-password" type="submit">Send reset link</button>
   </form>
 </template>
@@ -930,7 +941,7 @@
            value="{{SGet 'strange-passwd'}}"
            placeholder="Your password" required>
   </div>
-  {{{alerts 'changeEmailAddress'}}}
+  {{> alerts where="changeEmailAddress"}}
   <button class="btn change-email-address" type="submit">
     Update my email address
   </button>
@@ -947,7 +958,7 @@
     <input type="password" class="new-password form-control"
            placeholder="New password" required>
   </div>
-  {{{alerts 'changePassword'}}}
+  {{> alerts where="changePassword"}}
   <button class="btn change-password" type="submit">Change password</button>
 </form>
 </template>
