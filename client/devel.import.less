@@ -4,6 +4,13 @@
   }
 }
 
+// Simulate mobile experience on larger devices
+@media (min-width: @screen-sm-min) {
+  .container {
+    max-width: 450px;
+  }
+}
+
 .content-all {
   .make-lg-column(12);
   padding-right: 0;
