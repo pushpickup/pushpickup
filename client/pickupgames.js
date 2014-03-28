@@ -628,13 +628,6 @@ Template.signIn.events({
   }
 });
 
-Template.addUserSub.helpers({
-  alerts: function () {
-    var self = this;
-    return Template.meteorAlerts({where: "addUserSub"});
-  }
-});
-
 var ppConjunction = function (array) {
   var out = "";
   for (var i=0, l=array.length; i<l; i++) {

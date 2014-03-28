@@ -128,6 +128,7 @@ Meteor.methods({
     var day_long = utils.isToday(game) ?
           "Today" : "This coming "+startsAtM.format('dddd');
     var time = startsAtM.format('h:mma');
+    var gameNote = (_.isEmpty(game.note)) ? "" : "* " + game.note + "\n";
     var gameURL = Meteor.absoluteUrl('g/'+gameId);
     var bodyText =
           "Hi " + creator.profile.name + ",\n"
@@ -141,8 +142,7 @@ Meteor.methods({
           + "* " + day_long + " at " + time + "\n"
           + "* " + game.requested.players + " players needed.\n"
           + "* " + game.location.name + "\n"
-          + "* " + game.note + "\n"
-          + "\n"
+          + gameNote + "\n"
           + "[Join the game]("+gameURL+") and I'll see you there!\n";
     var email = {
       from: emailTemplates.from,

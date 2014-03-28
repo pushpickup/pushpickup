@@ -225,11 +225,11 @@ Meteor.methods({
           email = Meteor.users.findOne(player.userId).emails[0];
           if (email.verified) {
             Email.send({
-              from: "support@pushpickup.com",
+              from: emailTemplates.from,
               to: player.name + "<" + email.address + ">",
               subject: "Game CANCELLED: " + game.type + " " +
-                moment(game.startsAt).format('dddd h:mmA') + " at " +
-                game.location.name,
+                utils.startsAtMomentWithOffset(game).format('dddd h:mmA') +
+                " at " + game.location.name,
               text: "Sorry, " + player.name + ".\n" +
                 "This game has been cancelled. Check out " +
                 Meteor.absoluteUrl('') + " for other games, or " +

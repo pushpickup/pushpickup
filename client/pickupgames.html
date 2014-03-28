@@ -26,7 +26,7 @@
     </div>
     <div class="row">
       <div id="manipulate">
-        {{yield}}
+        {{> yield}}
       </div>
       <div id="map-interaction">
         {{> map}}
@@ -91,15 +91,16 @@
   <div class="panel panel-success">
     <div class="panel-heading">A beautiful game</div>
     <div class="games list-group">
-    {{> game}}
-    <div class="panel-body">
-      {{> addUserSub}}
-      <a href="{{pathFor 'home'}}">
-        <button type="button"
-                class="btn btn-default center-block">
-          Find other nearby games</button></a>
+      {{> game}}
+      <div class="panel-body">
+        {{> addUserSub}}
+        <a href="{{pathFor 'home'}}">
+          <button type="button"
+                  class="btn btn-default center-block">
+            Find other nearby games</button></a>
+      </div>
     </div>
-  </table>
+  </div>
 </template>
 
 <template name="home">
@@ -132,7 +133,7 @@
         Subscribe
       </button>
     </div>
-    {{{alerts}}}
+    {{> alerts where="addUserSub"}}
     {{> addUserSubMessage}}
   </div>
 </template>
@@ -155,7 +156,7 @@
         {{#each games}}
           {{> game}}
         {{/each}}
-      </ul>
+      </div>
       {{#if fewerThan 10}}
         <div class="panel-body">
           <div class="singleton-button-container">
@@ -230,7 +231,7 @@
         </div>
       </div>
     {{/if}}
-  </li>
+  </a>
 </template>
 
 <template name="gameComments">
@@ -351,7 +352,7 @@
   {{/if}}
   <div><select class="form-control" id="{{id}}">
       {{#each options}}
-        <option value={{value}} {{#if selected}}selected{{/if}}>
+        <option value={{value}} selected={{selected}}>
           {{text}}
         </option>
       {{/each}}
@@ -483,7 +484,7 @@
     {{#each typeOptions}}
       <label class="checkbox-inline">
         <input type="checkbox" value="{{value}}"
-               {{#if selected}}checked{{/if}}>
+               checked={{selected}}>
         <img class="game-type" src="/game_types/{{value}}-26.png"
              alt="{{value}}" data-toggle="tooltip" title="{{value}}">
       </label>
@@ -496,7 +497,7 @@
     {{#each dayOptions}}
       <label class="checkbox-inline">
         <input type="checkbox" value="{{name}}"
-               {{#if selected}}checked{{/if}}>
+               checked={{selected}}>
         {{name}}
       </label>
     {{/each}}
@@ -610,6 +611,7 @@
         This page will get fancier soon, enabling you to view and edit subscriptions.
       </p>
     </div>
+  </div>
 </template>
 
 <template name="helpBlock">
@@ -688,6 +690,7 @@
       what a new user will have trouble doing.  If you need help,
       email me at
       <a href="mailto:donny@pushpickup.com">donny@pushpickup.com</a>.
+    </p>
     <p>
       Together, we can build a great "Help" section with answers to
       frequently asked questions, or, better yet, improve the site to

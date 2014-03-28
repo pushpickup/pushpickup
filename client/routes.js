@@ -4,31 +4,22 @@ Router.configure({
   loadingTemplate: 'loading'
 });
 
-Router.load(function () {Session.set("waiting-on", null); });
-
-Router.before(function() { Alerts.clearSeen(); });
+Router.onRun(function () {Session.set("waiting-on", null); });
+Router.onBeforeAction(function() { Alerts.clearSeen(); });
 
 var filters = {
-
-  nProgressHook: function () {
+  nProgressHook: function (pause) {
     // we're done waiting on all subs
     if (this.ready()) {
       NProgress.done();
     } else {
       NProgress.start();
-      this.stop(); // stop downstream funcs from running
-    }
-  },
-  mustBeSignedIn: function () {
-    if (!Meteor.user()) {
-      // render the login template but keep the url in the browser the same
-      this.render('signIn');
-      // stop the rest of the before hooks and the action function
-      this.stop();
+      pause(); // stop downstream funcs from running
     }
   }
-
 };
+
+Router.onBeforeAction(filters.nProgressHook);
 
 Meteor.startup(function () {
   Router.map(function () {
@@ -41,7 +32,7 @@ Meteor.startup(function () {
     this.route('reset-password', {
       template: 'devMain',
       layoutTemplate: 'devLayout',
-      load: function () {
+      onRun: function () {
         var token = this.params.hash;
         Meteor.logout(function () {
           Session.set("viewing-settings", true);
@@ -82,7 +73,7 @@ Meteor.startup(function () {
     this.route('enroll-account', {
       template: 'devMain',
       layoutTemplate: 'devLayout',
-      load: function () {
+      onRun: function () {
         var token = this.params.hash;
         Meteor.logout(function () {
           Session.set("viewing-settings", true);
@@ -104,19 +95,30 @@ Meteor.startup(function () {
     this.route('devDetail', {
       path: '/g/:_id',
       layoutTemplate: 'devLayout',
-      load: function () {
+      onRun: function () {
         Session.set("joined-game", null);
       },
       waitOn: function () {
         return Meteor.subscribe('game', this.params._id);
       },
-      before: function () {
+      onBeforeAction: function (pause) {
         Session.set("soloGame", this.params._id);
       },
       data: function () {
         return Games.findOne(this.params._id);
       },
-      unload: function () {
+      action: function () {
+        if (this.data()) {
+          this.render();
+        } else {
+          Router.go('home');
+          Alerts.throw({
+            message: "Game not found",
+            type: "warning", where: "top"
+          });
+        }
+      },
+      onStop: function () {
         Session.set("soloGame", null);
       }
     });
@@ -125,8 +127,10 @@ Meteor.startup(function () {
       path: '/addGame',
       template: 'devEditableGame',
       layoutTemplate: 'devLayout',
-      load: function () {
+      onRun: function () {
         Session.set("selectedLocationPoint", null);
+        Session.set("newGameDay", null);
+        Session.set("newGameTime", null);
       },
       data: function () {
         return {
@@ -141,18 +145,15 @@ Meteor.startup(function () {
       path: '/editGame/:_id',
       template: 'devEditableGame',
       layoutTemplate: 'devLayout',
-      load: function () {
+      onRun: function () {
         Session.set("selectedLocationPoint", null);
       },
       waitOn: function () {
         return Meteor.subscribe('game', this.params._id);
       },
-      before: [
-        filters.mustBeSignedIn,
-        function () {
-          Session.set("soloGame", this.params._id);
-        }
-      ],
+      onBeforeAction: function (pause) {
+        Session.set("soloGame", this.params._id);
+      },
       data: function () {
         return _.extend({
           action: 'edit',
@@ -163,12 +164,12 @@ Meteor.startup(function () {
       action: function () {
         var self = this;
         var user = Meteor.user();
-        var game = self.getData();
+        var game = self.data();
         if (user && user._id === game.creator.userId ||
             user && user.admin) {
           self.render();
         } else {
-          self.render('home');
+          Router.go('home');
         }
       }
     });
