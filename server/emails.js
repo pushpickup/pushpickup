@@ -26,6 +26,40 @@ Meteor.startup(function () {
   })();
 });
 
+// Return a new email with an `html` body that is a
+// Markdown conversion of the input email's `text` body.
+withHTMLbody = function (email) {
+  var html = utils.converter.makeHtml(email.text);
+  return _.extend({html: html}, _.omit(email, 'html'));
+};
+
+// Return a new email with an appended link to no longer receive any emails
+// from Push Pickup. This function is meant to be composed with `withHTMLbody`
+// as in the expression `withHTMLbody(withTotalUnsubscribe(email))`.
+withTotalUnsubscribe = function (email) {
+  var link = Meteor.absoluteUrl('totally-unsubscribe');
+  var text = email.text +
+        "\n\n===\n[Unsubscribe]("+link+") from all emails from Push Pickup.";
+  return _.extend({text: text}, _.omit(email, 'text'));
+};
+
+
+// Use instead of `Email.send` to ensure defaults such as a link at bottom
+// to unsubscribe from all emails, and an html body derived from the text body.
+sendEmail = function (email, options) {
+  options = _.extend({
+    withHTMLbody: true,
+    withTotalUnsubscribe: true
+  }, options);
+  if (options.withTotalUnsubscribe) {
+    email = withTotalUnsubscribe(email);
+  }
+  if (options.withHTMLbody) {
+    email = withHTMLbody(email);
+  }
+  Email.send(email);
+};
+
 // An abstraction of Accounts.sendEnrollmentEmail to include a
 // custom template name as a parameter.
 //
@@ -100,8 +134,9 @@ notifyOrganizer = function (gameId, options) {
     to: creator.emails[0].address
   };
   var gameInfo = utils.displayTime(game) + " " + game.type;
-  var text = "For your reference, below is a link to your game.\n\n"
-        + Meteor.absoluteUrl('g/'+gameId) + "\n"
+  var text = "For your reference, [here]("
+        + Meteor.absoluteUrl('g/'+gameId) + ")"
+        + " is a link to your game.\n\n"
         + "Thanks for organizing.";
   var who;
   if (options.left) { // people left
@@ -112,7 +147,7 @@ notifyOrganizer = function (gameId, options) {
         who+="s";
       }
     }
-    Email.send(_.extend({
+    sendEmail(_.extend({
       subject: who+" left your "+gameInfo+" game",
       text: text
     }, email));
@@ -129,7 +164,7 @@ notifyOrganizer = function (gameId, options) {
     } else {
       who += " joined";
     }
-    Email.send(_.extend({
+    sendEmail(_.extend({
       subject: who+" your "+gameInfo+" game",
       text: text
     }, email));
