@@ -75,3 +75,63 @@ sendEnrollmentEmail = function (userId, email, template, options) {
   });
 };
 
+// Notify organizer about players joining/leaving game.
+notifyOrganizer = function (gameId, options) {
+  check(gameId, String);
+  check(options, Match.Where(function (options) {
+    check(options, {
+      joined: Match.Optional({
+        name: String,
+        numFriends: Match.Optional(Number)
+      }),
+      left: Match.Optional({
+        name: String,
+        numFriends: Match.Optional(Number)
+      })
+    });
+    return options.joined || options.left;
+  }));
+  var game = Games.findOne(gameId);
+  if (! game)
+    throw new Error("Game not found");
+  var creator = Meteor.users.findOne(game.creator.userId);
+  var email = {
+    from: emailTemplates.from,
+    to: creator.emails[0].address
+  };
+  var gameInfo = utils.displayTime(game) + " " + game.type;
+  var text = "For your reference, below is a link to your game.\n\n"
+        + Meteor.absoluteUrl('g/'+gameId) + "\n"
+        + "Thanks for organizing.";
+  var who;
+  if (options.left) { // people left
+    who = options.left.name;
+    if (options.left.numFriends && options.left.numFriends > 0) {
+      who += " and "+options.left.numFriends+" friend";
+      if (options.left.numFriends > 1) {
+        who+="s";
+      }
+    }
+    Email.send(_.extend({
+      subject: who+" left your "+gameInfo+" game",
+      text: text
+    }, email));
+  } else {
+    // Player added self or added friends
+    // If player did both at once, two emails will be sent
+    who = options.joined.name;
+    if (options.joined.numFriends && options.joined.numFriends > 0) {
+      who += " added "+options.joined.numFriends+" friend";
+      if (options.joined.numFriends > 1) {
+        who += "s";
+      }
+      who += " to";
+    } else {
+      who += " joined";
+    }
+    Email.send(_.extend({
+      subject: who+" your "+gameInfo+" game",
+      text: text
+    }, email));
+  }
+};

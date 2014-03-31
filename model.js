@@ -241,9 +241,8 @@ Meteor.methods({
     }
     return Games.remove(id);
   },
-  // this.userId is not null
-  // for unauthenticated adds, see "unauthenticated.addPlayer"
-  addPlayer: function (args) {
+  addSelf: function (args) {
+    this.unblock();
     check(args, {
       gameId: String,
       name: Match.Optional(NonEmptyString)
@@ -260,6 +259,7 @@ Meteor.methods({
       check(player, Player); // name must be non-empty
       Games.update(gameId, {$push: {players: player}});
       maybeMakeGameOn(gameId);
+      Meteor.isServer && notifyOrganizer(gameId, {joined: {name: name}});
       return true;
     }
   },
@@ -288,10 +288,13 @@ Meteor.methods({
     Games.update(gameId, {$pull: {players: {userId: self.userId, name: name}}});
   },
   leaveGame: function (gameId) {
+    this.unblock();
     var self = this;
     var game = Games.findOne(gameId);
     if (!game)
       throw new Meteor.Error(404, "Game not found.");
+    if (! self.userId)
+      throw new Meteor.Error(401, "Must be signed in.");
     Games.update(gameId, {$pull: {players: {userId: self.userId}}});
     var numNonUserFriends = _.filter(game.players, function (p) {
       return p.friendId === self.userId && !p.userId;
@@ -308,6 +311,13 @@ Meteor.methods({
             "email addresses have been removed.",
         type: "warning", where: gameId
         });
+      }
+      if (! error && Meteor.isServer) {
+        var user = Meteor.users.findOne(self.userId);
+        var name = user.profile.name || "Someone";
+        notifyOrganizer(gameId, {left: {
+          name: name, numFriends: numNonUserFriends
+        }});
       }
     });
   },

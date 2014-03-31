@@ -298,7 +298,7 @@ Template.joinGameLink.events({
 
 var addSelfToGame = function (gameId) {
   if (! gameId) { return; }
-  Meteor.call("addPlayer", {
+  Meteor.call("addSelf", {
     gameId: gameId,
     name: Meteor.user().profile.name
   }, function (err) {
@@ -408,7 +408,7 @@ Template.addSelfAndFriends.events({
         return;
       }
       Meteor.call(
-        "dev.unauth.addPlayers", game._id, email, fullName, friends,
+        "dev.unauth.addSelfAndFriends", game._id, email, fullName, friends,
         function (error, result) {
           if (!error) {
             Meteor.loginWithPassword(email, result.password, function (err) {
@@ -445,7 +445,7 @@ Template.addSelfAndFriends.events({
       Meteor.loginWithPassword(email, password, function (err) {
         if (!err) {
           Meteor.call(
-            "dev.addSelf.addFriends", friends, game._id,
+            "dev.addSelfAndFriends", friends, game._id,
             function (error, result) {
               if (! error) {
                 Session.set("joined-game", game._id);
@@ -502,8 +502,7 @@ Template.addFriends.events({
       return;
     }
     Meteor.call(
-      "dev.addFriends", friends, Meteor.userId(), game._id,
-      function (error, result) {
+      "dev.addFriends", game._id, friends, function (error, result) {
         if (!error) {
           Alerts.throw({
             message: "Thanks, " + Meteor.user().profile.name +
@@ -529,7 +528,7 @@ Template.addFriends.events({
             });
           }
         }
-    });
+      });
   },
   "click .add-friends .close": function () {
     Session.set("add-friends", null);
@@ -1590,7 +1589,7 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.loginWithPassword(email, result.password, function (error) {
               if (!error) {
-                playing && Meteor.call("addPlayer", {
+                playing && Meteor.call("addSelf", {
                   gameId: result.gameId,
                   name: fullName
                 }, function (err) {
@@ -1632,7 +1631,7 @@ Template.devEditableGame.events({
           if (!error) {
             Meteor.call("addGame", game, function (error, result) {
               if (!error) {
-                playing && Meteor.call("addPlayer", {
+                playing && Meteor.call("addSelf", {
                   gameId: result.gameId
                 }, function (err) {
                   if (!err) {
@@ -1666,7 +1665,7 @@ Template.devEditableGame.events({
     } else { // authenticated user
       Meteor.call("addGame", game, function (error, result) {
         if (!error) {
-          playing && Meteor.call("addPlayer", {
+          playing && Meteor.call("addSelf", {
             gameId: result.gameId
           }, function (err) {
             if (!err) {
