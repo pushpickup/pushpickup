@@ -106,10 +106,10 @@ bootstrap = function () {
   };
 
   // Subscribe Tim Tester to all games all days around Berkeley
-  UserSubs.insert({
-    userId: timId,
-    types: types,
-    days: days,
-    region: berkeley
-  });
+  // UserSubs.insert({
+  //   userId: timId,
+  //   types: types,
+  //   days: days,
+  //   region: berkeley
+  // });
 };

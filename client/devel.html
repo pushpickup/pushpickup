@@ -17,7 +17,7 @@
 <template name="devBody">
   {{#if SEql 'searching' 'after'}}
     {{> findingsMap}}
-    {{> subscribe}}
+    <!-- {{> subscribe}} -->
     {{> listOfGames}}
   {{else}}
     {{> listOfGames}}
@@ -493,7 +493,7 @@
   <div class="dev-detail-body row">
     <div class="content-all">
       {{> alerts where=_id}}
-      {{> subscribeAfterJoined}}
+      <!-- {{> subscribeAfterJoined}} -->
       {{> soloGameMap}}
       {{> soloGameSummary}}
       {{#unless past startsAt}}
@@ -783,7 +783,7 @@
           {{/unless}}
         </div>
       </li>
-      {{> settingsItem name="subscriptions"}}
+      <!-- {{> settingsItem name="subscriptions"}} -->
       {{> settingsItem name="change-email-address"}}
       {{> settingsItem name="change-password"}}
       {{> settingsItem name="help-and-feedback"}}
