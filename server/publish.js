@@ -109,5 +109,8 @@ Meteor.publish("games", function(query, pageNum) {
 
 Meteor.publish("user_subs", function () {
   var self = this;
-  return UserSubs.find({userId: self.userId});
+  // DEACTIVATED for now. Return an empty cursor
+  // for use by code that uses UserSubs.
+  return UserSubs.find({userId: -1});
+  //return UserSubs.find({userId: self.userId});
 });

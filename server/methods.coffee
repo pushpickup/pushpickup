@@ -180,6 +180,9 @@ Meteor.methods
           gameId: gameId, adderId: self.userId
     maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
+    # DEACTIVATED for now
+    return false
+
     self = this
     user = Meteor.users.findOne(self.userId)
     # `sendGameAddedNotification` sends only to verified email addresses,
