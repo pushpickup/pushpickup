@@ -1411,7 +1411,7 @@ Template.devSelectWhen.helpers({
     var self = this;
     var selfDayStart = self.startsAt &&
           moment(self.startsAt).startOf('day');
-    var them =  _.map(_.range(8), function (i) {
+    var them =  _.map(_.range(7), function (i) {
       var dayStart = moment().startOf('day').add('days', i);
       return {
         value: dayStart.valueOf(),

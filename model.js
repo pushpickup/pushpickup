@@ -259,7 +259,9 @@ Meteor.methods({
       check(player, Player); // name must be non-empty
       Games.update(gameId, {$push: {players: player}});
       maybeMakeGameOn(gameId);
-      Meteor.isServer && notifyOrganizer(gameId, {joined: {name: name}});
+      Meteor.isServer && notifyOrganizer(gameId, {
+        joined: {userId: userId, name: name}
+      });
       return true;
     }
   },
@@ -316,7 +318,7 @@ Meteor.methods({
         var user = Meteor.users.findOne(self.userId);
         var name = user.profile.name || "Someone";
         notifyOrganizer(gameId, {left: {
-          name: name, numFriends: numNonUserFriends
+          userId: user._id, name: name, numFriends: numNonUserFriends
         }});
       }
     });

@@ -48,7 +48,7 @@ withTotalUnsubscribe = function (email) {
 // to unsubscribe from all emails, and an html body derived from the text body.
 sendEmail = function (email, options) {
   options = _.extend({
-    withHTMLbody: true,
+    withHTMLbody: ! Meteor.settings.DEVELOPMENT,
     withTotalUnsubscribe: true
   }, options);
   if (options.withTotalUnsubscribe) {
@@ -115,10 +115,12 @@ notifyOrganizer = function (gameId, options) {
   check(options, Match.Where(function (options) {
     check(options, {
       joined: Match.Optional({
+        userId: String,
         name: String,
         numFriends: Match.Optional(Number)
       }),
       left: Match.Optional({
+        userId: String,
         name: String,
         numFriends: Match.Optional(Number)
       })
@@ -128,7 +130,15 @@ notifyOrganizer = function (gameId, options) {
   var game = Games.findOne(gameId);
   if (! game)
     throw new Error("Game not found");
+
+  // Don't notify organizer about his own joining/leaving or friend-adding.
+  if (options.joined && options.joined.userId === game.creator.userId ||
+      options.left && options.left.userId === game.creator.userId) {
+    return false;
+  }
+
   var creator = Meteor.users.findOne(game.creator.userId);
+
   var email = {
     from: emailTemplates.from,
     to: creator.emails[0].address
