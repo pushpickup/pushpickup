@@ -54,15 +54,17 @@ Meteor.methods
       Accounts.sendVerificationEmail self.userId, email
       "ok"
   "dev.addSelfAndFriends": (friends, gameId) ->
+    check(friends, [Match.Any])
     if not this.userId
       throw new Meteor.Error 401, "Must be signed in"
     Meteor.call "addSelf", gameId: gameId
-    Meteor.call "dev.addFriends", gameId, friends
+    Meteor.call("dev.addFriends", gameId, friends) if friends.length > 0
     "ok"
   "dev.unauth.addSelfAndFriends": (gameId, email, name, friends) ->
+    check(friends, [Match.Any])
     adder = Meteor.call "dev.unauth.addSelf", gameId, email, name
     this.setUserId adder.userId
-    Meteor.call "dev.addFriends", gameId, friends
+    Meteor.call("dev.addFriends", gameId, friends) if friends.length > 0
     adder # client may want adder.password to loginWithPassword
 
   # This method, which sends no verification email, is intended to compose
@@ -116,7 +118,8 @@ Meteor.methods
     Games.update gameId,
       $push: players: name: name, userId: newUser.userId, rsvp: "in"
     maybeMakeGameOn gameId
-    notifyOrganizer gameId, joined: name: name
+    notifyOrganizer gameId, joined:
+      userId: newUser.userId, name: name
     # TODO: indicate in enrollment email that either they or a friend
     # may have added them to a game
     Accounts.sendEnrollmentEmail newUser.userId, email
@@ -141,11 +144,14 @@ Meteor.methods
     self = this
     if not self.userId
       throw new Meteor.Error 401, "Must be signed in"
+    if friends.length is 0
+      throw new Meteor.Error 400, "Must give one or more friends"
     for friend in friends
       Meteor.call "dev.addFriend", gameId, friend
     user = Meteor.users.findOne self.userId
     name = user.profile.name or "Someone"
-    notifyOrganizer gameId, joined: {name: name, numFriends: friends.length}
+    notifyOrganizer gameId, joined:
+      userId: user._id, name: name, numFriends: friends.length
     "ok"
   "dev.addFriend": (gameId, friend) ->
     self = this
