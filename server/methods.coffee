@@ -29,22 +29,6 @@ alertWithin = (gameId, message) ->
   console.log message
 
 Meteor.methods
-  "unauthenticated.addGame": (game) ->
-    [username, password] = [strange.username(), strange.password()]
-    userId = Accounts.createUser username: username, password: password
-    gameId = Games.insert _.extend(game,
-      creator: {name: username, userId: userId})
-    username: username, password: password, gameId: gameId
-  "unauthenticated.addPlayer": (gameId, name) ->
-    [username, password] = [strange.username(name), strange.password()]
-    userId = Accounts.createUser
-      username: username
-      password: password
-      profile: name: name
-    Games.update gameId,
-        $push: players: name: name, userId: userId, rsvp: "in"
-    maybeMakeGameOn gameId
-    username: username, password: password
   "isEmailAvailable": (email) ->
     check(email, ValidEmail)
     emailOwner = Meteor.users.findOne({'emails.address': email})
@@ -69,13 +53,16 @@ Meteor.methods
         $push: emails: address: email, verified: false
       Accounts.sendVerificationEmail self.userId, email
       "ok"
-  "dev.addSelf.addFriends": (friends, gameId) ->
-    Meteor.call "addPlayer", gameId
-    Meteor.call "dev.addFriends", friends, this.userId, gameId
+  "dev.addSelfAndFriends": (friends, gameId) ->
+    if not this.userId
+      throw new Meteor.Error 401, "Must be signed in"
+    Meteor.call "addSelf", gameId: gameId
+    Meteor.call "dev.addFriends", gameId, friends
     "ok"
-  "dev.unauth.addPlayers": (gameId, email, name, friends) ->
-    adder = Meteor.call "dev.unauth.addPlayer", gameId, email, name
-    Meteor.call "dev.addFriends", friends, adder.userId, gameId
+  "dev.unauth.addSelfAndFriends": (gameId, email, name, friends) ->
+    adder = Meteor.call "dev.unauth.addSelf", gameId, email, name
+    this.setUserId adder.userId
+    Meteor.call "dev.addFriends", gameId, friends
     adder # client may want adder.password to loginWithPassword
 
   # This method, which sends no verification email, is intended to compose
@@ -123,11 +110,13 @@ Meteor.methods
     # TODO: email thanks user for adding game
     Accounts.sendEnrollmentEmail newUser.userId, email
     _.extend(newUser, game) # {userId, password, gameId}
-  "dev.unauth.addPlayer": (gameId, email, name) ->
+  "dev.unauth.addSelf": (gameId, email, name) ->
+    this.unblock()
     newUser = Meteor.call "dev.addUser", email, name
     Games.update gameId,
       $push: players: name: name, userId: newUser.userId, rsvp: "in"
     maybeMakeGameOn gameId
+    notifyOrganizer gameId, joined: name: name
     # TODO: indicate in enrollment email that either they or a friend
     # may have added them to a game
     Accounts.sendEnrollmentEmail newUser.userId, email
@@ -147,14 +136,24 @@ Meteor.methods
     # TODO convert below to Meteor method that uses this.unblock()
     Accounts.sendEnrollmentEmail newUser.userId, email
     newUser
-  "dev.addFriends": (friends, userId, gameId) ->
+  "dev.addFriends": (gameId, friends) ->
+    this.unblock()
+    self = this
+    if not self.userId
+      throw new Meteor.Error 401, "Must be signed in"
     for friend in friends
-      Meteor.call "dev.addFriend", friend, userId, gameId
+      Meteor.call "dev.addFriend", gameId, friend
+    user = Meteor.users.findOne self.userId
+    name = user.profile.name or "Someone"
+    notifyOrganizer gameId, joined: {name: name, numFriends: friends.length}
     "ok"
-  "dev.addFriend": (friend, userId, gameId) ->
+  "dev.addFriend": (gameId, friend) ->
+    self = this
+    if not self.userId
+      throw new Meteor.Error 401, "Must be signed in"
     if _.isEmpty friend.email
       Games.update gameId,
-        $push: players: name: friend.name, friendId: userId, rsvp: "in"
+        $push: players: name: friend.name, friendId: self.userId, rsvp: "in"
     else
       emailOwner = Meteor.users.findOne({'emails.address': friend.email});
       if emailOwner
@@ -162,11 +161,11 @@ Meteor.methods
           Games.update gameId,
             $push: players:
               name: friend.name
-              friendId: userId
+              friendId: self.userId
               userId: emailOwner._id
               rsvp: "in"
           Meteor.call "notifyAddedFriend",
-            addedId: emailOwner._id, gameId: gameId, adderId: userId
+            addedId: emailOwner._id, gameId: gameId, adderId: self.userId
       else
         newUserId = Accounts.createUser
           email: friend.email
@@ -174,11 +173,11 @@ Meteor.methods
         Games.update gameId,
           $push: players:
             name: friend.name
-            friendId: userId
+            friendId: self.userId
             userId: newUserId
             rsvp: "in"
         sendEnrollmentEmail newUserId, friend.email, "newUserAddedAsFriend",
-          gameId: gameId, adderId: userId
+          gameId: gameId, adderId: self.userId
     maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
     self = this
