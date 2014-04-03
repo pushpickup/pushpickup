@@ -101,7 +101,7 @@ sendEnrollmentEmail = function (userId, email, template, options) {
   }});
 
   var enrollAccountUrl = Accounts.urls.enrollAccount(token);
-  Email.send({
+  sendEmail({
     to: email,
     from: emailTemplates.from,
     subject: emailTemplates[template].subject(user, options),

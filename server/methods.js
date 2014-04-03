@@ -27,15 +27,15 @@ Meteor.methods({
       }
     }));
     _.each(players, function (player) {
-      Email.send({
+      sendEmail({
         from: emailTemplates.from,
         to: player.address,
         subject: " Game *updated*: "+game.type+" at "
           + utils.displayTime(game),
-        text: "Details for a game you're playing in have changed. " +
-          "Below is a link to the game.\n\n"
-          + Meteor.absoluteUrl('g/'+gameId)
-          + "\nThanks for helping to push pickup."
+        text: "Details for a game you're playing in have changed. [Here]("
+          + Meteor.absoluteUrl('g/'+gameId) + ") is a link to the game.\n"
+          +"\n"
+          + "Thanks for helping to push pickup."
       });
     });
   },
@@ -99,19 +99,22 @@ Meteor.methods({
     var ifUnverified = (added.emails[0].verified) ? "" :
           "Please **verify** your account so you can receive updates "
           + "made to the game.\n\n";
-    Email.send({
+    sendEmail({
       from: emailTemplates.from,
       to: added.emails[0].address,
       subject: " You're in: "+game.type+" on "+dayLong+" at "+time,
       text: "- "+game.location.name+"\n"
-        + "- "+day+". "+time+" w/ "+game.requested.players+" others "
-        + "(**View details**)\n\n"
+        + "- "+day+". "+time+" w/ "+game.requested.players+" others\n"
+        + "- [View details](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
+        + "\n"
         + "You were added to this game by "+adder.profile.name
-        + " ("+adder.emails[0].address+").\n\n"
+        + " ("+adder.emails[0].address+").\n"
+        + "\n"
         + ifUnverified
         + "If you can't make it, please **leave the game** "
-        +"so others will know.\n\n"
-        + "--\n**Unsubscribe** from all emails from Push Pickup."
+        +"so others will know.\n"
+        + "\n"
+        + "Thanks for helping to push pickup."
     });
   },
   // Send email that game organizer can forward to friends so that they
@@ -130,20 +133,6 @@ Meteor.methods({
     var time = startsAtM.format('h:mma');
     var gameNote = (_.isEmpty(game.note)) ? "" : "* " + game.note + "\n";
     var gameURL = Meteor.absoluteUrl('g/'+gameId);
-    var bodyText =
-          "Hi " + creator.profile.name + ",\n"
-          + "\n"
-          + "Be sure to forward this invite to your friends:\n"
-          + "\n"
-          + "----\n"
-          + "\n"
-          + "Join me for pickup " + game.type + ":\n"
-          + "\n"
-          + "* " + day_long + " at " + time + "\n"
-          + "* " + game.requested.players + " players needed.\n"
-          + "* " + game.location.name + "\n"
-          + gameNote + "\n"
-          + "[Join the game]("+gameURL+") and I'll see you there!\n";
     var email = {
       from: emailTemplates.from,
       to: creator.emails[0].address,
@@ -151,10 +140,21 @@ Meteor.methods({
       subject: _.string.capitalize(game.type) + " "
         + day + " " + time + " at "
         + game.location.name.replace(/,.*/,''),
-      text: bodyText,
-      html: utils.converter.makeHtml(bodyText)
+      text: "Hi " + creator.profile.name + ",\n"
+        + "\n"
+        + "Be sure to forward this invite to your friends:\n"
+        + "\n"
+        + "----\n"
+        + "\n"
+        + "Join me for pickup " + game.type + ":\n"
+        + "\n"
+        + "* " + day_long + " at " + time + "\n"
+        + "* " + game.requested.players + " players needed.\n"
+        + "* " + game.location.name + "\n"
+        + gameNote + "\n"
+        + "[Join the game]("+gameURL+") and I'll see you there!\n"
     };
-    Email.send(email);
+    sendEmail(email, {withTotalUnsubscribe: false});
     return email;
   }
 });
