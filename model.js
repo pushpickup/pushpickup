@@ -224,16 +224,16 @@ Meteor.methods({
           // notify all players other than organizer
           email = Meteor.users.findOne(player.userId).emails[0];
           if (email.verified) {
-            Email.send({
+            sendEmail({
               from: emailTemplates.from,
               to: player.name + "<" + email.address + ">",
               subject: "Game CANCELLED: " + game.type + " " +
                 utils.startsAtMomentWithOffset(game).format('dddd h:mmA') +
                 " at " + game.location.name,
               text: "Sorry, " + player.name + ".\n" +
-                "This game has been cancelled. Check out " +
-                Meteor.absoluteUrl('') + " for other games, or " +
-                "announce/propose your own!"
+                "This game has been cancelled. [Check out](" +
+                Meteor.absoluteUrl('') + ") other nearby games, or " +
+                "[add](" + Meteor.absoluteUrl('addGame')+ ") your own!"
             });
           }
         }
@@ -390,7 +390,7 @@ Meteor.methods({
       var user = this.userId && Meteor.users.findOne(this.userId);
       var name = user && user.profile && user.profile.name;
       var email = user && user.emails && user.emails[0].address;
-      Email.send({
+      sendEmail({
         from: (name || "Anonymous") + " <" +
           (email || "support@pushpickup.com") + ">",
         to: "support@pushpickup.com",

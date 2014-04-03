@@ -2,7 +2,7 @@ emailTemplates = {
   from: "Push Pickup <support@pushpickup.com>",
   siteName: Meteor.absoluteUrl().replace(/^https?:\/\//, '').replace(/\/$/, ''),
 
-  // Send only immediately after creating an account for the added friend.
+  // DEPRECATED - superseded by Meteor.call("notifyAddedFriend", ...)
   newUserAddedAsFriend: {
     subject: function(user, options) {
       check(options, {gameId: String, adderId: String});
@@ -22,15 +22,14 @@ emailTemplates = {
       return greeting + "\n"
         + "\n"
         + "An account has been created for you on "
-        + Accounts.emailTemplates.siteName + ". "
-        + "To verify your email and thus receive game updates, simply click the link below.\n"
+        + Accounts.emailTemplates.siteName + ". Please [click here](" + url
+        + ") to verify your email and thus receive game updates.\n"
         + "\n"
-        + url + "\n"
+        + "For your reference, [here]("
+        + Meteor.absoluteUrl('g/'+options.gameId)
+        + ") is a link to the game.\n"
         + "\n"
-        + "For your reference, below is a link to the game.\n\n"
-        + Meteor.absoluteUrl('g/'+options.gameId) + "\n"
-        + "\n"
-        + "Thanks.\n";
+        + "Thanks.";
     }
   }
 };

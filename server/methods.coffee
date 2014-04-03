@@ -157,6 +157,11 @@ Meteor.methods
     self = this
     if not self.userId
       throw new Meteor.Error 401, "Must be signed in"
+    check(gameId, String)
+    if not Games.findOne(gameId)
+      throw new Meteor.Error 404, "Game not found"
+    check(friend, {name: String, email: Match.Optional(ValidEmail)})
+
     if _.isEmpty friend.email
       Games.update gameId,
         $push: players: name: friend.name, friendId: self.userId, rsvp: "in"
@@ -182,8 +187,8 @@ Meteor.methods
             friendId: self.userId
             userId: newUserId
             rsvp: "in"
-        sendEnrollmentEmail newUserId, friend.email, "newUserAddedAsFriend",
-          gameId: gameId, adderId: self.userId
+        Meteor.call "notifyAddedFriend",
+          addedId: newUserId, gameId: gameId, adderId: self.userId
     maybeMakeGameOn gameId
   "addUserSub": (types, days, region) ->
     # DEACTIVATED for now
@@ -214,14 +219,14 @@ Meteor.methods
     return false if not game or not comment
     return false if comment.userId is game.creator.userId
     creator = Meteor.users.findOne(game.creator.userId)
-    Email.send
+    sendEmail
       from: "support@pushpickup.com"
       to: "#{creator.profile.name} <#{creator.emails[0].address}>"
       subject: "New comment/question on your " +
         "#{utils.displayTime(game)} #{game.type} game"
-      text: "#{comment.userName} just said: \"#{comment.message}\".\n" +
-        "For your reference, below is a link to your game.\n\n" +
-        "#{Meteor.absoluteUrl('g/'+gameId)}\nThanks for organizing."
+      text: "#{comment.userName} just said: \"#{comment.message}\".\n\n" +
+        "For your reference, [here](#{Meteor.absoluteUrl('g/'+gameId)}) " +
+        "is a link to your game.\n\nThanks for organizing!"
 
 Meteor.startup ->
   adverbs = _.string.lines(Assets.getText("positive-adverbs-that-are-adjectives-without-ly.txt"))

@@ -1,30 +1,33 @@
 
 var gameOnEmail = function (playerName, emailAddress, game) {
-  Email.send({
+  sendEmail({
     from: emailTemplates.from,
     to: playerName + "<" + emailAddress + ">",
     subject: "Game ON: " + game.type + " " +
       utils.displayTime(game) + " at " +
       game.location.name.replace(/,.*/,''),
-    text: "Have a great game, " + playerName + ".\n" +
-      "For your reference, below is a link to the game.\n\n" +
-      Meteor.absoluteUrl('g/'+game._id) + "\nThanks for playing."
+    text: "Enjoy yourself, " + playerName + ".\n" +
+      "For your reference, [here](" + Meteor.absoluteUrl('g/'+game._id)
+      + ") is a link to the game.\n"
+      + "\n"
+      + "Thanks for helping to push pickup."
   });
 };
 
 var sendGameAddedNotification = function (user, gameId, game) {
   var verifiedEmail = _.find(user.emails, function (e) { return e.verified; });
   if (verifiedEmail) {
-    Email.send({
+    sendEmail({
       from: emailTemplates.from,
       to: user.profile.name + " <" + verifiedEmail.address + ">",
       subject: "Game " + game.status + ": " + game.type + " "
         + utils.displayTime(game) + " at "
         + game.location.name,
       text: user.profile.name + ",\n"
-        + "Want to join in? Below is a link to the game.\n\n"
-        + Meteor.absoluteUrl('g/'+gameId)
-        + "\nThanks for helping to push pickup."
+        + "Want to join in? [Here](" + Meteor.absoluteUrl('g/'+gameId)
+        + ") is a link to the game.\n"
+        + "\n"
+        + "Thanks for helping to push pickup."
     });
   }
 };
