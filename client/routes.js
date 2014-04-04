@@ -70,6 +70,41 @@ Meteor.startup(function () {
       }
     });
 
+    this.route('leave-game', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      action: function () {
+        var self = this;
+        var token = self.params.hash;
+        Meteor.call("leaveGameViaToken", token, function (err, res) {
+          if (!err) {
+            // Idempotently verify user's email,
+            // since they got the token via email.
+            Accounts.verifyEmail(token);
+            if (res.error) {
+              // e.g. "Leave-game link is for unknown game"
+              Alerts.throw({
+                message: res.error.reason, type: "danger", where: "main"
+              });
+              Router.go("home");
+            } else {
+              Alerts.throw({
+                message: "OK, you are no longer in this game.",
+                type: "success", where: res.gameId
+              });
+              Router.go("devDetail", {_id: res.gameId});
+            }
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong: \""+err.reason + "\".",
+              type: "danger", where: "main"
+            });
+            Router.go("home");
+          }
+        });
+      }
+    });
+
     this.route('enroll-account', {
       template: 'devMain',
       layoutTemplate: 'devLayout',
