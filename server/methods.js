@@ -97,8 +97,8 @@ Meteor.methods({
     var time = correctMoment.format('h:mma');
 
     var ifUnverified = (added.emails[0].verified) ? "" :
-          "Please **verify** your account so you can receive updates "
-          + "made to the game.\n\n";
+          "Please [verify](" + verifyEmailUrl(added._id)
+          + ") your account so you can receive updates made to the game.\n\n";
     sendEmail({
       from: emailTemplates.from,
       to: added.emails[0].address,
@@ -111,7 +111,8 @@ Meteor.methods({
         + " ("+adder.emails[0].address+").\n"
         + "\n"
         + ifUnverified
-        + "If you can't make it, please **leave the game** "
+        + "If you can't make it, please [leave the game]("
+        + leaveGameUrl(added._id, game._id) + ") "
         +"so others will know.\n"
         + "\n"
         + "Thanks for helping to push pickup."
@@ -156,5 +157,37 @@ Meteor.methods({
     };
     sendEmail(email, {withTotalUnsubscribe: false});
     return email;
+  },
+  leaveGameViaToken: function (token) {
+    var self = this;
+    check(token, String);
+
+    var user = Meteor.users.findOne(
+      {'services.email.verificationTokens.token': token});
+    if (!user)
+      throw new Meteor.Error(403, "Leave-game link expired");
+
+    var tokenRecord = _.find(user.services.email.verificationTokens,
+                             function (t) {
+                               return t.token == token;
+                             });
+    if (!tokenRecord)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Leave-game link expired for user")
+      };
+
+    var game = Games.findOne(tokenRecord.gameId);
+    if (!game)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Leave-game link is for unknown game")
+      };
+
+    Games.update(
+      game._id,
+      {$pull: {'players': {userId: user._id}}});
+
+    return {userId: user._id, gameId: game._id};
   }
 });
