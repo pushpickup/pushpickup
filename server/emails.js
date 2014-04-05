@@ -157,8 +157,8 @@ withHTMLbody = function (email) {
 // E.g., "Bob Example <bob@example.com>" -> "bob@example.com".
 var getEmailAddress = function (toField) {
   // Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
-  var result =  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.exec(toField);
-  if (! result[0])
+  var result =  /[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/.exec(toField);
+  if (! result)
     throw new Error("toField contains no email address");
   return result[0];
 };
@@ -179,7 +179,7 @@ var shouldOnboard = function (emailAddress) {
 // user. Use this for the first email sent to a user.
 withOnboarding = function (email) {
   var text = email.text
-        + "\n\n===\n"
+        + "\n\n----\n\n"
         + "Welcome to Push Pickup. This service should help you make "
         + "your dreams come true, specifically your dreams about playing "
         + "and organizing pickup sports. We want to forget about whether "
@@ -200,7 +200,7 @@ withOnboarding = function (email) {
 withTotalUnsubscribe = function (email) {
   var link = Meteor.absoluteUrl('totally-unsubscribe');
   var text = email.text +
-        "\n\n===\n[Unsubscribe]("+link+") from all emails from Push Pickup.";
+        "\n\n----\n\n[Unsubscribe]("+link+") from all emails from Push Pickup.";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -306,7 +306,7 @@ sendEnrollmentEmail = function (userId, options) {
 
   var emailOptions = {
     to: email,
-    from: Accounts.emailTemplates.from,
+    from: emailTemplates.from,
     subject: emailTemplates.enrollAccount.subject(user, options),
     text: emailTemplates.enrollAccount.text(user, enrollAccountUrl, options)
   };
