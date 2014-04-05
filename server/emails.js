@@ -70,6 +70,9 @@ Meteor.startup(function () {
 Accounts.urls.pushpickup = {
   leaveGame: function (token) {
     return Meteor.absoluteUrl('leave-game#' + token);
+  },
+  unsubscribeAll: function (token) {
+    return Meteor.absoluteUrl('unsubscribe-all#' + token);
   }
 };
 
@@ -146,6 +149,17 @@ leaveGameUrl = function (userId, gameId) {
   return Accounts.urls.pushpickup.leaveGame(tokenRecord.token);
 };
 
+unsubscribeAllUrl = function (userId, gameId) {
+  var tokenRecord = verifyEmailTokenRecord(userId);
+  tokenRecord.unsubscribeAll = true;
+
+  Meteor.users.update(
+    {_id: userId},
+    {$push: {'services.email.verificationTokens': tokenRecord}});
+
+  return Accounts.urls.pushpickup.unsubscribeAll(tokenRecord.token);
+};
+
 // Return a new email with an `html` body that is a
 // Markdown conversion of the input email's `text` body.
 withHTMLbody = function (email) {
@@ -198,9 +212,13 @@ withOnboarding = function (email) {
 // from Push Pickup. This function is meant to be composed with `withHTMLbody`
 // as in the expression `withHTMLbody(withTotalUnsubscribe(email))`.
 withTotalUnsubscribe = function (email) {
-  var link = Meteor.absoluteUrl('totally-unsubscribe');
+  var address = getEmailAddress(email.to);
+  var user = Meteor.users.findOne({ 'emails.address': address });
+  if (! user)
+    throw new Error("No user with toField email address");
+  var url = unsubscribeAllUrl(user._id, address);
   var text = email.text +
-        "\n\n----\n\n[Unsubscribe]("+link+") from all emails from Push Pickup.";
+        "\n\n----\n\n[Unsubscribe]("+url+") from all emails from Push Pickup.";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -208,9 +226,10 @@ withTotalUnsubscribe = function (email) {
 // Use instead of `Email.send` to ensure defaults such as a link at bottom
 // to unsubscribe from all emails, and an html body derived from the text body.
 sendEmail = function (email, options) {
+  var address = getEmailAddress(email.to);
   options = _.extend({
     withTotalUnsubscribe: true,
-    withOnboarding: shouldOnboard(getEmailAddress(email.to)),
+    withOnboarding: shouldOnboard(address),
     withHTMLbody: ! Meteor.settings.DEVELOPMENT
   }, options);
   if (options.withOnboarding) {
@@ -222,7 +241,15 @@ sendEmail = function (email, options) {
   if (options.withHTMLbody) {
     email = withHTMLbody(email);
   }
-  Email.send(email);
+  // Conceptually simplest but not best for performance:
+  // Reads from user db for each request to send email, to check
+  // for `doNotDisturb` flag. Could refactor this to poll an in-memory
+  // object of size O(Meteor.users.count()).
+  var user = Meteor.users.findOne({'emails.address': address});
+  if (! user)
+    throw new Error("Attempt to send email to non-user");
+
+  !user.doNotDisturb && Email.send(email);
 };
 
 
