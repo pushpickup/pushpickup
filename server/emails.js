@@ -3,7 +3,44 @@
 
 emailTemplates = {
   from: "Push Pickup <support@pushpickup.com>",
-  siteName: Meteor.absoluteUrl().replace(/^https?:\/\//, '').replace(/\/$/, '')
+  siteName: Meteor.absoluteUrl()
+    .replace(/^https?:\/\//, '').replace(/\/$/, ''),
+  enrollAccount: {
+    subject: function (user, options) {
+      return "Activate your account on " + emailTemplates.siteName;
+    },
+    text: function (user, url, options) {
+      var greeting = (user.profile && user.profile.name) ?
+            ("Hello " + user.profile.name + ",") : "Hello,";
+      var thankYouFor = options.thankYouFor ?
+            "Thank you for " + options.thankYouFor + ".\n\n": "";
+      var gameLink = options.gameId ?
+            "[Here](" + Meteor.absoluteUrl('g/'+options.gameId) + ") "
+            + "is a link to the game.\n\n" : "";
+      return greeting + "\n"
+        + "\n"
+        + thankYouFor
+        + "[Click here]("+url+") to verify your email "
+        + "(and set your password) to get updates about your games.\n"
+        + "\n"
+        + gameLink
+        + "Thanks for helping to push pickup.\n";
+    }
+  },
+  verifyEmail: {
+    subject: function (user) {
+      return "Verify your email address on " + emailTemplates.siteName;
+    },
+    text: function (user, url) {
+      var greeting = (user.profile && user.profile.name) ?
+            ("Hello " + user.profile.name + ",") : "Hello,";
+      return greeting + "\n"
+        + "\n"
+        + "To verify your account email, simply [click here]("+url+").\n"
+        + "\n"
+        + "Thanks for helping to push pickup.\n";
+    }
+  }
 };
 
 // After `accounts-base` package has loaded, modify Accounts.urls
@@ -116,6 +153,47 @@ withHTMLbody = function (email) {
   return _.extend({html: html}, _.omit(email, 'html'));
 };
 
+// Returns the email address from an email `To:` field.
+// E.g., "Bob Example <bob@example.com>" -> "bob@example.com".
+var getEmailAddress = function (toField) {
+  // Uses RegExp of http://www.w3.org/TR/html-markup/input.email.html
+  var result =  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.exec(toField);
+  if (! result[0])
+    throw new Error("toField contains no email address");
+  return result[0];
+};
+
+var shouldOnboard = function (emailAddress) {
+  var user = Meteor.users.findOne({'emails.address': emailAddress});
+  if (!user)
+    throw new Error("User not found");
+  if (! user.onboarded) {
+    Meteor.users.update(user._id, {$set: {onboarded: true}});
+    return true;
+  } else {
+    return false;
+  }
+};
+
+// Return a new email with an appended section explaining the service to the
+// user. Use this for the first email sent to a user.
+withOnboarding = function (email) {
+  var text = email.text
+        + "\n\n===\n"
+        + "Welcome to Push Pickup. This service should help you make "
+        + "your dreams come true, specifically your dreams about playing "
+        + "and organizing pickup sports. We want to forget about whether "
+        + "we're in the right \"groups\" or on the right email lists, about "
+        + "being interrupted with updates for games we're not in, "
+        + "and keeping track of head counts to see if a game is really on. "
+        + "Let us know what you think (you can just reply to this email).\n"
+        + "\n"
+        + "Game on,\n"
+        + "\n"
+        + "Donny and Stewart\n";
+  return _.extend({text: text}, _.omit(email, 'text'));
+};
+
 // Return a new email with an appended link to no longer receive any emails
 // from Push Pickup. This function is meant to be composed with `withHTMLbody`
 // as in the expression `withHTMLbody(withTotalUnsubscribe(email))`.
@@ -131,9 +209,13 @@ withTotalUnsubscribe = function (email) {
 // to unsubscribe from all emails, and an html body derived from the text body.
 sendEmail = function (email, options) {
   options = _.extend({
-    withHTMLbody: ! Meteor.settings.DEVELOPMENT,
-    withTotalUnsubscribe: true
+    withTotalUnsubscribe: true,
+    withOnboarding: shouldOnboard(getEmailAddress(email.to)),
+    withHTMLbody: ! Meteor.settings.DEVELOPMENT
   }, options);
+  if (options.withOnboarding) {
+    email = withOnboarding(email);
+  }
   if (options.withTotalUnsubscribe) {
     email = withTotalUnsubscribe(email);
   }
@@ -143,6 +225,94 @@ sendEmail = function (email, options) {
   Email.send(email);
 };
 
+
+////
+//  Email-sending procedures
+////
+
+// Basically identical to `Accounts.sendVerificationEmail`, but dispatches to
+// our `sendEmail` function rather than the built-in `Email.send`.
+sendVerificationEmail = function (userId, address) {
+
+  // Make sure the user exists, and address is one of their addresses.
+  var user = Meteor.users.findOne(userId);
+  if (!user)
+    throw new Error("Can't find user");
+  // pick the first unverified address if we weren't passed an address.
+  if (!address) {
+    var email = _.find(user.emails || [],
+                       function (e) { return !e.verified; });
+    address = (email || {}).address;
+  }
+  // make sure we have a valid address
+  if (!address || !_.contains(_.pluck(user.emails || [], 'address'), address))
+    throw new Error("No such email address for user.");
+
+
+  var tokenRecord = {
+    token: Random.id(),
+    address: address,
+    when: new Date()};
+  Meteor.users.update(
+    {_id: userId},
+    {$push: {'services.email.verificationTokens': tokenRecord}});
+
+  var verifyEmailUrl = Accounts.urls.verifyEmail(tokenRecord.token);
+
+  var options = {
+    to: address,
+    from: emailTemplates.from,
+    subject: emailTemplates.verifyEmail.subject(user),
+    text: emailTemplates.verifyEmail.text(user, verifyEmailUrl)
+  };
+
+  sendEmail(options);
+};
+
+// Basically identical to `Accounts.sendEnrollmentEmail`, but dispatches to
+// our `sendEmail` function rather than the built-in `Email.send`.
+sendEnrollmentEmail = function (userId, options) {
+  check(userId, String);
+  check(options, {
+    thankYouFor: String,
+    email: Match.Optional(String),
+    gameId: Match.Optional(String)
+  });
+  var email = options.email;
+
+  // Make sure the user exists, and email is in their addresses.
+  var user = Meteor.users.findOne(userId);
+  if (!user)
+    throw new Error("Can't find user");
+  // pick the first email if we weren't passed an email.
+  if (!email && user.emails && user.emails[0])
+    email = user.emails[0].address;
+  // make sure we have a valid email
+  if (!email || !_.contains(_.pluck(user.emails || [], 'address'), email))
+    throw new Error("No such email for user.");
+
+
+  var token = Random.id();
+  var when = new Date();
+  Meteor.users.update(userId, {$set: {
+    "services.password.reset": {
+      token: token,
+      email: email,
+      when: when
+    }
+  }});
+
+  var enrollAccountUrl = Accounts.urls.enrollAccount(token);
+
+  var emailOptions = {
+    to: email,
+    from: Accounts.emailTemplates.from,
+    subject: emailTemplates.enrollAccount.subject(user, options),
+    text: emailTemplates.enrollAccount.text(user, enrollAccountUrl, options)
+  };
+
+  sendEmail(emailOptions);
+};
 
 // Notify organizer about players joining/leaving game.
 notifyOrganizer = function (gameId, options) {
@@ -214,4 +384,5 @@ notifyOrganizer = function (gameId, options) {
       text: text
     }, email));
   }
+  return true;
 };

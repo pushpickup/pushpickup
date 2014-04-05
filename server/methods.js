@@ -41,7 +41,7 @@ Meteor.methods({
   },
   "sendVerificationEmail": function () {
     this.unblock();
-    this.userId && Accounts.sendVerificationEmail(this.userId);
+    this.userId && sendVerificationEmail(this.userId);
   },
   "changeEmailAddress": function (newEmail) {
     this.unblock();
@@ -64,7 +64,7 @@ Meteor.methods({
     Meteor.users.update(this.userId, {
       $pull: {emails: {address: oldEmail}}
     });
-    Accounts.sendVerificationEmail(this.userId, newEmail);
+    sendVerificationEmail(this.userId, newEmail);
     return true;
   },
   "makeAdmin": function (userId) {

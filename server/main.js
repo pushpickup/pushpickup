@@ -1,17 +1,5 @@
 var development = Meteor.settings.DEVELOPMENT; // Toggles bootstrapping
 
-Accounts.emailTemplates.from = "Push Pickup <support@pushpickup.com>";
-Accounts.emailTemplates.enrollAccount.text = function(user, url) {
-  var greeting = (user.profile && user.profile.name) ?
-        ("Hello " + user.profile.name + ",") : "Hello,";
-  return greeting + "\n"
-    + "\n"
-    + "Verify your email to get updates about your games. Simply click the link below.\n"
-    + "\n"
-    + url + "\n"
-    + "\n"
-    + "Thanks.\n";
-};
 
 // establish donny and stewart, admins who can edit any game
 // and delete any game comments.

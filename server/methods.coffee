@@ -39,20 +39,6 @@ Meteor.methods
       Meteor.users.update emailOwner?._id,
         $pull: emails: address: email
     true
-  "addUserEmail": (email) ->
-    self = this
-    emailOwner = Meteor.users.findOne({'emails.address': email})
-    if _.find(emailOwner?.emails, (e) -> (e.address is email) and e.verified)
-      throw new Meteor.Error 403,
-        "Someone has already added and verified that email address"
-    else
-      # email is in system but unverified. remove it before proceeding.
-      Meteor.users.update emailOwner?._id,
-        $pull: emails: address: email
-      Meteor.users.update self.userId,
-        $push: emails: address: email, verified: false
-      Accounts.sendVerificationEmail self.userId, email
-      "ok"
   "dev.addSelfAndFriends": (friends, gameId) ->
     check(friends, [Match.Any])
     if not this.userId
@@ -103,15 +89,17 @@ Meteor.methods
       email: email
       password: password
       profile: name: name
-    Accounts.sendVerificationEmail userId, email
+    this.unblock()
+    sendVerificationEmail userId, email
     "ok"
   "dev.unauth.addGame": (email, name, game) ->
     newUser = Meteor.call "dev.addUser", email, name
     this.setUserId(newUser.userId)
-    game = Meteor.call "addGame", game
-    # TODO: email thanks user for adding game
-    Accounts.sendEnrollmentEmail newUser.userId, email
-    _.extend(newUser, game) # {userId, password, gameId}
+    result = Meteor.call "addGame", game
+    this.unblock()
+    sendEnrollmentEmail newUser.userId,
+      email: email, thankYouFor: "adding a game", gameId: result.gameId
+    _.extend(newUser, result) # {userId, password, gameId}
   "dev.unauth.addSelf": (gameId, email, name) ->
     this.unblock()
     newUser = Meteor.call "dev.addUser", email, name
@@ -120,24 +108,24 @@ Meteor.methods
     maybeMakeGameOn gameId
     notifyOrganizer gameId, joined:
       userId: newUser.userId, name: name
-    # TODO: indicate in enrollment email that either they or a friend
-    # may have added them to a game
-    Accounts.sendEnrollmentEmail newUser.userId, email
+    sendEnrollmentEmail newUser.userId,
+      email: email, thankYouFor: "joining a game", gameId: gameId
     newUser
   "dev.unauth.addCommenter": (gameId, email, name, comment) ->
     newUser = Meteor.call "dev.addUser", email, name
     this.setUserId(newUser.userId)
     Meteor.call "addComment", comment, gameId
-    # TODO: indicate in enrollment email that either they or a friend
-    # may have added them to a game
-    Accounts.sendEnrollmentEmail newUser.userId, email
+    this.unblock()
+    sendEnrollmentEmail newUser.userId,
+      email: email, thankYouFor: "adding a comment to a game", gameId: gameId
     newUser
   "dev.unauth.addUserSub": (email, name, types, days, region) ->
     newUser = Meteor.call "dev.addUser", email, name
     this.setUserId(newUser.userId)
     Meteor.call "addUserSub", types, days, region
-    # TODO convert below to Meteor method that uses this.unblock()
-    Accounts.sendEnrollmentEmail newUser.userId, email
+    this.unblock()
+    sendEnrollmentEmail newUser.userId,
+      email: email, thankYouFor: "subscribing to game announcements"
     newUser
   "dev.addFriends": (gameId, friends) ->
     this.unblock()
