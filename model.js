@@ -183,7 +183,22 @@ Meteor.methods({
     if (game.note.length > 1000)
       throw new Meteor.Error(413, "Game note too long");
 
-    var sameNote = oldGame.note === game.note;
+    // collect differences between `oldGame` and `game` wrt
+    // location, day/time (`startsAt`), organizer's note, and game type (!)
+    var changes = {};
+
+    (! EJSON.equals(oldGame.location.geoJSON, game.location.geoJSON)) &&
+      _.extend(changes, {location: game.location});
+
+    var oldM = utils.startsAtMomentWithOffset(oldGame);
+    var newM = utils.startsAtMomentWithOffset(game);
+    oldM.format('ddd') !== newM.format('ddd') &&
+      _.extend(changes, {day: newM});
+    oldM.format('h:mma') !== newM.format('h:mma') &&
+      _.extend(changes, {time: newM});
+
+    oldGame.note !== game.note && _.extend(changes, {note: game.note});
+    oldGame.type !== game.type && _.extend(changes, {type: game.type});
 
     return Games.update(id, {$set: {
       type: game.type,
@@ -195,8 +210,8 @@ Meteor.methods({
       comments: oldGame.comments, // no comment edits
       requested: game.requested
     }}, function (err) {
-      if (!err && !sameNote) {
-        Meteor.call("notifyPlayers", id);
+      if (!err && !_.isEmpty(changes)) {
+        Meteor.isServer && notifyPlayers(id, {changes: changes});
       }
     });
   },

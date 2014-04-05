@@ -7,38 +7,6 @@ Meteor.methods({
       'location.geoJSON': {$near: {$geometry: location}}
     }, {limit: 15}).fetch();
   },
-  "notifyPlayers": function (gameId) {
-    this.unblock();
-    check(gameId, String);
-    var game = Games.findOne(gameId);
-    if (!game)
-      return;
-    var players = _.compact(_.map(game.players, function (player) {
-      var user = player.userId &&
-            player.userId !== game.creator.userId &&
-            Meteor.users.findOne(player.userId);
-      if (user && user.emails && user.emails[0].verified) {
-        return {
-          name: user.profile && user.profile.name || "Push Pickup User",
-          address: user.emails[0].address
-        };
-      } else {
-        return null;
-      }
-    }));
-    _.each(players, function (player) {
-      sendEmail({
-        from: emailTemplates.from,
-        to: player.address,
-        subject: " Game *updated*: "+game.type+" at "
-          + utils.displayTime(game),
-        text: "Details for a game you're playing in have changed. [Here]("
-          + Meteor.absoluteUrl('g/'+gameId) + ") is a link to the game.\n"
-          +"\n"
-          + "Thanks for helping to push pickup."
-      });
-    });
-  },
   "sendVerificationEmail": function () {
     this.unblock();
     this.userId && sendVerificationEmail(this.userId);
