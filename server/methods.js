@@ -189,5 +189,36 @@ Meteor.methods({
       {$pull: {'players': {userId: user._id}}});
 
     return {userId: user._id, gameId: game._id};
+  },
+  unsubscribeAllViaToken: function (token) {
+    var self = this;
+    check(token, String);
+
+    var user = Meteor.users.findOne(
+      {'services.email.verificationTokens.token': token});
+    if (!user)
+      throw new Meteor.Error(403, "Unsubscribe-all link expired");
+
+    var tokenRecord = _.find(user.services.email.verificationTokens,
+                             function (t) {
+                               return t.token == token;
+                             });
+    if (!tokenRecord)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Unsubscribe-all link expired for user")
+      };
+
+    var game = Games.findOne(tokenRecord.gameId);
+    if (! tokenRecord.unsubscribeAll)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(
+          403, "Token provided in link is not an unsubscribe-all token")
+      };
+
+    Meteor.users.update(user._id, {$set: {doNotDisturb: true}});
+
+    return {userId: user._id};
   }
 });
