@@ -413,3 +413,61 @@ notifyOrganizer = function (gameId, options) {
   }
   return true;
 };
+
+notifyPlayers = function (gameId, options) {
+  var game = Games.findOne(gameId);
+  if (!game)
+    throw new Error(404, "Game not found");
+  check(options, Match.Where(function(o) {
+    check(o, {changes: Object});
+    return !_.isEmpty(o.changes);
+  }));
+  var changes = options.changes;
+
+  var players = _.compact(_.map(game.players, function (player) {
+    var user = player.userId &&
+          player.userId !== game.creator.userId &&
+          Meteor.users.findOne(player.userId);
+    if (user && user.emails && user.emails[0].verified) {
+      return {
+        name: user.profile && user.profile.name || "Push Pickup User",
+        address: user.emails[0].address
+      };
+    } else {
+      return null;
+    }
+  }));
+
+  var changesBullets = "";
+  if (changes.type)
+    changesBullets += "* Game type is now *"+changes.type+"*\n";
+  if (changes.day)
+    changesBullets += "* Game day is now *"+changes.day.format('dddd')+"*\n";
+  if (changes.time)
+    changesBullets += "* Game time is now *"+changes.time.format('h:mma')+"*\n";
+  if (changes.location)
+    changesBullets += "* Game location is now *"+changes.location.name+"*\n";
+  if (changes.note) {
+    changesBullets += "* The organizer's note is now this:\n\n"
+      + changes.note + "\n";
+  }
+
+
+  _.each(players, function (player) {
+    sendEmail({
+      from: emailTemplates.from,
+      to: player.address,
+      subject: " Game *updated*: "+game.type+" at "
+        + utils.displayTime(game),
+      text: "Details for a game you're playing in have changed. "
+        + "Here's a summary of the changes:\n"
+        + "\n"
+        + changesBullets
+        + "\n"
+        + "[Here](" + Meteor.absoluteUrl('g/'+gameId)
+        + ") is a link to the game.\n"
+        +"\n"
+        + "Thanks for helping to push pickup."
+    });
+  });
+};
