@@ -453,7 +453,7 @@ Template.addSelfAndFriends.events({
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +
-                      "! An added friend is a happy friend (hopefully).",
+                      ". Your friend has been added (and will get an email notification if you added their address)!",
                     type: "success", where: game._id,
                     autoremove: 5000
                   });
@@ -506,7 +506,7 @@ Template.addFriends.events({
         if (!error) {
           Alerts.throw({
             message: "Thanks, " + Meteor.user().profile.name +
-              "! An added friend is a happy friend (hopefully).",
+              ". Your friend has been added (and will get an email notification if you added their address)!",
             type: "success", where: game._id,
             autoremove: 5000
           });

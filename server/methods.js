@@ -19,7 +19,7 @@ Meteor.methods({
             Meteor.users.findOne(player.userId);
       if (user && user.emails && user.emails[0].verified) {
         return {
-          name: user.profile && user.profile.name || "Push Pickup User",
+          name: user.profile && user.profile.name || "PushPickup User",
           address: user.emails[0].address
         };
       } else {
@@ -32,10 +32,10 @@ Meteor.methods({
         to: player.address,
         subject: " Game *updated*: "+game.type+" at "
           + utils.displayTime(game),
-        text: "Details for a game you're playing in have changed. [Here]("
-          + Meteor.absoluteUrl('g/'+gameId) + ") is a link to the game.\n"
+        text: "A game you're playing in has been updated. Check the [game details]("
+          + Meteor.absoluteUrl('g/'+gameId) + ") for more information.\n"
           +"\n"
-          + "Thanks for helping to push pickup."
+          + "Have a good game!"
       });
     });
   },
@@ -104,8 +104,8 @@ Meteor.methods({
       to: added.emails[0].address,
       subject: " You're in: "+game.type+" on "+dayLong+" at "+time,
       text: "- "+game.location.name+"\n"
-        + "- "+day+". "+time+" w/ "+game.requested.players+" others\n"
-        + "- [View details](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
+        + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
+        + "* [View details on PushPickup](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
         + "\n"
         + "You were added to this game by "+adder.profile.name
         + " ("+adder.emails[0].address+").\n"
@@ -115,7 +115,7 @@ Meteor.methods({
         + leaveGameUrl(added._id, game._id) + ") "
         +"so others will know.\n"
         + "\n"
-        + "Thanks for helping to push pickup."
+        + "Have a good game!"
     });
   },
   // Send email that game organizer can forward to friends so that they

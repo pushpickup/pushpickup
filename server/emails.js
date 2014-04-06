@@ -2,7 +2,7 @@
 // to send custom emails
 
 emailTemplates = {
-  from: "Push Pickup <support@pushpickup.com>",
+  from: "PushPickup <support@pushpickup.com>",
   siteName: Meteor.absoluteUrl()
     .replace(/^https?:\/\//, '').replace(/\/$/, ''),
   enrollAccount: {
@@ -24,7 +24,7 @@ emailTemplates = {
         + "(and set your password) to get updates about your games.\n"
         + "\n"
         + gameLink
-        + "Thanks for helping to push pickup.\n";
+        + "We wish you many good games!\n";
     }
   },
   verifyEmail: {
@@ -38,7 +38,7 @@ emailTemplates = {
         + "\n"
         + "To verify your account email, simply [click here]("+url+").\n"
         + "\n"
-        + "Thanks for helping to push pickup.\n";
+        + "We wish you many good games!\n";
     }
   }
 };
@@ -180,17 +180,15 @@ var shouldOnboard = function (emailAddress) {
 withOnboarding = function (email) {
   var text = email.text
         + "\n\n----\n\n"
-        + "Welcome to Push Pickup. This service should help you make "
-        + "your dreams come true, specifically your dreams about playing "
-        + "and organizing pickup sports. We want to forget about whether "
-        + "we're in the right \"groups\" or on the right email lists, about "
-        + "being interrupted with updates for games we're not in, "
-        + "and keeping track of head counts to see if a game is really on. "
-        + "Let us know what you think (you can just reply to this email).\n"
+        + "Welcome! PushPickup is an app that's better than email lists "
+        + "for organizing pickup games for soccer, basketball, and "
+        + "ultimate frisbee. Soon, you will also be able to find and be"
+        + "notified of games happening around you. "
+        + "Please let us know what you think (you can just reply to this email).\n"
         + "\n"
-        + "Game on,\n"
+        + "Thanks for playing,\n"
         + "\n"
-        + "Donny and Stewart\n";
+        + "Donny Winston and Stewart McCoy\n";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -200,7 +198,7 @@ withOnboarding = function (email) {
 withTotalUnsubscribe = function (email) {
   var link = Meteor.absoluteUrl('totally-unsubscribe');
   var text = email.text +
-        "\n\n----\n\n[Unsubscribe]("+link+") from all emails from Push Pickup.";
+        "\n\n----\n\n[Unsubscribe]("+link+") from all emails from PushPickup.";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -349,10 +347,10 @@ notifyOrganizer = function (gameId, options) {
     to: creator.emails[0].address
   };
   var gameInfo = utils.displayTime(game) + " " + game.type;
-  var text = "For your reference, [here]("
+  var text = "View [your game details]("
         + Meteor.absoluteUrl('g/'+gameId) + ")"
-        + " is a link to your game.\n\n"
-        + "Thanks for organizing.";
+        + " to see the latest list of who has joined.\n\n"
+        + "Thanks for organizing!";
   var who;
   if (options.left) { // people left
     who = options.left.name;
