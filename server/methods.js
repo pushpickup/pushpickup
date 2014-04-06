@@ -72,8 +72,8 @@ Meteor.methods({
       to: added.emails[0].address,
       subject: " You're in: "+game.type+" on "+dayLong+" at "+time,
       text: "- "+game.location.name+"\n"
-        + "- "+day+". "+time+" w/ "+game.requested.players+" others\n"
-        + "- [View details](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
+        + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
+        + "* [View details on PushPickup](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
         + "\n"
         + "You were added to this game by "+adder.profile.name
         + " ("+adder.emails[0].address+").\n"
@@ -83,7 +83,7 @@ Meteor.methods({
         + leaveGameUrl(added._id, game._id) + ") "
         +"so others will know.\n"
         + "\n"
-        + "Thanks for helping to push pickup."
+        + "Have a good game!"
     });
   },
   // Send email that game organizer can forward to friends so that they
