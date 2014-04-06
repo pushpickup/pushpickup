@@ -118,7 +118,7 @@ Meteor.methods({
         + "Join me for pickup " + game.type + ":\n"
         + "\n"
         + "* " + day_long + " at " + time + "\n"
-        + "* " + game.requested.players + " players needed.\n"
+        + "* " + game.requested.players + " players needed\n"
         + "* " + game.location.name + "\n"
         + gameNote + "\n"
         + "[Join the game]("+gameURL+") and I'll see you there!\n"

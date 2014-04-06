@@ -208,7 +208,7 @@ Meteor.methods
     return false if comment.userId is game.creator.userId
     creator = Meteor.users.findOne(game.creator.userId)
     sendEmail
-      from: "support@pushpickup.com"
+      from: emailTemplates.from
       to: "#{creator.profile.name} <#{creator.emails[0].address}>"
       subject: "New comment/question on your " +
         "#{utils.displayTime(game)} #{game.type} game"

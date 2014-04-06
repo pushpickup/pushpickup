@@ -1,16 +1,25 @@
 
 var sendGameOnEmail = function (playerName, emailAddress, game) {
+  var startsAtM = utils.startsAtMomentWithOffset(game);
+  var day_long = utils.isToday(game) ?
+        "Today" : "This coming "+startsAtM.format('dddd');
+  var time = startsAtM.format('h:mma');
   sendEmail({
     from: emailTemplates.from,
     to: playerName + "<" + emailAddress + ">",
     subject: "Game ON: " + game.type + " " +
       utils.displayTime(game) + " at " +
       game.location.name.replace(/,.*/,''),
-    text: "Enjoy yourself, " + playerName + ".\n" +
-      "For your reference, [here](" + Meteor.absoluteUrl('g/'+game._id)
-      + ") is a link to the game.\n"
+    text: "Hi " + playerName + ",\n"
       + "\n"
-      + "Thanks for helping to push pickup."
+      + "[A game you joined](" + Meteor.absoluteUrl('g/'+game._id)
+      + ") is happening soon:\n"
+      + "\n"
+      + "* " + day_long + " at " + time + "\n"
+      + "* " + game.players.length + " players have joined\n"
+      + "* " + game.location.name + "\n"
+      + "\n"
+      + "Have fun!"
   });
 };
 
