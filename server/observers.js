@@ -1,5 +1,5 @@
 
-var gameOnEmail = function (playerName, emailAddress, game) {
+var sendGameOnEmail = function (playerName, emailAddress, game) {
   sendEmail({
     from: emailTemplates.from,
     to: playerName + "<" + emailAddress + ">",
@@ -32,6 +32,27 @@ var sendGameAddedNotification = function (user, gameId, game) {
   }
 };
 
+sendGameOnEmails = function (game) {
+  var players = _.map(game.players, function (player) {
+    var user = Meteor.users.findOne(player.userId);
+    if (user && user.emails && user.emails[0].verified) {
+      return {
+        name: user.profile.name,
+        address: user.emails[0].address
+      };
+    } else {
+      return null;
+    }
+  });
+  // _.uniq: (array, isSorted, transformation) -> array
+  players = _.uniq(players, false, function (player) {
+    return player && player.address;
+  });
+  _.forEach(players, function (player) {
+    player && sendGameOnEmail(player.name, player.address, game);
+  });
+};
+
 var userSubQuery = function (game) {
   return {
     types: game.type,
@@ -52,24 +73,7 @@ observers = {
         } else if (game.players.length < 2) {
           return; // fewer than two players, so don't send email
         } else { // status has changed to "on"
-          var players = _.map(game.players, function (player) {
-            var user = Meteor.users.findOne(player.userId);
-            if (user && user.emails && user.emails[0].verified) {
-              return {
-                name: user.profile.name,
-                address: user.emails[0].address
-              };
-            } else {
-              return null;
-            }
-          });
-          // _.uniq: (array, isSorted, transformation) -> array
-          players = _.uniq(players, false, function (player) {
-            return player && player.address;
-          });
-          _.forEach(players, function (player) {
-            player && gameOnEmail(player.name, player.address, game);
-          });
+          sendGameOnEmails(game);
         }
       }
     });

@@ -2,7 +2,7 @@
 // to send custom emails
 
 emailTemplates = {
-  from: "Push Pickup <support@pushpickup.com>",
+  from: "PushPickup <support@pushpickup.com>",
   siteName: Meteor.absoluteUrl()
     .replace(/^https?:\/\//, '').replace(/\/$/, ''),
   enrollAccount: {
@@ -24,7 +24,7 @@ emailTemplates = {
         + "(and set your password) to get updates about your games.\n"
         + "\n"
         + gameLink
-        + "Thanks for helping to push pickup.\n";
+        + "We wish you many good games!\n";
     }
   },
   verifyEmail: {
@@ -38,7 +38,7 @@ emailTemplates = {
         + "\n"
         + "To verify your account email, simply [click here]("+url+").\n"
         + "\n"
-        + "Thanks for helping to push pickup.\n";
+        + "We wish you many good games!\n";
     }
   }
 };
@@ -73,6 +73,12 @@ Accounts.urls.pushpickup = {
   },
   unsubscribeAll: function (token) {
     return Meteor.absoluteUrl('unsubscribe-all#' + token);
+  },
+  gameOn: function (token) {
+    return Meteor.absoluteUrl('game-on#' + token);
+  },
+  cancelGame: function (token) {
+    return Meteor.absoluteUrl('cancel-game#' + token);
   }
 };
 
@@ -194,17 +200,15 @@ var shouldOnboard = function (emailAddress) {
 withOnboarding = function (email) {
   var text = email.text
         + "\n\n----\n\n"
-        + "Welcome to Push Pickup. This service should help you make "
-        + "your dreams come true, specifically your dreams about playing "
-        + "and organizing pickup sports. We want to forget about whether "
-        + "we're in the right \"groups\" or on the right email lists, about "
-        + "being interrupted with updates for games we're not in, "
-        + "and keeping track of head counts to see if a game is really on. "
-        + "Let us know what you think (you can just reply to this email).\n"
+        + "Welcome! PushPickup is an app that's better than email lists "
+        + "for organizing pickup games for soccer, basketball, and "
+        + "ultimate frisbee. Soon, you will also be able to find and be "
+        + "notified of games happening around you. "
+        + "Please let us know what you think (you can just reply to this email).\n"
         + "\n"
-        + "Game on,\n"
+        + "Thanks for playing,\n"
         + "\n"
-        + "Donny and Stewart\n";
+        + "Donny Winston and Stewart McCoy\n";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -218,7 +222,7 @@ withTotalUnsubscribe = function (email) {
     throw new Error("No user with toField email address");
   var url = unsubscribeAllUrl(user._id, address);
   var text = email.text +
-        "\n\n----\n\n[Unsubscribe]("+url+") from all emails from Push Pickup.";
+        "\n\n----\n\n[Unsubscribe]("+url+") from all emails from PushPickup.";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -376,10 +380,10 @@ notifyOrganizer = function (gameId, options) {
     to: creator.emails[0].address
   };
   var gameInfo = utils.displayTime(game) + " " + game.type;
-  var text = "For your reference, [here]("
+  var text = "View [your game details]("
         + Meteor.absoluteUrl('g/'+gameId) + ")"
-        + " is a link to your game.\n\n"
-        + "Thanks for organizing.";
+        + " to see the latest list of who has joined.\n\n"
+        + "Thanks for organizing!";
   var who;
   if (options.left) { // people left
     who = options.left.name;
@@ -412,6 +416,51 @@ notifyOrganizer = function (gameId, options) {
     }, email));
   }
   return true;
+};
+
+// Remind organizer to clarify if the game is "on" or not. Links in email
+// trigger either a "game on" reminder to participants or a "game cancelled"
+// notice.
+// Called by a scheduled "cron" job (see server/cron.js).
+remindOrganizer = function(gameId) {
+  var game = Games.findOne(gameId);
+  if (! game)
+    throw new Error("Game not found");
+
+  var creator = Meteor.users.findOne(game.creator.userId);
+
+  // place a shared token and generate Urls
+  var tokenRecord = verifyEmailTokenRecord(creator._id);
+  tokenRecord.gameId = gameId;
+  Meteor.users.update(
+    {_id: creator._id},
+    {$push: {'services.email.verificationTokens': tokenRecord}});
+  var gameOnTrigger = Accounts.urls.pushpickup.gameOn(tokenRecord.token);
+  var cancelGameTrigger = Accounts.urls.pushpickup
+        .cancelGame(tokenRecord.token);
+
+  var email = {
+    from: emailTemplates.from,
+    to: creator.emails[0].address
+  };
+  var gameInfo = utils.displayTime(game) + " " + game.type;
+  _.extend(email, {
+    subject: "Status of your " + gameInfo + " game?",
+    text: "If your " + gameInfo + " game is on, [click here]("
+        + gameOnTrigger +") to trigger an email to "
+        + "all players, letting them know.\n"
+        + "\n"
+        + "If the game is *not* happening, please "
+        + "[click here](" + cancelGameTrigger + ") to cancel the game "
+        + "and notify the players.\n"
+        + "\n"
+        + "For your reference, [here]("
+        + Meteor.absoluteUrl('g/'+gameId) + ")"
+        + " is a link to your game.\n"
+        + "\n"
+        + "Thanks for organizing."
+  });
+  sendEmail(email);
 };
 
 notifyPlayers = function (gameId, options) {

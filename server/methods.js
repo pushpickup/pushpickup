@@ -72,8 +72,8 @@ Meteor.methods({
       to: added.emails[0].address,
       subject: " You're in: "+game.type+" on "+dayLong+" at "+time,
       text: "- "+game.location.name+"\n"
-        + "- "+day+". "+time+" w/ "+game.requested.players+" others\n"
-        + "- [View details](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
+        + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
+        + "* [View details on PushPickup](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
         + "\n"
         + "You were added to this game by "+adder.profile.name
         + " ("+adder.emails[0].address+").\n"
@@ -83,7 +83,7 @@ Meteor.methods({
         + leaveGameUrl(added._id, game._id) + ") "
         +"so others will know.\n"
         + "\n"
-        + "Thanks for helping to push pickup."
+        + "Have a good game!"
     });
   },
   // Send email that game organizer can forward to friends so that they
@@ -177,7 +177,6 @@ Meteor.methods({
         error: new Meteor.Error(403, "Unsubscribe-all link expired for user")
       };
 
-    var game = Games.findOne(tokenRecord.gameId);
     if (! tokenRecord.unsubscribeAll)
       return {
         userId: user._id,
@@ -188,5 +187,71 @@ Meteor.methods({
     Meteor.users.update(user._id, {$set: {doNotDisturb: true}});
 
     return {userId: user._id};
+  },
+  gameOnViaToken: function (token) {
+    var self = this;
+    check(token, String);
+
+    var user = Meteor.users.findOne(
+      {'services.email.verificationTokens.token': token});
+    if (!user)
+      throw new Meteor.Error(403, "Game-on trigger expired");
+
+    var tokenRecord = _.find(user.services.email.verificationTokens,
+                             function (t) {
+                               return t.token == token;
+                             });
+    if (!tokenRecord)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Game-on trigger expired for user")
+      };
+
+    var game = Games.findOne(tokenRecord.gameId);
+    if (!game)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Game-on trigger is for unknown game")
+      };
+
+    if (game.status === "proposed") {
+      // update game to trigger `gameOnObserver`
+      Games.update(game._id, {$set: {status: "on"}});
+    } else {
+      Meteor.isServer && sendGameOnEmails(game);
+    }
+
+    return {userId: user._id, gameId: game._id};
+  },
+  cancelGameViaToken: function (token) {
+    var self = this;
+    check(token, String);
+
+    var user = Meteor.users.findOne(
+      {'services.email.verificationTokens.token': token});
+    if (!user)
+      throw new Meteor.Error(403, "Cancel-game trigger expired");
+
+    var tokenRecord = _.find(user.services.email.verificationTokens,
+                             function (t) {
+                               return t.token == token;
+                             });
+    if (!tokenRecord)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Cancel-game trigger expired for user")
+      };
+
+    var game = Games.findOne(tokenRecord.gameId);
+    if (!game)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Cancel-game trigger is for unknown game")
+      };
+
+    self.setUserId(user._id);
+    Meteor.call("cancelGame", game._id);
+
+    return {userId: user._id, gameId: game._id};
   }
 });

@@ -105,6 +105,71 @@ Meteor.startup(function () {
       }
     });
 
+    this.route('game-on', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      action: function () {
+        var self = this;
+        var token = self.params.hash;
+        Meteor.call("gameOnViaToken", token, function (err, res) {
+          if (!err) {
+            Accounts.verifyEmail(token);
+            if (res.error) {
+              Alerts.throw({
+                message: res.error.reason, type: "danger", where: "main"
+              });
+              Router.go("home");
+            } else {
+              Alerts.throw({
+                message: "Woohoo! Players will be notified.",
+                type: "success", where: res.gameId
+              });
+              Router.go("devDetail", {_id: res.gameId});
+            }
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong: \""+err.reason + "\".",
+              type: "danger", where: "main"
+            });
+            Router.go("home");
+          }
+        });
+      }
+    });
+
+    this.route('cancel-game', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      action: function () {
+        var self = this;
+        var token = self.params.hash;
+        Meteor.call("cancelGameViaToken", token, function (err, res) {
+          if (!err) {
+            Accounts.verifyEmail(token);
+            if (res.error) {
+              Alerts.throw({
+                message: res.error.reason, type: "danger", where: "main"
+              });
+              Router.go("home");
+            } else {
+              Alerts.throw({
+                message: "OK, your game is now cancelled, and players "
+                  + "will be notified.",
+                type: "success", where: "main"
+              });
+              Router.go("home");
+            }
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong: \""+err.reason + "\".",
+              type: "danger", where: "main"
+            });
+            Router.go("home");
+          }
+        });
+      }
+    });
+
     // quite similar to 'leave-game' route
     this.route('unsubscribe-all', {
       template: 'devMain',

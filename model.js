@@ -138,11 +138,11 @@ maybeMakeGameOn = function (gameId) {
 };
 
 Meteor.methods({
-  // assumes this.userId is not null
-  // see unauthenticated.addGame for when this.userId is null
   addGame: function (game) {
     var self = this;
     var user = Meteor.users.findOne(self.userId);
+    if (!user)
+      throw new Meteor.Error(401, "Must be signed in");
     check(game, ValidGame);
 
     if (game.location.name.length > 100)
@@ -154,6 +154,7 @@ Meteor.methods({
       creator: {name: user.profile.name, userId: user._id}
     });
     var result = {gameId: Games.insert(game)};
+    Meteor.isServer && scheduleReminderForOrganizer(result.gameId);
     return result;
   },
   editGame: function (id, game) {
@@ -212,6 +213,7 @@ Meteor.methods({
     }}, function (err) {
       if (!err && !_.isEmpty(changes)) {
         Meteor.isServer && notifyPlayers(id, {changes: changes});
+        Meteor.isServer && scheduleReminderForOrganizer(id);
       }
     });
   },
