@@ -182,7 +182,7 @@ withOnboarding = function (email) {
         + "\n\n----\n\n"
         + "Welcome! PushPickup is an app that's better than email lists "
         + "for organizing pickup games for soccer, basketball, and "
-        + "ultimate frisbee. Soon, you will also be able to find and be"
+        + "ultimate frisbee. Soon, you will also be able to find and be "
         + "notified of games happening around you. "
         + "Please let us know what you think (you can just reply to this email).\n"
         + "\n"
