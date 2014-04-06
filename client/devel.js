@@ -1794,7 +1794,14 @@ Template.gameWhen.helpers({
     return moment(this.startsAt).fromNow();
   },
   displayTime: function () {
-    return utils.displayTime(this);
+    var m = utils.startsAtMomentWithOffset(this);
+    var day = m.format('ddd');
+    if (m.isSame(moment(), 'day')) {
+      day = "Today";
+    } else if (m.isSame(moment().add('days', 1), 'day')) {
+      day = "Tomorrow";
+    }
+    return day + m.format(' h:mma');
   }
 });
 
@@ -2099,5 +2106,15 @@ Template.devSubscriptions.helpers({
   },
   subsCount: function () {
     return UserSubs.find().count();
+  }
+});
+
+Template.devFooter.helpers({
+  omit: function () {
+    var self = this;
+    // Use data contexts supplied by add-game and edit-game routes
+    // to omit footer (i.e., Privacy Policy) for those views.
+    return (self.action && self.action === 'edit') ||
+      (self.action && self.action === 'add');
   }
 });
