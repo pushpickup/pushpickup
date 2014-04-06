@@ -12,19 +12,24 @@ emailTemplates = {
     text: function (user, url, options) {
       var greeting = (user.profile && user.profile.name) ?
             ("Hello " + user.profile.name + ",") : "Hello,";
-      var thankYouFor = options.thankYouFor ?
-            "Thank you for " + options.thankYouFor + ".\n\n": "";
+
+      var game = options.gameId && Games.findOne(options.gameId);
+      var gameInfo = _.string.capitalize(game.type)
+            + " " + utils.displayTime(game);
       var gameLink = options.gameId ?
-            "[Here](" + Meteor.absoluteUrl('g/'+options.gameId) + ") "
-            + "is a link to the game.\n\n" : "";
+            " ([" + gameInfo + "]("
+            + Meteor.absoluteUrl('g/'+options.gameId) + "))" : "";
+
+      var thankYouFor = options.thankYouFor ?
+            "Thank you for " + options.thankYouFor + " on PushPickup"
+            + gameLink + ".\n\n": "";
       return greeting + "\n"
         + "\n"
         + thankYouFor
-        + "[Click here]("+url+") to verify your email "
-        + "(and set your password) to get updates about your games.\n"
+        + "To get updates about your game, please [verify your email]("+url
+        + ") and set your password.\n"
         + "\n"
-        + gameLink
-        + "We wish you many good games!\n";
+        + "Thanks for pushing pickup!\n";
     }
   },
   verifyEmail: {
@@ -36,7 +41,8 @@ emailTemplates = {
             ("Hello " + user.profile.name + ",") : "Hello,";
       return greeting + "\n"
         + "\n"
-        + "To verify your account email, simply [click here]("+url+").\n"
+        + "Please [verify your email address]("+url+") or you won't get "
+        +"updates about games you've joined.\n"
         + "\n"
         + "We wish you many good games!\n";
     }
@@ -200,13 +206,13 @@ var shouldOnboard = function (emailAddress) {
 withOnboarding = function (email) {
   var text = email.text
         + "\n\n----\n\n"
-        + "Welcome! PushPickup is an app that's better than email lists "
+        + "PushPickup is an app that's better than email lists "
         + "for organizing pickup games for soccer, basketball, and "
-        + "ultimate frisbee. Soon, you will also be able to find and be "
-        + "notified of games happening around you. "
-        + "Please let us know what you think (you can just reply to this email).\n"
+        + "ultimate frisbee. "
+        + "Please let us know what you think "
+        + "(you can just reply to this email).\n"
         + "\n"
-        + "Thanks for playing,\n"
+        + "Sincerely,\n"
         + "\n"
         + "Donny Winston and Stewart McCoy\n";
   return _.extend({text: text}, _.omit(email, 'text'));
@@ -443,20 +449,18 @@ remindOrganizer = function(gameId) {
     from: emailTemplates.from,
     to: creator.emails[0].address
   };
-  var gameInfo = utils.displayTime(game) + " " + game.type;
+  var gameInfo = game.type + " game " + utils.displayTime(game);
   _.extend(email, {
-    subject: "Status of your " + gameInfo + " game?",
-    text: "If your " + gameInfo + " game is on, [click here]("
-        + gameOnTrigger +") to trigger an email to "
-        + "all players, letting them know.\n"
+    subject: "Send a reminder for your " + gameInfo,
+    text: "If your " + gameInfo + " is still happening, [send a reminder]("
+        + gameOnTrigger +") to all players, letting them know.\n"
         + "\n"
         + "If the game is *not* happening, please "
-        + "[click here](" + cancelGameTrigger + ") to cancel the game "
-        + "and notify the players.\n"
+        + "[cancel the game](" + cancelGameTrigger + ") "
+        + "to notify all players.\n"
         + "\n"
-        + "For your reference, [here]("
-        + Meteor.absoluteUrl('g/'+gameId) + ")"
-        + " is a link to your game.\n"
+        + "You can also view and update [your game]("
+        + Meteor.absoluteUrl('g/'+gameId) + ").\n"
         + "\n"
         + "Thanks for organizing."
   });
@@ -506,17 +510,15 @@ notifyPlayers = function (gameId, options) {
     sendEmail({
       from: emailTemplates.from,
       to: player.address,
-      subject: " Game *updated*: "+game.type+" at "
+      subject: " Game updated: "+game.type+" at "
         + utils.displayTime(game),
-      text: "Details for a game you're playing in have changed. "
-        + "Here's a summary of the changes:\n"
+      text: "Details for [a game you're playing in]("
+        + Meteor.absoluteUrl('g/'+gameId) + ") "
+        +"have changed. Here's a summary of the changes:\n"
         + "\n"
         + changesBullets
         + "\n"
-        + "[Here](" + Meteor.absoluteUrl('g/'+gameId)
-        + ") is a link to the game.\n"
-        +"\n"
-        + "Thanks for helping to push pickup."
+        + "Have fun!"
     });
   });
 };
