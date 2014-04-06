@@ -7,38 +7,6 @@ Meteor.methods({
       'location.geoJSON': {$near: {$geometry: location}}
     }, {limit: 15}).fetch();
   },
-  "notifyPlayers": function (gameId) {
-    this.unblock();
-    check(gameId, String);
-    var game = Games.findOne(gameId);
-    if (!game)
-      return;
-    var players = _.compact(_.map(game.players, function (player) {
-      var user = player.userId &&
-            player.userId !== game.creator.userId &&
-            Meteor.users.findOne(player.userId);
-      if (user && user.emails && user.emails[0].verified) {
-        return {
-          name: user.profile && user.profile.name || "PushPickup User",
-          address: user.emails[0].address
-        };
-      } else {
-        return null;
-      }
-    }));
-    _.each(players, function (player) {
-      sendEmail({
-        from: emailTemplates.from,
-        to: player.address,
-        subject: " Game *updated*: "+game.type+" at "
-          + utils.displayTime(game),
-        text: "A game you're playing in has been updated. Check the [game details]("
-          + Meteor.absoluteUrl('g/'+gameId) + ") for more information.\n"
-          +"\n"
-          + "Have a good game!"
-      });
-    });
-  },
   "sendVerificationEmail": function () {
     this.unblock();
     this.userId && sendVerificationEmail(this.userId);
@@ -189,5 +157,36 @@ Meteor.methods({
       {$pull: {'players': {userId: user._id}}});
 
     return {userId: user._id, gameId: game._id};
+  },
+  unsubscribeAllViaToken: function (token) {
+    var self = this;
+    check(token, String);
+
+    var user = Meteor.users.findOne(
+      {'services.email.verificationTokens.token': token});
+    if (!user)
+      throw new Meteor.Error(403, "Unsubscribe-all link expired");
+
+    var tokenRecord = _.find(user.services.email.verificationTokens,
+                             function (t) {
+                               return t.token == token;
+                             });
+    if (!tokenRecord)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(403, "Unsubscribe-all link expired for user")
+      };
+
+    var game = Games.findOne(tokenRecord.gameId);
+    if (! tokenRecord.unsubscribeAll)
+      return {
+        userId: user._id,
+        error: new Meteor.Error(
+          403, "Token provided in link is not an unsubscribe-all token")
+      };
+
+    Meteor.users.update(user._id, {$set: {doNotDisturb: true}});
+
+    return {userId: user._id};
   }
 });

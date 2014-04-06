@@ -105,6 +105,43 @@ Meteor.startup(function () {
       }
     });
 
+    // quite similar to 'leave-game' route
+    this.route('unsubscribe-all', {
+      template: 'devMain',
+      layoutTemplate: 'devLayout',
+      action: function () {
+        var self = this;
+        var token = self.params.hash;
+        Meteor.call("unsubscribeAllViaToken", token, function (err, res) {
+          if (!err) {
+            // Idempotently verify user's email,
+            // since they got the token via email.
+            Accounts.verifyEmail(token);
+            if (res.error) {
+              // e.g. "Token provided in link is not an unsubscribe-all token"
+              Alerts.throw({
+                message: res.error.reason, type: "danger", where: "main"
+              });
+              Router.go("home");
+            } else {
+              Alerts.throw({
+                message: "OK, you will no longer receive emails "
+                  + "from Push Pickup.",
+                type: "success", where: "main"
+              });
+              Router.go("home");
+            }
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong: \""+err.reason + "\".",
+              type: "danger", where: "main"
+            });
+            Router.go("home");
+          }
+        });
+      }
+    });
+
     this.route('enroll-account', {
       template: 'devMain',
       layoutTemplate: 'devLayout',

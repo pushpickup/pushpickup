@@ -70,6 +70,9 @@ Meteor.startup(function () {
 Accounts.urls.pushpickup = {
   leaveGame: function (token) {
     return Meteor.absoluteUrl('leave-game#' + token);
+  },
+  unsubscribeAll: function (token) {
+    return Meteor.absoluteUrl('unsubscribe-all#' + token);
   }
 };
 
@@ -146,6 +149,17 @@ leaveGameUrl = function (userId, gameId) {
   return Accounts.urls.pushpickup.leaveGame(tokenRecord.token);
 };
 
+unsubscribeAllUrl = function (userId, gameId) {
+  var tokenRecord = verifyEmailTokenRecord(userId);
+  tokenRecord.unsubscribeAll = true;
+
+  Meteor.users.update(
+    {_id: userId},
+    {$push: {'services.email.verificationTokens': tokenRecord}});
+
+  return Accounts.urls.pushpickup.unsubscribeAll(tokenRecord.token);
+};
+
 // Return a new email with an `html` body that is a
 // Markdown conversion of the input email's `text` body.
 withHTMLbody = function (email) {
@@ -196,9 +210,13 @@ withOnboarding = function (email) {
 // from Push Pickup. This function is meant to be composed with `withHTMLbody`
 // as in the expression `withHTMLbody(withTotalUnsubscribe(email))`.
 withTotalUnsubscribe = function (email) {
-  var link = Meteor.absoluteUrl('totally-unsubscribe');
+  var address = getEmailAddress(email.to);
+  var user = Meteor.users.findOne({ 'emails.address': address });
+  if (! user)
+    throw new Error("No user with toField email address");
+  var url = unsubscribeAllUrl(user._id, address);
   var text = email.text +
-        "\n\n----\n\n[Unsubscribe]("+link+") from all emails from PushPickup.";
+        "\n\n----\n\n[Unsubscribe]("+url+") from all emails from PushPickup.";
   return _.extend({text: text}, _.omit(email, 'text'));
 };
 
@@ -206,9 +224,10 @@ withTotalUnsubscribe = function (email) {
 // Use instead of `Email.send` to ensure defaults such as a link at bottom
 // to unsubscribe from all emails, and an html body derived from the text body.
 sendEmail = function (email, options) {
+  var address = getEmailAddress(email.to);
   options = _.extend({
     withTotalUnsubscribe: true,
-    withOnboarding: shouldOnboard(getEmailAddress(email.to)),
+    withOnboarding: shouldOnboard(address),
     withHTMLbody: ! Meteor.settings.DEVELOPMENT
   }, options);
   if (options.withOnboarding) {
@@ -220,7 +239,15 @@ sendEmail = function (email, options) {
   if (options.withHTMLbody) {
     email = withHTMLbody(email);
   }
-  Email.send(email);
+  // Conceptually simplest but not best for performance:
+  // Reads from user db for each request to send email, to check
+  // for `doNotDisturb` flag. Could refactor this to poll an in-memory
+  // object of size O(Meteor.users.count()).
+  var user = Meteor.users.findOne({'emails.address': address});
+  if (! user)
+    throw new Error("Attempt to send email to non-user");
+
+  !user.doNotDisturb && Email.send(email);
 };
 
 
@@ -383,4 +410,62 @@ notifyOrganizer = function (gameId, options) {
     }, email));
   }
   return true;
+};
+
+notifyPlayers = function (gameId, options) {
+  var game = Games.findOne(gameId);
+  if (!game)
+    throw new Error(404, "Game not found");
+  check(options, Match.Where(function(o) {
+    check(o, {changes: Object});
+    return !_.isEmpty(o.changes);
+  }));
+  var changes = options.changes;
+
+  var players = _.compact(_.map(game.players, function (player) {
+    var user = player.userId &&
+          player.userId !== game.creator.userId &&
+          Meteor.users.findOne(player.userId);
+    if (user && user.emails && user.emails[0].verified) {
+      return {
+        name: user.profile && user.profile.name || "Push Pickup User",
+        address: user.emails[0].address
+      };
+    } else {
+      return null;
+    }
+  }));
+
+  var changesBullets = "";
+  if (changes.type)
+    changesBullets += "* Game type is now *"+changes.type+"*\n";
+  if (changes.day)
+    changesBullets += "* Game day is now *"+changes.day.format('dddd')+"*\n";
+  if (changes.time)
+    changesBullets += "* Game time is now *"+changes.time.format('h:mma')+"*\n";
+  if (changes.location)
+    changesBullets += "* Game location is now *"+changes.location.name+"*\n";
+  if (changes.note) {
+    changesBullets += "* The organizer's note is now this:\n\n"
+      + changes.note + "\n";
+  }
+
+
+  _.each(players, function (player) {
+    sendEmail({
+      from: emailTemplates.from,
+      to: player.address,
+      subject: " Game *updated*: "+game.type+" at "
+        + utils.displayTime(game),
+      text: "Details for a game you're playing in have changed. "
+        + "Here's a summary of the changes:\n"
+        + "\n"
+        + changesBullets
+        + "\n"
+        + "[Here](" + Meteor.absoluteUrl('g/'+gameId)
+        + ") is a link to the game.\n"
+        +"\n"
+        + "Thanks for helping to push pickup."
+    });
+  });
 };
