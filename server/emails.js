@@ -73,6 +73,12 @@ Accounts.urls.pushpickup = {
   },
   unsubscribeAll: function (token) {
     return Meteor.absoluteUrl('unsubscribe-all#' + token);
+  },
+  gameOn: function (token) {
+    return Meteor.absoluteUrl('game-on#' + token);
+  },
+  cancelGame: function (token) {
+    return Meteor.absoluteUrl('cancel-game#' + token);
   }
 };
 
@@ -412,6 +418,51 @@ notifyOrganizer = function (gameId, options) {
     }, email));
   }
   return true;
+};
+
+// Remind organizer to clarify if the game is "on" or not. Links in email
+// trigger either a "game on" reminder to participants or a "game cancelled"
+// notice.
+// Called by a scheduled "cron" job (see server/cron.js).
+remindOrganizer = function(gameId) {
+  var game = Games.findOne(gameId);
+  if (! game)
+    throw new Error("Game not found");
+
+  var creator = Meteor.users.findOne(game.creator.userId);
+
+  // place a shared token and generate Urls
+  var tokenRecord = verifyEmailTokenRecord(creator._id);
+  tokenRecord.gameId = gameId;
+  Meteor.users.update(
+    {_id: creator._id},
+    {$push: {'services.email.verificationTokens': tokenRecord}});
+  var gameOnTrigger = Accounts.urls.pushpickup.gameOn(tokenRecord.token);
+  var cancelGameTrigger = Accounts.urls.pushpickup
+        .cancelGame(tokenRecord.token);
+
+  var email = {
+    from: emailTemplates.from,
+    to: creator.emails[0].address
+  };
+  var gameInfo = utils.displayTime(game) + " " + game.type;
+  _.extend(email, {
+    subject: "Status of your " + gameInfo + " game?",
+    text: "If your " + gameInfo + " game is on, [click here]("
+        + gameOnTrigger +") to trigger an email to "
+        + "all players, letting them know.\n"
+        + "\n"
+        + "If the game is *not* happening, please "
+        + "[click here](" + cancelGameTrigger + ") to cancel the game "
+        + "and notify the players.\n"
+        + "\n"
+        + "For your reference, [here]("
+        + Meteor.absoluteUrl('g/'+gameId) + ")"
+        + " is a link to your game.\n"
+        + "\n"
+        + "Thanks for organizing."
+  });
+  sendEmail(email);
 };
 
 notifyPlayers = function (gameId, options) {
