@@ -5,7 +5,6 @@
       "iron-router": {},
       "nprogress": {},
       "spin": {},
-      "iron-router-progress": {},
       "bootstrap3-less": {},
       "font-awesome": {},
       "moment": {}
@@ -25,11 +24,6 @@
         "git": "https://github.com/SachaG/meteor-spin.git",
         "tag": "v0.2.2",
         "commit": "3f655f0016228e4195acc784c45d3e3a247dc39f"
-      },
-      "iron-router-progress": {
-        "git": "https://github.com/Multiply/iron-router-progress.git",
-        "tag": "v0.3.1",
-        "commit": "3f7900feb4bb70a1289b39a1fdcd1f438c0335b3"
       },
       "bootstrap3-less": {
         "git": "https://github.com/eprochasson/bootstrap3-less",

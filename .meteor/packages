@@ -10,7 +10,6 @@ iron-router
 nprogress
 email
 spin
-iron-router-progress
 coffeescript
 underscore
 random
