@@ -11,6 +11,10 @@
   }
 }
 
+html body {
+  padding-top: 0px;
+}
+
 .content-all {
   .make-lg-column(12);
   padding-right: 0;
@@ -51,9 +55,13 @@ button {
   &.ppicon-cancel { font-size: ceil(@font-size-h3 * 1.1); }
 }
 
-.ppicon-basketball, .ppicon-soccer, .ppicon-ultimate,
-.ppicon-add-friend {
+.game-type-indicator, .ppicon-add-friend {
   font-size: @font-size-large;
+  color: @brand-primary;
+}
+
+.past .game-type-indicator {
+  opacity: .4;
 }
 
 .listed-game .game-summary {
@@ -64,6 +72,10 @@ button {
 .past.listed-game .game-summary {
   .text-muted;
   width: 240px;
+}
+
+.who-is-playing .text-info {
+  color: @brand-primary;
 }
 
 .whos-playing-summary, .whos-playing-editable, .comments {
@@ -210,10 +222,6 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .back-to-list {
   padding-left: 10px;
-}
-
-.game-type-indicator {
-  opacity: .4;
 }
 
 .share-game-link {
