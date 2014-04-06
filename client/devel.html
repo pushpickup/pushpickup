@@ -16,17 +16,19 @@
 </template>
 
 <template name="devFooter">
-  <div class="footer row">
-    <div class="privacy-policy-link text-center">
-      <!-- "Free" option requires this embedding and limits to four
-           "services"; luckily, we only collect personal data in
-           conjunction with the four services I selected (from all ~ 200
-           that Iubenda lists).
-           DW 2014/04/01
-        -->
-      <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
+  {{#unless omit}}
+    <div class="footer row">
+      <div class="privacy-policy-link text-center">
+        <!-- "Free" option requires this embedding and limits to four
+             "services"; luckily, we only collect personal data in
+             conjunction with the four services I selected (from all ~ 200
+             that Iubenda lists).
+             DW 2014/04/01
+          -->
+        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
+      </div>
     </div>
-  </div>
+  {{/unless}}
 </template>
 
 <template name="devBody">
