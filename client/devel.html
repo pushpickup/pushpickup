@@ -988,3 +988,19 @@
 <template name="tinySpinner">
   <i class="fa fa-refresh fa-spin"></i>
 </template>
+
+<template name="adminView">
+  <div class="admin-view">
+    <h3>Upcoming games</h3>
+    {{#spinnerIfWaiting toComplete='all-games-snapshot'}}
+      <ul>
+        {{#each upcomingGames}}
+          <li>
+            {{type}} {{fromNow}} at {{location.name}}
+            (<a href="g/{{_id}}">link</a>)
+          </li>
+        {{/each}}
+      </ul>
+    {{/spinnerIfWaiting}}
+  </div>
+</template>

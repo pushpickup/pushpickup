@@ -311,5 +311,15 @@ Meteor.startup(function () {
       }
     });
 
+    this.route('adminView', {
+      path: '/admin',
+      onBeforeAction: function () {
+        var user = Meteor.user();
+        if (!user || !user.admin) {
+          this.render('home');
+        }
+      }
+    });
+
   });
 });

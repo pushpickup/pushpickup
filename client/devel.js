@@ -2118,3 +2118,33 @@ Template.devFooter.helpers({
       (self.action && self.action === 'add');
   }
 });
+
+////
+// Admin view and helpers
+////
+
+Template.adminView.created = function () {
+  Session.set("waiting-on", "all-games-snapshot");
+  Meteor.call("allGamesSnapshot", function (err, res) {
+    if (!err) {
+      Session.set("all-games-snapshot", res);
+    } else {
+      alert("Error: " + err.message);
+    }
+    Session.set("waiting-on", null);
+  });
+};
+
+Template.adminView.helpers({
+  upcomingGames: function () {
+    // an array snapshot of minimal info on all upcoming games in the system
+    return _.sortBy(Session.get("all-games-snapshot"), "startsAt");
+  },
+  fromNow: function () {
+    return moment(this.startsAt).fromNow();
+  }
+});
+
+Template.adminView.destroyed = function () {
+  Session.set("all-games-snapshot", null);
+};
