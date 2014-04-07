@@ -100,8 +100,13 @@
     {{#if SGet 'gamesReady'}}
       {{#if noneUpcoming}}
         <li class="list-group-item">
-          There are no upcoming games within {{maxDistance}}. You should
-          <a href="/addGame">add a game</a> and invite your friends!
+          There are no upcoming games
+          {{#if SGet 'search-results'}}
+            in this region.
+          {{else}}
+            within {{maxDistance}}.
+          {{/if}}
+          You should <a href="/addGame">add a game</a> and invite your friends!
         </li>
       {{/if}}
     {{else}}
