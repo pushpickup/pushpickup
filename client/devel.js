@@ -2138,7 +2138,7 @@ Template.adminView.created = function () {
 Template.adminView.helpers({
   upcomingGames: function () {
     // an array snapshot of minimal info on all upcoming games in the system
-    return Session.get("all-games-snapshot");
+    return _.sortBy(Session.get("all-games-snapshot"), "startsAt");
   },
   fromNow: function () {
     return moment(this.startsAt).fromNow();
