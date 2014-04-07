@@ -253,5 +253,13 @@ Meteor.methods({
     Meteor.call("cancelGame", game._id);
 
     return {userId: user._id, gameId: game._id};
+  },
+  "allGamesSnapshot": function () {
+    var user = this.userId && Meteor.users.findOne(this.userId);
+    if (!user || !user.admin)
+      throw new Meteor.Error(401, "Admin access only");
+
+    return Games.find({startsAt: {$gte: new Date()}},
+               {fields: {type: 1, startsAt: 1, location: 1}}).fetch();
   }
 });
