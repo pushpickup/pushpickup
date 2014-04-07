@@ -62,6 +62,7 @@ button {
 
 .past .game-type-indicator {
   opacity: .4;
+  color: @text-muted;
 }
 
 .listed-game .game-summary {
@@ -72,6 +73,14 @@ button {
 .past.listed-game .game-summary {
   .text-muted;
   width: 240px;
+}
+
+.place-name {
+  width: 240px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .who-is-playing .text-info {
