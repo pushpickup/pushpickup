@@ -177,8 +177,25 @@ button {
 //Search UI
 
 .start-search {
+  .search-input();
   float: left;
-  margin: -3px 0 -5px;;
+  margin: -3px 0 -5px;
+  cursor: pointer;
+
+  .nav-icon {
+    color: @brand-primary;
+    font-size: ceil((@font-size-base * 1.1));
+    position: absolute;
+    left: 3px;
+    top: 2px;
+  }
+}
+
+.start-search-input {
+  width: 150px;
+  border-radius: @border-radius-small;
+  font-size: @font-size-small;
+  padding: 4px 0 2px 2em;
 }
 
 .exit-search {
@@ -564,7 +581,7 @@ label[for="requestedNumPlayers"] {
 .copy-game-link input {
   background: @brand-secondary;
   border: 0;
-  border-radius: 3px;
+  border-radius: @border-radius-small;
   color: @white;
   font-size: @font-size-small;
   margin-top: 15px;
