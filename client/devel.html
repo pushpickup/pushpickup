@@ -60,8 +60,13 @@
       {{> startSearch}}
       {{> addGameLink}}
     {{else}}
-      {{> searchBacktrack}}
-      {{> searchInput}}
+      {{#if SEql 'searching' 'during'}}
+        {{> searchInput}}
+        {{> searchBacktrack}}
+      {{else}}
+        {{> searchBacktrack}}
+        {{> searchInput}}
+      {{/if}}
     {{/if}}
   </div>
 </template>
@@ -368,7 +373,7 @@
 </template>
 
 <template name="getCurrentLocation">
-  <button class="btn btn-default get-current-location" type="button">
+  <button class="btn btn-header-secondary get-current-location" type="button">
     {{#unless SGet 'get-user-location'}}
       <i class="fa fa-location-arrow"></i>
     {{/unless}}
@@ -386,7 +391,7 @@
 
 <template name="exitSearch">
   <div class="exit-search">
-    <a><span class="nav-icon ppicon-cancel"></span></a>
+    <a>Cancel</a>
   </div>
 </template>
 

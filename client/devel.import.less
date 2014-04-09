@@ -17,12 +17,29 @@ html body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+.container {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+//App Header
+
 .app-header {
   background-color: @brand-primary;
   padding: 14px 0;
 
   a {
     color: @white;
+
+    &:hover {
+      opacity: .5;
+    }
   }
 
   .title {
@@ -39,9 +56,18 @@ html body {
   }
 }
 
-.content-all {
-  .make-lg-column(12);
-  padding-right: 0;
+.options-main {
+  line-height: 1;
+
+  .back {
+    display: inline-block;
+    float: left;
+    margin: -2px 0 -6px;
+  }
+}
+
+.options-extended {
+  //padding-top: @font-size-base;
 }
 
 .run-search, .subscribe-button {
@@ -57,7 +83,7 @@ button {
   &.join-game, &.sign-in-inline,
   &.add-friends, &.add-comment,
   &.subscribe, &.add-game, &.edit-game,
-  &.find-games, &.help-and-feedback,
+  &.help-and-feedback,
   &.set-password, &.forgot-password,
   &.change-password, &.change-email-address {
     .btn-primary;
@@ -70,12 +96,18 @@ button {
     .btn-block;
     background-color: rgba(0, 0, 0, 0.25);
   }
+
+  &.find-games {
+    .btn-header;
+    .btn-lg;
+    .btn-block;
+  }
 }
 
 .nav-icon {
   color: @white;
-  font-size: @font-size-h3;
-  &.text-muted { color: @text-muted; }
+  font-size: ceil((@font-size-base * 1.5));
+    &.text-muted { color: @text-muted; }
 }
 
 .game-type-indicator, .ppicon-add-friend {
@@ -124,6 +156,8 @@ button {
   }
 }
 
+//Search UI
+
 .start-search {
   float: left;
   margin: -3px 0 -5px;;
@@ -131,22 +165,38 @@ button {
 
 .exit-search {
   display: inline-block;
-  margin: -4px @grid-gutter-width;
-  @media (min-width: @screen-sm-min) {
-    margin-left: @grid-gutter-width/2;
-  }
+  float: left;
+  margin: 2px @grid-gutter-width/2 0;
 }
 
-
-.settings-cog .nav-icon,
-.start-search .nav-icon {
-  font-size: 22px;
-}
-
-.options-main .back {
+.search-input {
   display: inline-block;
-  margin-left: 5px;
-  padding: 20px 10px 0 20px;
+  float: left;
+  margin: -3px 0 -3px 15px;
+  width: 78%;
+
+  input {
+    background: @brand-secondary;
+    border: none;
+    color: @white;
+  }
+
+  ::-webkit-input-placeholder {color: @brand-primary;}
+
+  ::-moz-placeholder {color: @brand-primary;}
+
+  :-ms-input-placeholder {color: @brand-primary;}
+
+  .get-current-location {
+    border: 1px solid @brand-secondary;
+    padding: 0 12px;
+  }
+
+  .form-control {
+    font-size: @font-size-small;
+    height: 22px;
+    padding: 1px 12px;
+  }
 }
 
 .add-game-link {
@@ -306,10 +356,6 @@ form > .form-group:first-child { margin-top: 5px; }
   margin-top: 20px;
 }
 
-.options-main {
-  line-height: 1;
-}
-
 .list-group:first-child {
   border-top-left-radius:  0;
   border-top-right-radius: 0;
@@ -319,23 +365,25 @@ form > .form-group:first-child { margin-top: 5px; }
   border-bottom-right-radius: 0;
 }
 
-.container {
-  padding-left: 0;
-  padding-right: 0;
+.select-game-types { 
+  padding: 25px 15px 0;
+  line-height: 1;
+
+  label {
+    color: @white;
+    text-transform: capitalize;
+    margin: 5px 0;
+  }
+
+  input[type='checkbox'] {
+    float: left;
+    margin-right: @font-size-base;
+    margin-top: -1px;
+  }
 }
 
-.row {
-  margin-right: 0;
-}
-
-.search-input {
-  display: inline-block;
-  width: 78%;
-}
-
-.run-search, .select-game-types {
-  padding-left: 15px;
-  padding-right: 15px;
+.run-search {
+  padding: 0 15px;
 }
 
 .listed-game {
