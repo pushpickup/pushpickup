@@ -494,7 +494,7 @@
 <template name="backToList">
   <div class="back-to-list">
     <a href="/">
-      <span class="ppicon-left-open"></span>
+      <span class="nav-icon ppicon-left-open pull-left"></span>
       Pickups
     </a>
   </div>
@@ -502,7 +502,7 @@
 
 <template name="shareGameLink">
   <div class="share-game-link">
-    <a><span class="ppicon-link"></span>
+    <a><span class="nav-icon ppicon-link pull-left"></span>
       Share</a>
   </div>
 </template>
@@ -510,11 +510,11 @@
 <template name="copyGameLink">
   <div class="copy-game-link">
     {{#if SEql 'copy-game-link' _id}}
-      <span class="ppicon-link"></span>
       <input type="text"
              value="{{baseURL}}{{pathFor 'devDetail'}}"
-             autofocus>
-      <button type="button" class="close" aria-hidden="true">&times;</button>
+             autofocus onclick="this.focus();this.select()" 
+             readonly="readonly">
+      <button type="button" class="close" aria-hidden="true"><span class="nav-icon ppicon-cancel"></span></button>
     {{/if}}
   </div>
 </template>

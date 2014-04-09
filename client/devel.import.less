@@ -1,6 +1,6 @@
 @media (max-width: @screen-xs) {
   input, select, textarea {
-    &:focus { font-size: 16px; } // prevent Auto Zoom.
+    &:focus { font-size: 14px; } // prevent Auto Zoom.
   }
 }
 
@@ -13,6 +13,11 @@
 
 html body {
   padding-top: 0px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input, button {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -32,6 +37,7 @@ html body {
 
 .app-header {
   background-color: @brand-primary;
+  line-height: 1;
   padding: 14px 0;
 
   a {
@@ -44,7 +50,7 @@ html body {
 
   .title {
     color: @white;
-    font-size: @font-size-h4;
+    font-size: ceil(@font-size-base * 1.1);
     font-weight: normal;
     letter-spacing: 0;
     margin: 0;
@@ -57,12 +63,11 @@ html body {
 }
 
 .options-main {
-  line-height: 1;
 
   .back {
     display: inline-block;
     float: left;
-    margin: -2px 0 -6px;
+    margin: -2px -6px -6px 9px;
   }
 }
 
@@ -150,9 +155,9 @@ button {
 
 .settings-cog {
   float: left;
-  margin: -3px @grid-gutter-width -5px;
+  margin: -3px @grid-gutter-width/2 -5px;
   @media (min-width: @screen-sm-min) {
-    margin-left: @grid-gutter-width/2;
+    margin-left: 0;
   }
 }
 
@@ -165,15 +170,15 @@ button {
 
 .exit-search {
   display: inline-block;
-  float: left;
-  margin: 2px @grid-gutter-width/2 0;
+  float: right;
+  margin: 1px @grid-gutter-width/2 0;
 }
 
 .search-input {
   display: inline-block;
   float: left;
   margin: -3px 0 -3px 15px;
-  width: 78%;
+  width: 72%;
 
   input {
     background: @brand-secondary;
@@ -298,12 +303,17 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .back-to-list, .game-type-indicator, .share-game-link {
   display: inline-block;
+  float: left;
 }
 
 .back-to-list {
   padding-left: @grid-gutter-width/2;
   @media (min-width: @screen-sm-min) {
     padding-left: 0;
+  }
+
+  .nav-icon {
+    margin: -3px 0 -6px -6px;
   }
 }
 
@@ -312,6 +322,11 @@ form > .form-group:first-child { margin-top: 5px; }
   margin-right: @grid-gutter-width/2;
   @media (min-width: @screen-sm-min) {
     margin-right: 0;
+  }
+
+  .nav-icon {
+    font-size: @font-size-base*1.1;
+    margin: 0 6px -6px;
   }
 }
 
@@ -367,7 +382,6 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .select-game-types { 
   padding: 25px 15px 0;
-  line-height: 1;
 
   label {
     color: @white;
@@ -484,7 +498,7 @@ label[for="requestedNumPlayers"] {
 }
 
 #addGame .close {
-  margin: -4px @grid-gutter-width -4px @grid-gutter-width/2;
+  margin: -4px @grid-gutter-width -4px @grid-gutter-width/2.5;
   @media (min-width: @screen-sm-min) {
     margin-left: @grid-gutter-width/2;
   }
@@ -500,18 +514,27 @@ label[for="requestedNumPlayers"] {
 }
 
 .copy-game-link {
-  padding-left: 10px;
+  .pull-left();
+  width: 100%;
+  margin-left: @grid-gutter-width/2;
+  @media (min-width: @screen-sm-min) {
+    margin-left: 0;
+  }
 }
 
 .copy-game-link input {
-  margin-top: 10px;
-  padding-right: 10px;
-  width: 80%;
+  background: @brand-secondary;
+  border: 0;
+  border-radius: 3px;
+  color: @white;
+  font-size: @font-size-small;
+  margin-top: 15px;
+  padding: 3px 12px;
+  width: 85%;
 }
 
 .copy-game-link .close {
-  margin-right: 5px;
-  padding: 10px;
+  margin: 15px 0 0 5px;
 }
 
 ////
