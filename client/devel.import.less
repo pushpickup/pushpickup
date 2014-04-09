@@ -36,7 +36,7 @@ input, button {
 .app-header {
   background-color: @brand-primary;
   line-height: 1;
-  max-height: 43px;
+  max-height: 44px;
 
   padding: 14px 0;
   position: relative;
@@ -74,10 +74,10 @@ input, button {
 }
 
 .options-extended {
-  //padding-top: @font-size-base;
+  padding-top: @font-size-base;
 }
 
-.run-search, .subscribe-button {
+.subscribe-button {
   margin: @line-height-computed/2 auto;
 }
 
@@ -245,9 +245,7 @@ button {
   }
 }
 
-.settings.list-group {
-  margin-top: 13px;
-  margin-bottom: -14px;
+.settings {
 
   .list-group-item {
     color: @brand-primary;
@@ -430,8 +428,9 @@ form > .form-group:first-child { margin-top: 5px; }
   border-bottom-right-radius: 0;
 }
 
-.select-game-types { 
-  padding: 25px 15px 0;
+.select-game-types {
+  background: @brand-primary;
+  padding: 10px 15px 0;
 
   label {
     color: @white;
@@ -447,7 +446,8 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .run-search {
-  padding: 0 15px;
+  background: @brand-primary;
+  padding: 10px 15px;
 }
 
 .listed-game {
