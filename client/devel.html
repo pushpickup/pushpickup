@@ -202,7 +202,7 @@
     {{#if past startsAt}}
       Ended {{fromNow}}
     {{else}}
-      {{displayTime}}
+      <span class="day">{{displayDay}}</span> {{displayTime}}
     {{/if}}
   </div>
 </template>
@@ -602,7 +602,7 @@
     <strong>{{players.length}} playing</strong>
     <ul>
     {{#each userPlayers}}
-      <li>
+      <li class="each-player">
         {{name}}
         {{#with friends ../players}}
           + {{numFriends}}

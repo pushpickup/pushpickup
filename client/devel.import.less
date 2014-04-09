@@ -1,13 +1,6 @@
 @media (max-width: @screen-xs) {
   input, select, textarea {
-    &:focus { font-size: 14px; } // prevent Auto Zoom.
-  }
-}
-
-// Simulate mobile experience on larger devices
-@media (min-width: @screen-sm-min) {
-  .container {
-    max-width: 450px;
+    &:focus { font-size: 16px; } // prevent Auto Zoom.
   }
 }
 
@@ -26,6 +19,11 @@ input, button {
 .container {
   padding-left: 0;
   padding-right: 0;
+  position: relative;
+  // Simulate mobile experience on larger devices
+  @media (min-width: @screen-sm-min) {
+    max-width: 450px;
+  }
 }
 
 .row {
@@ -38,6 +36,8 @@ input, button {
 .app-header {
   background-color: @brand-primary;
   line-height: 1;
+  max-height: 43px;
+
   padding: 14px 0;
   position: relative;
   z-index: 3;
@@ -155,6 +155,17 @@ button {
   }
 }
 
+.whos-playing-editable {
+
+  input+label {
+    cursor: pointer;
+  }
+
+  input:checked+label {
+    text-decoration: line-through;
+  }
+}
+
 .settings-cog {
   float: left;
   margin: -3px @grid-gutter-width/2 -5px;
@@ -200,9 +211,11 @@ button {
   }
 
   .form-control {
-    font-size: @font-size-small;
     height: 22px;
     padding: 1px 12px;
+    @media (min-width: @screen-xs) {
+      font-size: @font-size-small;
+    }
   }
 }
 
@@ -349,7 +362,10 @@ form > .form-group:first-child { margin-top: 5px; }
 .edit-game-link {
   display: inline-block;
   float: right;
-  margin-right: 15px;
+  margin: 0 15px 0 0;
+  @media (min-width: @screen-sm-min) {
+    margin: 0 0 0 15px;
+  }
 }
 
 .dev-detail-nav .game-type-indicator {
@@ -472,8 +488,15 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .settings .user-info {
+  .user-full-name {
+    color: @gray-dark;
+    margin-bottom: 5px;
+  }
   .user-email-address {
     .text-muted;
+  }
+  .send-verification-email {
+    color: @brand-primary;
   }
 }
 
@@ -506,14 +529,22 @@ label[for="requestedNumPlayers"] {
 }
 
 #addGame .close {
-  margin: -4px @grid-gutter-width -4px @grid-gutter-width/2.5;
+  margin: -3px @grid-gutter-width -4px @grid-gutter-width/2;
   @media (min-width: @screen-sm-min) {
     margin-left: @grid-gutter-width/2;
   }
 }
 
+#editGame .close {
+  #addGame .close();
+}
+
 .game-when {
   display: inline-block;
+
+  .day {
+    font-weight: bold;
+  }
 }
 
 .add-comment .form-group {
@@ -570,7 +601,7 @@ div .cancel-game {
 //Overlay (seen when settings is toggled)
 .overlay {
   background: fade(@gray-darker, 50%);
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
