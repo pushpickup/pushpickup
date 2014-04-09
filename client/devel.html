@@ -133,6 +133,9 @@
 
     {{> loadMoreGames}}
   </ul>
+  {{#if SGet 'viewing-settings'}}
+    <div class="overlay"></div>
+  {{/if}}
 </template>
 
 <template name="loadMoreGames">
@@ -341,7 +344,7 @@
 <template name="settingsCog">
   <div class="settings-cog">
     {{#if SGet 'viewing-settings'}}
-      <a><span class="nav-icon ppicon-cancel text-muted"></span></a>
+      <a><span class="nav-icon ppicon-cancel"></span></a>
     {{else}}
       <a><span class="nav-icon ppicon-cog"></span></a>
     {{/if}}
@@ -874,7 +877,7 @@
 
 <template name="devSignUp">
   <form class="dev-sign-up" role="form">
-    <strong class="form-heading">Glad to have you!</strong>
+    <p class="form-heading"><strong>Glad to have you!</strong></p>
     <p>Be sure to check for your email confirmation.</p>
     <div class="tight form-group">
       <input type="text" class="form-control full-name"
