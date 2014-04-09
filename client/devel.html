@@ -353,9 +353,9 @@
 
 <template name="startSearch">
   <div class="start-search">
-    <a class="input-group">
+    <a class="start-search-input">
       <span class="nav-icon ppicon-search"></span>
-      <input class="start-search-input" placeholder="Find Games" />
+      <label>Find Games</label>
     </a>
   </div>
 </template>
@@ -373,7 +373,7 @@
         {{> getCurrentLocation}}
       </span>
       <input class="form-control" type="search" placeholder="Enter Location"
-             required>
+             autofocus required>
     </div>
   </div>
 </template>

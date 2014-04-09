@@ -36,6 +36,7 @@ input, button {
 .app-header {
   background-color: @brand-primary;
   line-height: 1;
+  height: 44px;
   max-height: 44px;
 
   padding: 14px 0;
@@ -177,26 +178,30 @@ button {
 //Search UI
 
 .start-search {
-  .search-input();
   float: left;
-  margin: -3px 0 -5px;
-  width: 150px;
+  margin: -1px 0 -5px;
 
   .nav-icon {
     color: @brand-primary;
     font-size: ceil((@font-size-base * 1.1));
     position: absolute;
     left: 3px;
-    top: 2px;
+    top: 3px;
   }
 }
 
 .start-search-input {
+  background: @brand-secondary;
   border-radius: @border-radius-small;
-  cursor: pointer;
   font-size: @font-size-small;
-  padding: 4px 0 2px 2em;
-  width: 150px;
+  padding: 4px 2em;
+  position: relative;
+
+  label {
+    color: @brand-primary;
+    cursor: pointer;
+    font-weight: normal;
+  }
 }
 
 .exit-search {
