@@ -159,9 +159,7 @@ button {
   .place-name {
     width: 240px;
     display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    .text-overflow();
   }
 }
 
@@ -378,14 +376,13 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 
   .join-or-leave, .game-summary, .organizers-note, .whos-playing-summary {
-    margin: 15px 0;
+    margin: @grid-gutter-width/2 0;
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
   }
 
   .organizers-note > div {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    .text-overflow();
   }
 }
 
@@ -684,12 +681,22 @@ form > .form-group:first-child { margin-top: 5px; }
   text-align: center;
   margin: @grid-gutter-width/2 0;
 
+  input {
+    top: @grid-gutter-width;
+    right: 48%;
+    opacity: 0;
+    position: absolute;
+    z-index: 1;
+  }
+
   input+label {
     color: fade(@gray-light, 50%);
     cursor: pointer;
     font-size: @font-size-h1;
     margin: 0 @grid-gutter-width/1.6;
     .transition(color 200ms);
+    position: relative;
+    z-index: 2;
   }
 
   input:checked+label {
