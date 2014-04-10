@@ -27,6 +27,7 @@ input, button, select, textarea {
   padding-left: 0;
   padding-right: 0;
   position: relative;
+  z-index: 2;
   // Simulate mobile experience on larger devices
   @media (min-width: @screen-sm-min) {
     max-width: 450px;
@@ -88,6 +89,48 @@ input, button, select, textarea {
 .subscribe-button {
   margin: @line-height-computed/2 auto;
 }
+
+
+//cover photo
+
+.cover-photo-container {
+  max-height: 260px;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+  z-index: 1;
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.headline-container {
+  background: fade(@gray-darker, 20%);
+  color: @white;
+  max-height: 0;
+  padding: 0 @grid-gutter-width/2;
+  position: relative;
+  text-shadow: 0 1px 4px fade(@gray-dark, 50%);
+  z-index: 2;
+  .transition(max-height 400ms);
+  @media (min-width: @screen-sm-min) {
+    max-height: 260px;
+    padding: 0;
+  }
+}
+
+.headline-primary {
+  color: @white;
+  font-size: @font-size-h3;
+  font-weight: bold;
+  letter-spacing: -1px;
+  margin: .6em 0 .3em;
+}
+
+
+//Map
 
 .map-canvas {
   width: auto;
@@ -261,6 +304,10 @@ button {
   .get-current-location {
     border: 1px solid @brand-secondary;
     padding: 0 12px;
+  }
+
+  input[type='search']{
+    .box-shadow(none);
   }
 
   .form-control {

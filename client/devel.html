@@ -12,6 +12,7 @@
 
 <template name="devMain">
   {{> devNav}}
+  {{> coverPhoto }}
   <div class="container">
     {{> alerts where="main"}}
     {{> devBody}}
@@ -90,6 +91,18 @@
         {{> selectGameTypes}}
         {{> runSearch}}
       {{/if}}
+    </div>
+  </div>
+</template>
+
+<template name="coverPhoto">
+  <div class="cover-photo-container">
+    <img src="/img/streetbasketball.jpg" class="cover-photo">
+  </div>
+  <div class="headline-container">
+    <div class="container">
+      <h1 class="headline-primary">Welcome to Push Pickup.</h1>
+      <p>Find or organize pickup games for basketball, soccer, and ultimate frisbee.</p>
     </div>
   </div>
 </template>
