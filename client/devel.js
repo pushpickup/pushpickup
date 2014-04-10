@@ -1371,7 +1371,7 @@ Template.devEditableGame.helpers({
       return { value: i, text: i, selected: (i === numRequested) };
     });
     return {includeLabel: true,
-            label: "Players needed", id: "requestedNumPlayers",
+            label: "Players needed", id: "requestedNumPlayers", containerClass: "num-players-container",
             options: them};
   },
   editingGame: function () {
@@ -1412,7 +1412,7 @@ Template.devSelectWhen.helpers({
     them = _.reject(them, function (t) {
       return t.value < +moment() || t.value > +moment().add('weeks', 1);
     });
-    return {label: 'Time', id: 'gameTime', options: them};
+    return {label: 'Time', id: 'gameTime', containerClass: "game-time-container", options: them};
   },
   selectDay: function () {
     var self = this;
@@ -1428,7 +1428,9 @@ Template.devSelectWhen.helpers({
     });
     them[0].text = 'Today';
     them[1].text = 'Tomorrow';
-    return {label: "When", id: "gameDay",
+    return {label: "When", 
+            id: "gameDay", 
+            containerClass: "game-day-container",
             options: them};
   }
 });

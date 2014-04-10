@@ -678,13 +678,23 @@
   {{#if includeLabel}}
     <label for="{{id}}" class="control-label">{{label}}</label>
   {{/if}}
-  <div><select class="form-control {{classes}}" id="{{id}}">
-      {{#each options}}
-        <option value={{value}} selected={{selected}}>
-          {{text}}
-        </option>
-      {{/each}}
-  </select></div>
+  <div class="{{containerClass}}">
+    <span class="ppicon-down-open"></span>
+    <select class="form-control {{classes}}" id="{{id}}">
+        {{#each options}}
+          <option value={{value}} selected={{selected}}>
+            {{text}}
+          </option>
+        {{/each}}
+    </select>
+  </div>
+</template>
+
+<template name="radioForm">
+  {{#each options}}
+    <label for="{{text}}">{{text}}</label><span></span>
+    <input type="radio" id="{{text}}" value="{{value}}" name="gameType" required /><span class="ppicon-{{text}}"></span>
+  {{/each}}
 </template>
 
 <template name="devEditableGame">

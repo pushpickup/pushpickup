@@ -375,6 +375,11 @@ form > .form-group:first-child { margin-top: 5px; }
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
   }
+
+  .organizers-note > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .dev-detail-body .comments {
@@ -580,10 +585,49 @@ form > .form-group:first-child { margin-top: 5px; }
     border: 1px solid @gray-lighter;
     border-top: 0;
   }
+
+  .form-group {
+    .clearfix();
+  }
+
+  .form-group > div {
+    position: relative;
+  }
+
+  .form-control {
+    background: none;
+    position: relative;
+    z-index: 2;
+  }
+
+  .game-day-container {
+    display: inline-block;
+    float:left;
+    margin-right: 4.7%;
+    width: 55%;
+  }
+
+  .game-time-container {
+    display: inline-block;
+    float:left;
+    width: 40%;
+  }
+
+  .num-players-container {
+    display: inline-block;
+    width: 70px;
+  }
+
+  .ppicon-down-open {
+    color: @brand-primary;
+    position: absolute;
+    right: .8em;
+    top: 9px;
+    z-index: 1;
+  }
 }
 
 #addGameForm {
-
   .label-add-player {
     display: inline-block;
     font-weight: normal;
@@ -608,7 +652,6 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 }
 
-
 .add-game-select {
   .box-shadow(none);
   -webkit-appearance: none;
@@ -631,15 +674,10 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .form-control#gameDay {
   .add-game-select();
-  display: inline-block;
-  float:left;
-  margin-right:4.8%;
-  width: 55%;
 }
 
 .form-control#gameTime {
   .add-game-select();
-  width: 40%;
 }
 
 .select-location {
@@ -664,8 +702,6 @@ label[for="requestedNumPlayers"] {
 
 .form-control#requestedNumPlayers {
   .add-game-select();
-  display: inline-block;
-  width: 50px;
 }
 
 .form-control.game-note {
