@@ -346,19 +346,6 @@
   </div>
 </template>
 
-<template name="selectForm">
-  {{#if includeLabel}}
-    <label for="{{id}}" class="control-label">{{label}}</label>
-  {{/if}}
-  <div><select class="form-control" id="{{id}}">
-      {{#each options}}
-        <option value={{value}} selected={{selected}}>
-          {{text}}
-        </option>
-      {{/each}}
-  </select></div>
-</template>
-
 <template name="editableGame">
   <div id="{{id}}" class="panel">
     <div class="panel-heading">

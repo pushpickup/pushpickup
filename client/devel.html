@@ -213,13 +213,21 @@
       <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
         {{participle startsAt past='Organized' present='Organizing'}}
       </strong>
-        {{#unless past startsAt}}+ {{numNeeded}} needed{{else}}for {{numNeeded}} others{{/unless}}
+        {{#unless past startsAt}}
+          + {{numNeeded}} needed
+        {{else}}
+          for {{numOthers}} others
+        {{/unless}}
     {{else}}
       {{#if playing}}
         <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
           {{participle startsAt past='Played' present='Playing'}}
         </strong>
-        {{#unless past startsAt}}+ {{numNeeded}} needed{{else}}with {{numNeeded}} others{{/unless}}
+        {{#unless past startsAt}}
+          + {{numNeeded}} needed
+        {{else}}
+          with {{numOthers}} others
+        {{/unless}}
       {{else}}
         {{players.length}}
         {{participle startsAt past='played' present='playing'}}
@@ -664,6 +672,19 @@
       <button type="submit" class="btn add-comment">Add Comment</button>
     </form>
   </div>
+</template>
+
+<template name="selectForm">
+  {{#if includeLabel}}
+    <label for="{{id}}" class="control-label">{{label}}</label>
+  {{/if}}
+  <div><select class="form-control {{classes}}" id="{{id}}">
+      {{#each options}}
+        <option value={{value}} selected={{selected}}>
+          {{text}}
+        </option>
+      {{/each}}
+  </select></div>
 </template>
 
 <template name="devEditableGame">
