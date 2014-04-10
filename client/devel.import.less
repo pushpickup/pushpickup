@@ -679,6 +679,23 @@ form > .form-group:first-child { margin-top: 5px; }
   border-radius: 0;
 }
 
+#gameType {
+  text-align: center;
+  margin: @grid-gutter-width/2 0;
+
+  input+label {
+    color: fade(@gray-light, 50%);
+    font-size: @font-size-h1;
+    margin: 0 @grid-gutter-width/1.6;
+    .transition(color 200ms);
+  }
+
+  input:checked+label {
+    color: @brand-primary;
+  }
+}
+
+
 .form-control#gameDay {
   .add-game-select();
 }

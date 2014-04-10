@@ -691,10 +691,15 @@
 </template>
 
 <template name="radioForm">
+  <div id="{{id}}">
   {{#each options}}
-    <label for="{{text}}">{{text}}</label><span></span>
-    <input type="radio" id="{{text}}" value="{{value}}" name="{{id}}" required /><span class="ppicon-{{text}}"></span>
+    <input type="radio" id="{{text}}" value="{{value}}" name="{{name}}" checked={{checked}} required hidden>
+    <label for="{{text}}">
+      <span class="hidden">{{text}}</span>
+      <span class="ppicon-{{text}}"></span>
+    </label>
   {{/each}}
+  </div>
 </template>
 
 <template name="devEditableGame">

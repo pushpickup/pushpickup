@@ -1359,10 +1359,11 @@ Template.devEditableGame.helpers({
       return {
         value: type.value,
         text: type.value,
-        selected: (type.value === self.type)
+        checked: (type.value === self.type),
+        name: 'gameTypeGroup'
       };
     });
-    return {label: 'What', id: 'gameType', options: them};
+    return {id: 'gameType', options: them};
   },
   selectPlayersRequested: function () {
     var self = this;
@@ -1472,7 +1473,7 @@ Template.devEditableGame.events({
     });
 
     var game = {
-      type: templ.find("#gameType").value,
+      type: templ.find("#gameType input:checked").value,
       // status depends on (requested.players - players.length)
       startsAt: new Date(+templ.find("#gameTime").value),
       location: {
@@ -1517,7 +1518,7 @@ Template.devEditableGame.events({
     }
     Alerts.clearSeen({where: "editableGame"});
     var game = {
-      type: template.find("#gameType").value,
+      type: template.find("#gameType input:checked").value,
       // status depends on requested.players
       startsAt: new Date(+template.find("#gameTime").value),
       location: {
