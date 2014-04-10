@@ -679,7 +679,7 @@
       </div>
     </div>
     <div class="container">
-      <div class="body">
+      <div class="game-form">
         <form id="{{action}}GameForm" role="form">
           {{#unless currentUser}}
             {{> addInfoOrSignIn action='add this game'}}
@@ -708,7 +708,7 @@
           {{/if}}
           <div class="form-group">
             <label for="gameNote" class="control-label">Details</label>
-            <textarea class="form-control" id="gameNote"
+            <textarea class="form-control game-note" id="gameNote"
                       placeholder="e.g. Don’t forget to bring your equipment and the $5 field fee"
                       maxlength="500">{{note}}</textarea>
           </div>
@@ -737,7 +737,7 @@
             <div class="form-group">
               <label>
                 <input type="checkbox" class="playing" value="playing" checked>
-                Add me as a player
+                <span class="label-add-player">Add me as a player</span>
               </label>
             </div>
           {{/unless}}
@@ -779,7 +779,7 @@
     <strong>{{players.length}} playing</strong>
     <ul>
       {{#each userPlayers}}
-        <li>
+        <li class="each-player">
           <input type="checkbox" class="hidden" id="{{userId}}"
                  value="{{userId}}">
           <label for="{{userId}}">

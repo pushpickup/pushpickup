@@ -10,7 +10,7 @@ html body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-input, button {
+input, button, select, textarea {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -36,9 +36,7 @@ input, button {
 .app-header {
   background-color: @brand-primary;
   line-height: 1;
-  height: 44px;
-  max-height: 44px;
-
+  min-height: 44px;
   padding: 14px 0;
   position: relative;
   z-index: 3;
@@ -66,7 +64,6 @@ input, button {
 }
 
 .options-main {
-
   .back {
     display: inline-block;
     float: left;
@@ -76,6 +73,9 @@ input, button {
 
 .options-extended {
   padding-top: @font-size-base;
+  position: absolute;
+  top: 16px;
+  width: 100%;
 }
 
 .subscribe-button {
@@ -103,6 +103,7 @@ button {
     .btn-lg;
     .btn-block;
     background-color: rgba(0, 0, 0, 0.25);
+    color: @white;
   }
 
   &.find-games {
@@ -131,6 +132,12 @@ button {
 .listed-game .game-summary {
   cursor: pointer;
   padding-bottom: 10px;
+  .game-when {
+
+    .day {
+      font-weight: bold;
+    }
+  }
 }
 
 .past.listed-game .game-summary {
@@ -138,12 +145,17 @@ button {
   width: 240px;
 }
 
-.place-name {
-  width: 240px;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.place {
+  margin: 2px 0 2px;
+  line-height: 1.15;
+
+  .place-name {
+    width: 240px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .who-is-playing .text-info {
@@ -157,13 +169,26 @@ button {
 }
 
 .whos-playing-editable {
-
   input+label {
     cursor: pointer;
+    font-weight: normal;
   }
 
   input:checked+label {
     text-decoration: line-through;
+  }
+}
+
+.comments {
+  ul {
+    margin-top: 10px;
+  }
+
+  blockquote {
+    font-size: @font-size-base;
+    margin-bottom: 0;
+
+    footer {padding: 0;}
   }
 }
 
@@ -339,8 +364,14 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .dev-detail-body {
+  margin-bottom: @grid-gutter-width / 2;
+  @media (min-width: @screen-sm-min) {
+    border: 1px solid @gray-lighter;
+    border-top: none;
+  }
+
   .join-or-leave, .game-summary, .organizers-note, .whos-playing-summary {
-    margin: 10px 0;
+    margin: 15px 0;
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
   }
@@ -349,6 +380,10 @@ form > .form-group:first-child { margin-top: 5px; }
 .dev-detail-body .comments {
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
+}
+
+.game-when {
+  display: inline-block;
 }
 
 .back-to-list, .game-type-indicator, .share-game-link {
@@ -524,19 +559,100 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .form-control {
+}
+
+//Add Game Form
+
+#addGame .close {
+  margin: -3px @grid-gutter-width -4px @grid-gutter-width/2;
+  @media (min-width: @screen-sm-min) {
+    margin-left: 0;
+  }
+}
+
+#editGame .close {
+  #addGame .close();
+}
+
+.game-form {
+  padding-bottom: 15px;
+  @media (min-width: @screen-sm-min) {
+    border: 1px solid @gray-lighter;
+    border-top: 0;
+  }
+}
+
+#addGameForm {
+
+  .label-add-player {
+    display: inline-block;
+    font-weight: normal;
+    margin-top: 2px;
+  }
+
+  input[type="checkbox"] {
+    float: left;
+    margin-right: 10px;
+  }
+
+  input[type="checkbox"]:checked:after {
+    color: @white;
+  }
+}
+
+#editGameForm {
+  #addGameForm();
+
+  .help-block {
+    margin-bottom: 15px;
+  }
+}
+
+
+.add-game-select {
   .box-shadow(none);
   -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  border-bottom: 1px solid fade(@brand-primary, 30%);
+  border-radius: 0;
+}
+
+.add-game-input {
+  .box-shadow(none);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  border-bottom: 1px solid fade(@brand-primary, 30%);
+  border-radius: 0;
 }
 
 .form-control#gameDay {
+  .add-game-select();
   display: inline-block;
   float:left;
-  margin-right:15px;
+  margin-right:4.8%;
   width: 55%;
 }
 
 .form-control#gameTime {
+  .add-game-select();
   width: 40%;
+}
+
+.select-location {
+  .location {
+    .add-game-input();
+  }
+
+  .input-group-addon {
+    .add-game-input();
+    background: none;
+    color: @brand-primary;
+    font-size: @font-size-base*1.15;
+  }
 }
 
 label[for="requestedNumPlayers"] {
@@ -547,27 +663,16 @@ label[for="requestedNumPlayers"] {
 }
 
 .form-control#requestedNumPlayers {
+  .add-game-select();
   display: inline-block;
-  width: 33%;
+  width: 50px;
 }
 
-#addGame .close {
-  margin: -3px @grid-gutter-width -4px @grid-gutter-width/2;
-  @media (min-width: @screen-sm-min) {
-    margin-left: @grid-gutter-width/2;
-  }
-}
-
-#editGame .close {
-  #addGame .close();
-}
-
-.game-when {
-  display: inline-block;
-
-  .day {
-    font-weight: bold;
-  }
+.form-control.game-note {
+  .add-game-input();
+  background: @gray-lighter;
+  border: none;
+  border-radius: @border-radius-small;
 }
 
 .add-comment .form-group {
@@ -577,26 +682,30 @@ label[for="requestedNumPlayers"] {
 
 .copy-game-link {
   .pull-left();
-  width: 100%;
+  background: @brand-primary;
   margin-left: @grid-gutter-width/2;
+  width: 100%;
   @media (min-width: @screen-sm-min) {
     margin-left: 0;
   }
-}
 
-.copy-game-link input {
-  background: @brand-secondary;
-  border: 0;
-  border-radius: @border-radius-small;
-  color: @white;
-  font-size: @font-size-small;
-  margin-top: 15px;
-  padding: 3px 12px;
-  width: 85%;
-}
+  input {
+    background: @brand-secondary;
+    border: 0;
+    border-radius: @border-radius-small;
+    color: @white;
+    font-size: @font-size-small;
+    margin-top: 15px;
+    padding: 6px 12px;
+    width: 84%;
+    @media (min-width: @screen-sm-min) {
+      width: 94%;
+    }
+  }
 
-.copy-game-link .close {
-  margin: 15px 0 0 5px;
+  .close {
+    margin: 18px 0 0 5px;
+  }
 }
 
 ////
@@ -617,7 +726,7 @@ label[for="requestedNumPlayers"] {
   border-left-color: @brand-primary;
 }
 
-div .cancel-game {
+.cancel-game {
   margin: 15px;
 }
 
