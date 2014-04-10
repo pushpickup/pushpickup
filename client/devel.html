@@ -693,7 +693,7 @@
 <template name="radioForm">
   {{#each options}}
     <label for="{{text}}">{{text}}</label><span></span>
-    <input type="radio" id="{{text}}" value="{{value}}" name="gameType" required /><span class="ppicon-{{text}}"></span>
+    <input type="radio" id="{{text}}" value="{{value}}" name="{{id}}" required /><span class="ppicon-{{text}}"></span>
   {{/each}}
 </template>
 
@@ -716,7 +716,7 @@
             {{> addInfoOrSignIn action='add this game'}}
           {{/unless}}
           <div class="form-group">
-            {{> selectForm selectType}}
+            {{> radioForm selectType}}
           </div>
           <div class="form-group">
             {{> devSelectWhen}}
