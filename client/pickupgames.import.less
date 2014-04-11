@@ -1,11 +1,4 @@
-// I'd like it to stretch out on "large" devices like my laptop
-// @media (min-width: @screen-lg-min) {
-//     .container{
-//         min-width: 100%;
-//     }
-// }
 
-//body { padding-top: 70px; }
 body {
   padding-top: 20px;
   padding-bottom: 20px;
@@ -32,16 +25,6 @@ a {
   width: auto;
   height: 400px;
 }
-
-// #map-wrapper {
-//   //width: 100%;
-//   padding-bottom: 75%; //56.25%; /* 16:9 aspect ratio */
-//   position: relative;
-// }
-// #map-wrapper > div {
-//   position: absolute;
-//   top: 0; right: 0; bottom: 0; left: 0;
-// }
 
 .game-header, a {
   cursor: pointer;
@@ -81,6 +64,7 @@ div .progress {
 
 #alerts {
   .make-lg-column(12);
+  min-height: 0;
 }
 
 .span-row, .fromFooterContent, .headerContent {
@@ -170,6 +154,7 @@ button {
 
 #addGameForm, #editGameForm {
   .make-lg-column(12);
+  padding-top: 15px;
   //    .make-lg-column-offset(2);
 }
 
@@ -206,14 +191,30 @@ button {
   }
 }
 
-
-input[type="checkbox"] + label {
-  font-weight: normal;
-  margin-right: 1em;
-  cursor: pointer;
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -mos-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  background-color: @brand-secondary;
+  padding: 8px;
+  border-radius: @border-radius-small;
+  display: inline-block;
+  position: relative;
 }
-input:checked + label {
-  text-decoration: line-through;
+
+input[type="checkbox"]:checked {
+  background-color: @brand-secondary;
+  color: #99a1a7;
+}
+
+input[type="checkbox"]:checked:after {
+  content: '\2714';
+  font-size: 12px;
+  position: absolute;
+  top: 0px;
+  left: 3px;
+  color: fade(@gray-darker, 60%);
 }
 
 #gameFilters {
@@ -327,13 +328,4 @@ h1, h2 {
 .list-group-item:last-child {
   border-bottom-left-radius:  0;
   border-bottom-right-radius: 0;
-}
-
-.container {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.row {
-  margin-right: 0;
 }

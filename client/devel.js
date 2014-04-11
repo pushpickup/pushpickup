@@ -1359,10 +1359,11 @@ Template.devEditableGame.helpers({
       return {
         value: type.value,
         text: type.value,
-        selected: (type.value === self.type)
+        checked: (type.value === self.type),
+        name: 'gameTypeGroup'
       };
     });
-    return {label: 'What', id: 'gameType', options: them};
+    return {id: 'gameType', options: them};
   },
   selectPlayersRequested: function () {
     var self = this;
@@ -1371,7 +1372,7 @@ Template.devEditableGame.helpers({
       return { value: i, text: i, selected: (i === numRequested) };
     });
     return {includeLabel: true,
-            label: "Players needed", id: "requestedNumPlayers",
+            label: "Players needed", id: "requestedNumPlayers", containerClass: "num-players-container",
             options: them};
   },
   editingGame: function () {
@@ -1412,7 +1413,7 @@ Template.devSelectWhen.helpers({
     them = _.reject(them, function (t) {
       return t.value < +moment() || t.value > +moment().add('weeks', 1);
     });
-    return {label: 'Time', id: 'gameTime', options: them};
+    return {label: 'Time', id: 'gameTime', containerClass: "game-time-container", options: them};
   },
   selectDay: function () {
     var self = this;
@@ -1428,7 +1429,9 @@ Template.devSelectWhen.helpers({
     });
     them[0].text = 'Today';
     them[1].text = 'Tomorrow';
-    return {label: "When", id: "gameDay",
+    return {label: "When", 
+            id: "gameDay", 
+            containerClass: "game-day-container",
             options: them};
   }
 });
@@ -1470,7 +1473,7 @@ Template.devEditableGame.events({
     });
 
     var game = {
-      type: templ.find("#gameType").value,
+      type: templ.find("#gameType input:checked").value,
       // status depends on (requested.players - players.length)
       startsAt: new Date(+templ.find("#gameTime").value),
       location: {
@@ -1515,7 +1518,7 @@ Template.devEditableGame.events({
     }
     Alerts.clearSeen({where: "editableGame"});
     var game = {
-      type: template.find("#gameType").value,
+      type: template.find("#gameType input:checked").value,
       // status depends on requested.players
       startsAt: new Date(+template.find("#gameTime").value),
       location: {
@@ -1800,7 +1803,7 @@ Template.gameWhen.helpers({
   fromNow: function () {
     return moment(this.startsAt).fromNow();
   },
-  displayTime: function () {
+  displayDay: function () {
     var m = utils.startsAtMomentWithOffset(this);
     var day = m.format('ddd');
     if (m.isSame(moment(), 'day')) {
@@ -1808,7 +1811,11 @@ Template.gameWhen.helpers({
     } else if (m.isSame(moment().add('days', 1), 'day')) {
       day = "Tomorrow";
     }
-    return day + m.format(' h:mma');
+    return day;
+  },
+  displayTime: function () {
+    var m = utils.startsAtMomentWithOffset(this);
+    return m.format('h:mma');
   }
 });
 
