@@ -99,6 +99,8 @@ Meteor.methods({
     var day = utils.isToday(game) ? "Today" : startsAtM.format('ddd') + ".";
     var day_long = utils.isToday(game) ?
           "Today" : "This coming "+startsAtM.format('dddd');
+    var day_long_inline = utils.isToday(game) ?
+          "Today" : "this coming "+startsAtM.format('dddd');
     var time = startsAtM.format('h:mma');
     var gameNote = (_.isEmpty(game.note)) ? "" : "* " + game.note + "\n";
     var gameURL = Meteor.absoluteUrl('g/'+gameId);
@@ -115,13 +117,9 @@ Meteor.methods({
         + "\n"
         + "----\n"
         + "\n"
-        + "Join me for pickup " + game.type + ":\n"
-        + "\n"
-        + "* " + day_long + " at " + time + "\n"
-        + "* " + game.requested.players + " players needed\n"
-        + "* " + game.location.name + "\n"
-        + gameNote + "\n"
-        + "[Join the game]("+gameURL+") and I'll see you there!\n"
+        + "Join me for pickup " + game.type + " " + day_long_inline + "." 
+        + " Check out the [game details on PushPickup]("+gameURL+") and join the game." 
+        + " Hope to see you there!\n"
     };
     sendEmail(email, {withTotalUnsubscribe: false});
     return email;
