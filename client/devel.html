@@ -538,9 +538,8 @@
   <div class="copy-game-link">
     {{#if SEql 'copy-game-link' _id}}
       <input type="text"
-             value="{{baseURL}}{{pathFor 'devDetail'}}"
-             autofocus onclick="this.focus();this.select()" 
-             readonly="readonly">
+             id="copyGameLink"
+             value="{{baseURL}}{{pathFor 'devDetail'}}">
       <button type="button" class="close" aria-hidden="true"><span class="nav-icon ppicon-cancel"></span></button>
     {{/if}}
   </div>

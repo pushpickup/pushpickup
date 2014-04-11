@@ -196,12 +196,8 @@ button {
 }
 
 .place {
-  margin: 2px 0 2px;
-  line-height: 1.15;
-
   .place-name {
     width: 240px;
-    display: inline-block;
     .text-overflow();
   }
 }
@@ -233,10 +229,16 @@ button {
   }
 
   blockquote {
+    border-left: 0;
     font-size: @font-size-base;
     margin-bottom: 0;
+    padding: 0;
 
-    footer {padding: 0;}
+    p {margin: 0;}
+
+    footer {
+      margin-bottom: 15px;
+      padding: 0;}
   }
 }
 
@@ -429,7 +431,8 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 
   .organizers-note > div {
-    .text-overflow();
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -799,10 +802,10 @@ label[for="requestedNumPlayers"] {
 .copy-game-link {
   .pull-left();
   background: @brand-primary;
-  margin-left: @grid-gutter-width/2;
+  padding-left: @grid-gutter-width/2;
   width: 100%;
   @media (min-width: @screen-sm-min) {
-    margin-left: 0;
+    padding-left: 0;
   }
 
   input {
@@ -810,10 +813,10 @@ label[for="requestedNumPlayers"] {
     border: 0;
     border-radius: @border-radius-small;
     color: @white;
-    font-size: @font-size-small;
+    font-size: @font-size-base*1.1;
     margin-top: 15px;
     padding: 6px 12px;
-    width: 84%;
+    width: 86%;
     @media (min-width: @screen-sm-min) {
       width: 94%;
     }
