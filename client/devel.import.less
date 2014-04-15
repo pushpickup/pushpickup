@@ -94,7 +94,7 @@ input, button, select, textarea {
 //cover photo
 
 .cover-photo-container {
-  max-height: 260px;
+  max-height: 350px;
   overflow: hidden;
   position: absolute;
   width: 100%;
@@ -344,7 +344,11 @@ button {
       font-size: @font-size-large;
     }
     > a {
-      color: @text-color;
+      color: @brand-primary;
+      &:hover {
+        color: @brand-primary;
+        opacity: 1.0;
+      }
     }
     &:last-child {
       border-bottom-width: 0;
@@ -863,3 +867,6 @@ label[for="requestedNumPlayers"] {
   height: 100%;
 }
 
+.alert-success {
+  margin-bottom: 0px;
+}
