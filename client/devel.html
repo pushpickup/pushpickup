@@ -22,15 +22,6 @@
 <template name="devFooter">
   {{#unless omit}}
     <div class="footer row">
-      <div class="privacy-policy-link text-center">
-        <!-- "Free" option requires this embedding and limits to four
-             "services"; luckily, we only collect personal data in
-             conjunction with the four services I selected (from all ~ 200
-             that Iubenda lists).
-             DW 2014/04/01
-          -->
-        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
-      </div>
     </div>
   {{/unless}}
 </template>
@@ -102,7 +93,11 @@
   <div class="headline-container">
     <div class="container">
       <h1 class="headline-primary">Welcome to PushPickup.</h1>
+<<<<<<< HEAD
       <p>Better than email for organizing pickup games for basketball, soccer, and ultimate frisbee.</p>
+=======
+      <p>Better than email for organizing pickup basketball, soccer, and ultimate.</p>
+>>>>>>> devel
     </div>
   </div>
 </template>
@@ -390,9 +385,6 @@
 <template name="searchInput">
   <div class="search-input">
     <div class="input-group">
-      <span class="input-group-btn">
-        {{> getCurrentLocation}}
-      </span>
       <input class="form-control" type="search" placeholder="Enter Location"
              autofocus required>
     </div>
@@ -538,9 +530,8 @@
   <div class="copy-game-link">
     {{#if SEql 'copy-game-link' _id}}
       <input type="text"
-             value="{{baseURL}}{{pathFor 'devDetail'}}"
-             autofocus onclick="this.focus();this.select()" 
-             readonly="readonly">
+             id="copyGameLink"
+             value="{{baseURL}}{{pathFor 'devDetail'}}">
       <button type="button" class="close" aria-hidden="true"><span class="nav-icon ppicon-cancel"></span></button>
     {{/if}}
   </div>
@@ -884,6 +875,14 @@
       {{> settingsItem name="change-email-address"}}
       {{> settingsItem name="change-password"}}
       {{> settingsItem name="help-and-feedback"}}
+      <li class="list-group-item">
+        <!-- "Free" option requires this embedding and limits to four
+             "services"; luckily, we only collect personal data in
+             conjunction with the four services I selected (from all ~ 200
+             that Iubenda lists).
+             DW 2014/04/01
+          -->
+        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script></li>
       <li class="sign-out trigger list-group-item">Sign Out</li>
     {{else}}
       {{> settingsItem name="sign-in"}}

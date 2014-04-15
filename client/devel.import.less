@@ -94,7 +94,7 @@ input, button, select, textarea {
 //cover photo
 
 .cover-photo-container {
-  max-height: 260px;
+  max-height: 350px;
   overflow: hidden;
   position: absolute;
   width: 100%;
@@ -196,12 +196,8 @@ button {
 }
 
 .place {
-  margin: 2px 0 2px;
-  line-height: 1.15;
-
   .place-name {
     width: 240px;
-    display: inline-block;
     .text-overflow();
   }
 }
@@ -225,6 +221,8 @@ button {
   input:checked+label {
     text-decoration: line-through;
   }
+
+  label {margin-bottom: 0;}
 }
 
 .comments {
@@ -233,10 +231,16 @@ button {
   }
 
   blockquote {
+    border-left: 0;
     font-size: @font-size-base;
     margin-bottom: 0;
+    padding: 0;
 
-    footer {padding: 0;}
+    p {margin: 0;}
+
+    footer {
+      margin-bottom: 15px;
+      padding: 0;}
   }
 }
 
@@ -258,8 +262,8 @@ button {
     color: @brand-primary;
     font-size: ceil((@font-size-base * 1.1));
     position: absolute;
-    left: 3px;
-    top: 3px;
+    left: 4px;
+    top: 7px;
   }
 }
 
@@ -267,20 +271,21 @@ button {
   background: @brand-secondary;
   border-radius: @border-radius-small;
   font-size: @font-size-small;
-  padding: 4px 2em;
+  padding: 9px 2em;
   position: relative;
 
   label {
     color: @brand-primary;
     cursor: pointer;
     font-weight: normal;
+    font-size: 14px;
   }
 }
 
 .exit-search {
   display: inline-block;
   float: right;
-  margin: 1px @grid-gutter-width/2 0;
+  margin: 7px @grid-gutter-width/2 0;
 }
 
 .search-input {
@@ -311,10 +316,11 @@ button {
   }
 
   .form-control {
-    height: 22px;
+    height: 34px;
     padding: 1px 12px;
+    border-radius: @border-radius-small;
     @media (min-width: @screen-xs) {
-      font-size: @font-size-small;
+      font-size: 14px;
     }
   }
 }
@@ -338,7 +344,11 @@ button {
       font-size: @font-size-large;
     }
     > a {
-      color: @text-color;
+      color: @brand-primary;
+      &:hover {
+        color: @brand-primary;
+        opacity: 1.0;
+      }
     }
     &:last-child {
       border-bottom-width: 0;
@@ -429,7 +439,8 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 
   .organizers-note > div {
-    .text-overflow();
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -799,10 +810,10 @@ label[for="requestedNumPlayers"] {
 .copy-game-link {
   .pull-left();
   background: @brand-primary;
-  margin-left: @grid-gutter-width/2;
+  padding-left: @grid-gutter-width/2;
   width: 100%;
   @media (min-width: @screen-sm-min) {
-    margin-left: 0;
+    padding-left: 0;
   }
 
   input {
@@ -810,10 +821,10 @@ label[for="requestedNumPlayers"] {
     border: 0;
     border-radius: @border-radius-small;
     color: @white;
-    font-size: @font-size-small;
+    font-size: @font-size-base*1.1;
     margin-top: 15px;
     padding: 6px 12px;
-    width: 84%;
+    width: 86%;
     @media (min-width: @screen-sm-min) {
       width: 94%;
     }
@@ -856,3 +867,6 @@ label[for="requestedNumPlayers"] {
   height: 100%;
 }
 
+.alert-success {
+  margin-bottom: 0px;
+}
