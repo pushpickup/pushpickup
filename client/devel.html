@@ -12,11 +12,7 @@
 
 <template name="devMain">
   {{> devNav}}
-  {{> coverPhoto }}
-  <div class="container">
-    {{> alerts where="main"}}
-    {{> devBody}}
-  </div>
+  {{> devBody}}
 </template>
 
 <template name="devFooter">
@@ -27,13 +23,17 @@
 </template>
 
 <template name="devBody">
-  {{#if SEql 'searching' 'after'}}
-    {{> findingsMap}}
-    <!-- {{> subscribe}} -->
-    {{> listOfGames}}
-  {{else}}
-    {{> listOfGames}}
-  {{/if}}
+  {{> coverPhoto }}
+  <div class="container">
+    {{> alerts where="main"}}
+    {{#if SEql 'searching' 'after'}}
+      {{> findingsMap}}
+      <!-- {{> subscribe}} -->
+      {{> listOfGames}}
+    {{else}}
+      {{> listOfGames}}
+    {{/if}}
+  </div>
 </template>
 
 <template name="devNav">

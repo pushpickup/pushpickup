@@ -229,6 +229,14 @@ Template.settingsCog.events({
   }
 });
 
+Template.devBody.events({
+  "click": function() {
+    if(Session.equals("viewing-settings", true)) {
+      Session.set("viewing-settings", false);
+    } 
+  }
+});
+
 Template.listOfGames.helpers({
   maxDistance: function () {
     var m = Session.get("max-distance");
