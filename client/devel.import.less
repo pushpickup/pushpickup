@@ -1,14 +1,14 @@
+@brand-secondary: #669ba6;
+@white: #fff;
+@btn-header-color:              @white;
+@btn-header-bg:                 darken(@btn-primary-bg, 5%);
+@btn-header-border:             darken(@btn-primary-bg, 10%);
+
 .btn-header {
   .button-variant(@btn-header-color; @btn-header-bg; @btn-header-border);
 }
 .btn-header-secondary {
   .button-variant(@brand-primary; @brand-secondary; @btn-primary-border);
-}
-
-@media (max-width: @screen-xs) {
-  input, select, textarea {
-    &:focus { font-size: 16px; } // prevent Auto Zoom.
-  }
 }
 
 html body {
@@ -20,6 +20,346 @@ html body {
 input, button, select, textarea {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: @screen-xs) {
+  input, select, textarea {
+    &:focus { font-size: 16px; } // prevent Auto Zoom.
+  }
+}
+
+.col-centered {
+  float: none;
+  margin: 0 auto;
+}
+
+a {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+#map-canvas {
+  width: auto;
+  height: 400px;
+}
+
+.game-header, a {
+  cursor: pointer;
+}
+
+div .progress {
+  margin-bottom: 0;
+}
+
+.game-header .location {
+  max-width: 20em;
+}
+
+.login {
+  .pull-right();
+}
+
+#manipulate {
+  .make-lg-column(6);
+}
+
+#map-interaction {
+  .make-lg-column(6);
+}
+
+#accounts-actions {
+  .make-lg-column(12);
+}
+
+#alerts {
+  .make-lg-column(12);
+  min-height: 0;
+}
+
+.span-row, .fromFooterContent, .headerContent {
+  .make-lg-column(12);
+}
+
+.game-type-slot {
+  .make-xs-column(1);
+  .make-sm-column(1);
+}
+.game-time-slot {
+  .make-xs-column(4);
+  .make-sm-column(4);
+}
+.game-loc-slot {
+  .make-xs-column(5);
+  .make-sm-column(5);
+}
+.game-status-slot {
+  .make-xs-column(2);
+  .make-sm-column(2);
+}
+
+@media (max-width: @screen-xs) {
+  .game-type-slot { .make-xs-column(12); }
+  .game-time-slot { .make-xs-column(12); }
+  .game-loc-slot { .make-xs-column(12); }
+  .game-status-slot { .make-xs-column(12); }
+}
+
+.spinner {
+  height: 300px;
+}
+
+#addGame {
+  .panel-success;
+}
+
+#addGame button[type="submit"] {
+  //.btn-success;
+}
+
+#editGame {
+  .panel-warning;
+}
+
+#editGame button[type="submit"] {
+  .btn-warning;
+}
+
+button {
+  .btn;
+  .btn-default;
+  &.add {
+    .btn-success;
+  }
+  &.ok {
+    .btn-success;
+  }
+  &.cancel {
+    .btn-default;
+  }
+  &.remove {
+    .btn-danger;
+    float: right;
+  }
+  &#getAddGameForm {
+    .btn-success;
+    .btn-lg;
+    .btn-block;
+  }
+  &.addUserSub {
+    .btn-lg;
+    .btn-block;
+    .btn-default;
+  }
+}
+
+button {
+  &.join-game, &.sign-in-inline,
+  &.add-friends, &.add-comment,
+  &.subscribe, &.add-game, &.edit-game,
+  &.help-and-feedback,
+  &.set-password, &.forgot-password,
+  &.change-password, &.change-email-address {
+    .btn-primary;
+    .btn-lg;
+    .btn-block;
+  }
+  &.leave-game {
+    .btn-default;
+    .btn-lg;
+    .btn-block;
+    background-color: rgba(0, 0, 0, 0.25);
+    color: @white;
+  }
+
+  &.find-games {
+    .btn-header;
+    .btn-lg;
+    .btn-block;
+  }
+}
+
+
+.addUserSub .help-block {
+  text-align: center;
+}
+
+#addGameForm, #editGameForm {
+  .make-lg-column(12);
+  padding-top: 15px;
+  //    .make-lg-column-offset(2);
+}
+
+.game-details > div > p:first-child {
+  margin-top: 1em;
+}
+
+
+// derived from http://lea.verou.me/2011/01/styling-children-based-on-their-number-with-css3/
+.form-horizontal .form-group {
+  label:first-child {
+    .make-lg-column(2);
+  }
+  /* one item */
+  label + div:nth-of-type(1):nth-last-of-type(1) {
+    .make-lg-column(10);
+  }
+  /* two items */
+  label + div:nth-of-type(1):nth-last-of-type(2),
+  label ~ div:nth-of-type(2):nth-last-of-type(1) {
+    .make-lg-column(5);
+  }
+  /* two items plus a small item */
+  label + div:nth-of-type(1):nth-last-of-type(3),
+  label ~ div:nth-of-type(2):nth-last-of-type(2) {
+    .make-lg-column(4, @grid-gutter-width / 2);
+  }
+  label ~ div:nth-of-type(3):nth-last-of-type(1) {
+    .make-lg-column(2, @grid-gutter-width / 2);
+  }
+  > div:first-child {
+    .make-lg-column-offset(2);
+    .make-lg-column(10);
+  }
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -mos-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  background-color: @brand-secondary;
+  padding: 8px;
+  border-radius: @border-radius-small;
+  display: inline-block;
+  position: relative;
+}
+
+input[type="checkbox"]:checked {
+  background-color: @brand-secondary;
+  color: #99a1a7;
+}
+
+input[type="checkbox"]:checked:after {
+  content: '\2714';
+  font-size: 12px;
+  position: absolute;
+  top: 0px;
+  left: 3px;
+  color: fade(@gray-darker, 60%);
+}
+
+#gameFilters {
+  .panel-body > div:not(:first-child) {
+    margin-top: 1em;
+  }
+}
+
+.gameLink > div {
+  .make-lg-column(12);
+}
+
+
+.form-accounts {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+  .form-control {
+    position: relative;
+    font-size: 16px;
+    height: auto;
+    padding: 10px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    &:focus {
+      z-index: 2;
+    }
+  }
+  .form-heading {
+    margin-bottom: 10px;
+  }
+  /* two items */
+  input:nth-of-type(1):nth-last-of-type(2) {
+    margin-bottom: -1px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  input:nth-of-type(2):nth-last-of-type(1) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  input:nth-last-of-type(1) {
+    margin-bottom: 10px;
+  }
+  .signInLink {
+    text-align: center;
+  }
+}
+
+.drop-out {
+  .text-danger;
+}
+
+footer {
+  .make-lg-column(12);
+  > div {
+    margin-top: 2.5%;
+    border-top: 1px solid #eaeaea;
+    color: #999;
+    text-align: center;
+  }
+  a {
+    color: #555;
+    &:hover {
+      color: #222;
+    }
+  }
+  small {
+    float: left;
+  }
+  ul {
+    float: right;
+    list-style: none;
+    li {
+      float: left;
+      margin-left: 30px;
+    }
+  }
+}
+
+.fromFooterContent {
+  text-align: left;
+  h1 {
+    text-align: center;
+  }
+}
+
+h1 {
+    font-size: 3em;
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.7em;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+    font-weight: normal;
+    color: #999;
+}
+
+h1, h2 {
+  line-height: 1;
+}
+
+.list-group-item:first-child {
+  border-top-left-radius:  0;
+  border-top-right-radius: 0;
+}
+.list-group-item:last-child {
+  border-bottom-left-radius:  0;
+  border-bottom-right-radius: 0;
 }
 
 
@@ -137,32 +477,6 @@ input, button, select, textarea {
   height: 150px;
 }
 
-button {
-  &.join-game, &.sign-in-inline,
-  &.add-friends, &.add-comment,
-  &.subscribe, &.add-game, &.edit-game,
-  &.help-and-feedback,
-  &.set-password, &.forgot-password,
-  &.change-password, &.change-email-address {
-    .btn-primary;
-    .btn-lg;
-    .btn-block;
-  }
-  &.leave-game {
-    .btn-default;
-    .btn-lg;
-    .btn-block;
-    background-color: rgba(0, 0, 0, 0.25);
-    color: @white;
-  }
-
-  &.find-games {
-    .btn-header;
-    .btn-lg;
-    .btn-block;
-  }
-}
-
 .nav-icon {
   color: @white;
   font-size: ceil((@font-size-base * 1.5));
@@ -253,7 +567,6 @@ button {
 }
 
 //Search UI
-
 .start-search {
   float: left;
   margin: -1px 0 -5px;
@@ -420,9 +733,6 @@ form > .form-group:first-child { margin-top: 5px; }
     .btn-lg;
     .btn-block;
   }
-}
-
-.dev-detail-nav {
 }
 
 .dev-detail-body {
