@@ -356,17 +356,17 @@
 <template name="settingsCog">
   <div class="settings-cog">
     {{#if SGet 'viewing-settings'}}
-      <a><span class="nav-icon ppicon-cancel"></span></a>
+      <a><span class="app-header-icon ppicon-cancel"></span></a>
     {{else}}
-      <a><span class="nav-icon ppicon-cog"></span></a>
+      <a><span class="app-header-icon ppicon-cog"></span></a>
     {{/if}}
   </div>
 </template>
 
 <template name="startSearch">
-  <div class="start-search">
-    <a class="start-search-input">
-      <span class="nav-icon ppicon-search"></span>
+  <div class="start-search-container">
+    <a class="start-search-init">
+      <span class="app-header-icon ppicon-search"></span>
       <label>Find Games</label>
     </a>
   </div>
@@ -379,11 +379,8 @@
 </template>
 
 <template name="searchInput">
-  <div class="search-input">
-    <div class="input-group">
-      <input class="form-control" type="search" placeholder="Enter Location"
-             autofocus required>
-    </div>
+  <div class="search-input-container">
+      <input type="search" class="search-input" placeholder="Enter Location" autofocus required>
   </div>
 </template>
 
@@ -430,7 +427,16 @@
 
 <template name="back">
   <div class="back">
-    <a><span class="nav-icon ppicon-left-open"></span></a>
+    <a><span class="app-header-icon ppicon-left-open"></span></a>
+  </div>
+</template>
+
+<template name="backToList">
+  <div class="back back-to-list">
+    <a href="/">
+      <span class="app-header-icon ppicon-left-open"></span>
+      <label>Pickups</label>
+    </a>
   </div>
 </template>
 
@@ -495,30 +501,21 @@
 <template name="devDetailNav">
   <div class="app-header">
     <div class="dev-detail-nav container">
-      <div class="content-all row">
-        {{> backToList}}
-        {{> gameTypeIndicator}}
-        {{> editGameLink}}
-        {{> shareGameLink}}
-        {{> copyGameLink}}
-      </div>
+      {{> backToList}}
+      {{> gameTypeIndicator}}
+      {{> editGameLink}}
+      {{> shareGameLink}}
+      {{> copyGameLink}}
     </div>
-  </div>
-</template>
-
-<template name="backToList">
-  <div class="back-to-list">
-    <a href="/">
-      <span class="nav-icon ppicon-left-open pull-left"></span>
-      Pickups
-    </a>
   </div>
 </template>
 
 <template name="shareGameLink">
   <div class="share-game-link">
-    <a><span class="nav-icon ppicon-link pull-left"></span>
-      Share</a>
+    <a>
+      <span class="app-header-icon ppicon-link pull-left"></span>
+      <label>Share</label>
+    </a>
   </div>
 </template>
 
@@ -528,7 +525,7 @@
       <input type="text"
              id="copyGameLink"
              value="{{baseURL}}{{pathFor 'devDetail'}}">
-      <button type="button" class="close" aria-hidden="true"><span class="nav-icon ppicon-cancel"></span></button>
+      <button type="button" class="close" aria-hidden="true"><span class="app-header-icon ppicon-cancel"></span></button>
     {{/if}}
   </div>
 </template>
@@ -708,7 +705,7 @@
       <div class="container">
         <div class="close">
           <a href="/">
-            <span class="nav-icon ppicon-cancel"></span>
+            <span class="app-header-icon ppicon-cancel"></span>
           </a>
         </div>
         <h1 class="title">{{title}}</h1>

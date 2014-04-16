@@ -4,13 +4,6 @@
 @btn-header-bg:                 darken(@btn-primary-bg, 5%);
 @btn-header-border:             darken(@btn-primary-bg, 10%);
 
-.btn-header {
-  .button-variant(@btn-header-color; @btn-header-bg; @btn-header-border);
-}
-.btn-header-secondary {
-  .button-variant(@brand-primary; @brand-secondary; @btn-primary-border);
-}
-
 html body {
   padding-top: 0px;
   -webkit-font-smoothing: antialiased;
@@ -28,24 +21,57 @@ input, button, select, textarea {
   }
 }
 
+
+h1 {
+    font-size: 3em;
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.7em;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+    font-weight: normal;
+    color: #999;
+}
+
+h1, h2 {
+  line-height: 1;
+}
+
 .col-centered {
   float: none;
   margin: 0 auto;
 }
 
 a {
+  cursor: pointer;
+
   &:hover {
     text-decoration: none;
   }
 }
 
+.container {
+  padding-left: 0;
+  padding-right: 0;
+  position: relative;
+  z-index: 2;
+  // Simulate mobile experience on larger devices
+  @media (min-width: @screen-sm-min) {
+    max-width: 450px;
+  }
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
 #map-canvas {
   width: auto;
   height: 400px;
-}
-
-.game-header, a {
-  cursor: pointer;
 }
 
 div .progress {
@@ -125,6 +151,13 @@ div .progress {
   .btn-warning;
 }
 
+.btn-header {
+  .button-variant(@btn-header-color; @btn-header-bg; @btn-header-border);
+}
+.btn-header-secondary {
+  .button-variant(@brand-primary; @brand-secondary; @btn-primary-border);
+}
+
 button {
   .btn;
   .btn-default;
@@ -141,19 +174,19 @@ button {
     .btn-danger;
     float: right;
   }
+
   &#getAddGameForm {
     .btn-success;
     .btn-lg;
     .btn-block;
   }
+
   &.addUserSub {
     .btn-lg;
     .btn-block;
     .btn-default;
   }
-}
 
-button {
   &.join-game, &.sign-in-inline,
   &.add-friends, &.add-comment,
   &.subscribe, &.add-game, &.edit-game,
@@ -165,7 +198,6 @@ button {
     .btn-block;
   }
   &.leave-game {
-    .btn-default;
     .btn-lg;
     .btn-block;
     background-color: rgba(0, 0, 0, 0.25);
@@ -178,7 +210,6 @@ button {
     .btn-block;
   }
 }
-
 
 .addUserSub .help-block {
   text-align: center;
@@ -335,23 +366,6 @@ footer {
   }
 }
 
-h1 {
-    font-size: 3em;
-    letter-spacing: -2px;
-    margin-bottom: 10px;
-}
-
-h2 {
-    font-size: 1.7em;
-    letter-spacing: -1px;
-    margin-bottom: 10px;
-    font-weight: normal;
-    color: #999;
-}
-
-h1, h2 {
-  line-height: 1;
-}
 
 .list-group-item:first-child {
   border-top-left-radius:  0;
@@ -363,34 +377,18 @@ h1, h2 {
 }
 
 
-.container {
-  padding-left: 0;
-  padding-right: 0;
-  position: relative;
-  z-index: 2;
-  // Simulate mobile experience on larger devices
-  @media (min-width: @screen-sm-min) {
-    max-width: 450px;
-  }
-}
-
-.row {
-  margin-left: 0;
-  margin-right: 0;
-}
-
 //App Header
-
 .app-header {
   background-color: @brand-primary;
   line-height: 1;
   min-height: 44px;
-  padding: 14px 0;
+  padding: 0;
   position: relative;
   z-index: 3;
 
   a {
     color: @white;
+    display: inline-block;
   }
 
   .title {
@@ -398,37 +396,211 @@ h1, h2 {
     font-size: ceil(@font-size-base * 1.1); //16px
     font-weight: normal;
     letter-spacing: 0;
-    margin: 0;
+    margin: 12px 0 0;
     text-align: center;
   }
 
   .close {
     position: absolute;
+
+    &:hover {
+      background: none;
+      opacity: 1;
+    }
   }
 }
 
+.app-header-icon {
+  color: @white;
+  display: block;
+  cursor: pointer;
+  font-size: ceil((@font-size-base * 1.5));
+  padding: .5em @grid-gutter-width/2 .4em;
+  &.text-muted { color: @text-muted; }
+}
+
 .options-main {
+  height: 44px;
+
   .back {
     display: inline-block;
     float: left;
-    margin: -2px -6px -6px 9px;
   }
 }
 
 .options-extended {
-  padding-top: @font-size-base;
-  position: absolute;
-  top: 16px;
   width: 100%;
+  position: absolute;
 }
 
 .subscribe-button {
   margin: @line-height-computed/2 auto;
 }
 
+.settings-cog {
+  .pull-left();
+
+  .app-header-icon {
+    @media (min-width: @screen-sm-min) {
+      padding-left: 0;
+    }
+  }
+}
+
+//Search UI
+.start-search-container {
+  .pull-left();
+  margin-top: 6px;
+
+  .app-header-icon {
+    color: @brand-primary;
+    font-size: ceil((@font-size-base * 1.1));
+  }
+}
+
+.start-search-init {
+  background: @brand-secondary;
+  border-radius: @border-radius-small;
+  color: @brand-primary;
+  cursor: pointer;
+  font-size: @font-size-small;
+  font-weight: normal;
+  position: relative;
+
+  .app-header-icon {
+    .pull-left();
+    padding-right: 8px;
+  }
+
+  label {
+    .pull-left();
+    color: @brand-primary;
+    cursor: pointer;
+    font-size: @font-size-base;
+    font-weight: normal;
+    margin: 8px @grid-gutter-width/2 0 0;
+  }
+}
+
+.search-input-container {
+  .pull-left();
+  margin-top: 6px;
+  margin-left: @grid-gutter-width/2;
+  width: 72%;
+  @media (min-width: @screen-sm-min) {
+      width: 80%;
+    }
+
+  input {
+    background: @brand-secondary;
+    border: none;
+    border-radius: @border-radius-small;
+    color: @white;
+    padding: .48em @grid-gutter-width/2;
+    width: 100%;
+  }
+
+  ::-webkit-input-placeholder {color: @brand-primary;}
+
+  ::-moz-placeholder {color: @brand-primary;}
+
+  :-ms-input-placeholder {color: @brand-primary;}
+
+  input[type='search']{
+    .box-shadow(none);
+  }
+}
+
+.add-game-link {
+  .pull-right();
+
+  a {
+    .app-header-icon();
+    font-size: @font-size-base;
+    padding: 14px;
+    @media (min-width: @screen-sm-min) {
+      padding-right: 0;
+    }
+  }
+}
+
+.exit-search {
+  .add-game-link();
+  a {
+    padding-right: 14px;
+  }
+}
+
+//Game Detail Nav
+.back-to-list {
+  display: inline-block;
+  .pull-left();
+
+  .app-header-icon {
+    .pull-left();
+    padding-right: 2px;
+    @media (min-width: @screen-sm-min) {
+      padding-left: 0;
+    }
+  }
+
+  label {
+    cursor: pointer;
+    font-weight: normal;
+    margin-top: 14px;
+    margin-bottom: 0;
+  }
+}
+
+.share-game-link {
+  .back-to-list();
+  .pull-right();
+  margin-right: @grid-gutter-width/2;
+  @media (min-width: @screen-sm-min) {
+    margin-right: 0;
+  }
+}
+
+.edit-game-link {
+  display: inline-block;
+  float: right;
+
+  a {
+    padding: 14px 15px 14px 0;
+    @media (min-width: @screen-sm-min) {
+      padding: 14px 0 14px 15px;
+    }
+  }
+}
+
+.copy-game-link {
+  background: @brand-primary;
+  margin-bottom: @grid-gutter-width/2;
+  margin-left: @grid-gutter-width/2;
+  width: 100%;
+  @media (min-width: @screen-sm-min) {
+    margin-left: 0;
+  }
+
+  input {
+    background: @brand-secondary;
+    border: 0;
+    border-radius: @border-radius-small;
+    color: @white;
+    font-size: @font-size-base*1.1;
+    padding: 6px 12px;
+    width: 82%;
+    @media (min-width: @screen-sm-min) {
+      width: 94%;
+    }
+  }
+
+  .app-header-icon {
+    padding: 5px;
+  }
+}
 
 //cover photo
-
 .cover-photo-container {
   max-height: 350px;
   overflow: hidden;
@@ -467,16 +639,9 @@ h1, h2 {
 
 
 //Map
-
 .map-canvas {
   width: auto;
   height: 150px;
-}
-
-.nav-icon {
-  color: @white;
-  font-size: ceil((@font-size-base * 1.5));
-    &.text-muted { color: @text-muted; }
 }
 
 .game-type-indicator, .ppicon-add-friend {
@@ -554,96 +719,7 @@ h1, h2 {
   }
 }
 
-.settings-cog {
-  float: left;
-  margin: -3px @grid-gutter-width/2 -5px;
-  @media (min-width: @screen-sm-min) {
-    margin-left: 0;
-  }
-}
-
-//Search UI
-.start-search {
-  float: left;
-  margin: -1px 0 -5px;
-
-  .nav-icon {
-    color: @brand-primary;
-    font-size: ceil((@font-size-base * 1.1));
-    position: absolute;
-    left: 4px;
-    top: 7px;
-  }
-}
-
-.start-search-input {
-  background: @brand-secondary;
-  border-radius: @border-radius-small;
-  font-size: @font-size-small;
-  padding: 9px 2em;
-  position: relative;
-
-  label {
-    color: @brand-primary;
-    cursor: pointer;
-    font-weight: normal;
-    font-size: 14px;
-  }
-}
-
-.exit-search {
-  display: inline-block;
-  float: right;
-  margin: 7px @grid-gutter-width/2 0;
-}
-
-.search-input {
-  display: inline-block;
-  float: left;
-  margin: -3px 0 -3px 15px;
-  width: 72%;
-
-  input {
-    background: @brand-secondary;
-    border: none;
-    color: @white;
-  }
-
-  ::-webkit-input-placeholder {color: @brand-primary;}
-
-  ::-moz-placeholder {color: @brand-primary;}
-
-  :-ms-input-placeholder {color: @brand-primary;}
-
-  .get-current-location {
-    border: 1px solid @brand-secondary;
-    padding: 0 12px;
-  }
-
-  input[type='search']{
-    .box-shadow(none);
-  }
-
-  .form-control {
-    height: 34px;
-    padding: 1px 12px;
-    border-radius: @border-radius-small;
-    @media (min-width: @screen-xs) {
-      font-size: 14px;
-    }
-  }
-}
-
-.add-game-link {
-  .pull-right();
-  margin-right: @grid-gutter-width/2;
-  @media (min-width: @screen-sm-min) {
-    margin-right: 0;
-  }
-}
-
 .settings {
-
   .list-group-item {
     color: @brand-primary;
     padding: 15px;
@@ -759,48 +835,9 @@ form > .form-group:first-child { margin-top: 5px; }
   display: inline-block;
 }
 
-.back-to-list, .game-type-indicator, .share-game-link {
+.game-type-indicator {
   display: inline-block;
   float: left;
-}
-
-.back-to-list {
-  padding-left: @grid-gutter-width/2;
-  @media (min-width: @screen-sm-min) {
-    padding-left: 0;
-  }
-
-  .nav-icon {
-    margin: -3px 0 -6px -6px;
-  }
-}
-
-.share-game-link {
-  float: right;
-  margin-right: @grid-gutter-width/2;
-  @media (min-width: @screen-sm-min) {
-    margin-right: 0;
-  }
-
-  .nav-icon {
-    font-size: @font-size-base*1.1;
-    margin: 0 6px -6px;
-  }
-}
-
-.edit-game-link {
-  display: inline-block;
-  float: right;
-  margin: 0 15px 0 0;
-  @media (min-width: @screen-sm-min) {
-    margin: 0 0 0 15px;
-  }
-}
-
-.dev-detail-nav .game-type-indicator {
-  /* This is a hacky way to center align; needs different solution */
-  margin-left: 70px;
-  display: none;
 }
 
 .dev-detail-body .add-friends-link {
@@ -830,6 +867,10 @@ form > .form-group:first-child { margin-top: 5px; }
 .listed-game .game-type-indicator {
   float: left;
   margin-top: 20px;
+}
+
+.list-group {
+  margin-bottom: 0;
 }
 
 .list-group:first-child {
@@ -896,7 +937,6 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .add-self-and-friends .close, .add-friends.well .close {
-  margin-top: -9px;
   padding: 8px;
 }
 
@@ -931,15 +971,11 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 }
 
-.form-control {
-}
-
 //Add Game Form
-
 #addGame .close {
-  margin: -3px @grid-gutter-width -4px @grid-gutter-width/2;
-  @media (min-width: @screen-sm-min) {
-    margin-left: 0;
+  margin: 0;
+  &:hover {
+    opacity: 1;
   }
 }
 
@@ -1111,34 +1147,6 @@ label[for="requestedNumPlayers"] {
 .add-comment .form-group {
   margin-left: 15px;
   margin-right: 15px;
-}
-
-.copy-game-link {
-  .pull-left();
-  background: @brand-primary;
-  padding-left: @grid-gutter-width/2;
-  width: 100%;
-  @media (min-width: @screen-sm-min) {
-    padding-left: 0;
-  }
-
-  input {
-    background: @brand-secondary;
-    border: 0;
-    border-radius: @border-radius-small;
-    color: @white;
-    font-size: @font-size-base*1.1;
-    margin-top: 15px;
-    padding: 6px 12px;
-    width: 86%;
-    @media (min-width: @screen-sm-min) {
-      width: 94%;
-    }
-  }
-
-  .close {
-    margin: 18px 0 0 5px;
-  }
 }
 
 ////
