@@ -4,6 +4,13 @@
 @btn-header-bg:                 darken(@btn-primary-bg, 5%);
 @btn-header-border:             darken(@btn-primary-bg, 10%);
 
+.appearance(@property) {
+  -webkit-appearance: @property;
+  -mos-appearance: @property;
+  -ms-appearance: @property;
+  appearance: @property;
+}
+
 html body {
   padding-top: 0px;
   -webkit-font-smoothing: antialiased;
@@ -255,12 +262,10 @@ button {
 }
 
 input[type="checkbox"] {
-  -webkit-appearance: none;
-  -mos-appearance: none;
-  -ms-appearance: none;
-  appearance: none;
+  .appearance(none);
   background-color: @brand-secondary;
   padding: 8px;
+  border: none;
   border-radius: @border-radius-small;
   display: inline-block;
   position: relative;
@@ -419,18 +424,26 @@ footer {
   &.text-muted { color: @text-muted; }
 }
 
-.options-main {
-  height: 44px;
+.back {
+  display: inline-block;
+  float: left;
 
-  .back {
-    display: inline-block;
-    float: left;
+  .app-header-icon {
+    margin-right: -6px;
+    padding-left: 8px;
+    padding-right: 0;
+    @media (min-width: @screen-sm-min) {
+      margin-right: 0;
+      padding-right: 8px;
+    }
   }
 }
 
+.options-main {
+  height: 44px;
+}
+
 .options-extended {
-  width: 100%;
-  position: absolute;
 }
 
 .subscribe-button {
@@ -485,18 +498,20 @@ footer {
 .search-input-container {
   .pull-left();
   margin-top: 6px;
-  margin-left: @grid-gutter-width/2;
+  margin-left: 15px;
   width: 72%;
   @media (min-width: @screen-sm-min) {
-      width: 80%;
-    }
+    margin-left: 0;
+    margin-top: 8px;
+    width: 82%;
+  }
 
   input {
     background: @brand-secondary;
     border: none;
     border-radius: @border-radius-small;
     color: @white;
-    padding: .48em @grid-gutter-width/2;
+    padding: .35em @grid-gutter-width/2;
     width: 100%;
   }
 
@@ -720,6 +735,9 @@ footer {
 }
 
 .settings {
+  position: absolute;
+  width: 100%;
+
   .list-group-item {
     color: @brand-primary;
     padding: 15px;
@@ -885,11 +903,25 @@ form > .form-group:first-child { margin-top: 5px; }
 .select-game-types {
   background: @brand-primary;
   padding: 10px 15px 0;
+  @media (min-width: @screen-sm-min) {
+    padding: 10px 0 0;
+  }
+
+  .each-game-type {
+    @media (min-width: @screen-sm-min) {
+      display: inline-block;
+      margin-right: 2em;
+    }  
+  }
 
   label {
     color: @white;
     text-transform: capitalize;
-    margin: 5px 0;
+    margin-bottom: 0;
+    padding: 10px 0;
+    @media (min-width: @screen-sm-min) {
+      padding: 5px 0;
+    }
   }
 
   input[type='checkbox'] {
@@ -901,7 +933,10 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .run-search {
   background: @brand-primary;
-  padding: 10px 15px;
+  padding: 10px 15px 15px;
+  @media (min-width: @screen-sm-min) {
+    padding: 10px 0 15px;
+  }
 }
 
 .listed-game {
@@ -1059,9 +1094,7 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .add-game-select {
   .box-shadow(none);
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  .appearance(none);
   border: none;
   border-bottom: 1px solid fade(@brand-primary, 30%);
   border-radius: 0;
@@ -1069,9 +1102,7 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .add-game-input {
   .box-shadow(none);
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  .appearance(none);
   border: none;
   border-bottom: 1px solid fade(@brand-primary, 30%);
   border-radius: 0;

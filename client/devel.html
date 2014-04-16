@@ -73,16 +73,14 @@
 
 <template name="optionsExtended">
   <div class="options-extended row">
-    <div class="content-all">
-      {{> alerts where="top"}}
-      {{#if SGet 'viewing-settings'}}
-        {{> settings}}
-      {{/if}}
-      {{#if SEql 'searching' 'during'}}
-        {{> selectGameTypes}}
-        {{> runSearch}}
-      {{/if}}
-    </div>
+    {{> alerts where="top"}}
+    {{#if SGet 'viewing-settings'}}
+      {{> settings}}
+    {{/if}}
+    {{#if SEql 'searching' 'during'}}
+      {{> selectGameTypes}}
+      {{> runSearch}}
+    {{/if}}
   </div>
 </template>
 
@@ -90,12 +88,14 @@
   <div class="cover-photo-container">
     <img src="/img/streetbasketball.jpg" class="cover-photo">
   </div>
+  {{#if SEql 'searching' 'not'}}
   <div class="headline-container">
     <div class="container">
       <h1 class="headline-primary">Welcome to PushPickup.</h1>
       <p>Better than email for organizing pickup basketball, soccer, and ultimate.</p>
     </div>
   </div>
+  {{/if}}
 </template>
 
 <template name="listOfGames">
@@ -410,7 +410,7 @@
 <template name="selectGameTypes">
   <div class="select-game-types">
     {{#each options}}
-      <div><label>
+      <div class="each-game-type"><label>
           <input type="checkbox" value="{{value}}" checked>
           {{value}}
       </label></div>
