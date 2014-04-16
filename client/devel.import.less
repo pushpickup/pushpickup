@@ -282,7 +282,7 @@ input[type="checkbox"]:checked:after {
   position: absolute;
   top: 0px;
   left: 3px;
-  color: fade(@gray-darker, 60%);
+  color: #fff;
 }
 
 #gameFilters {
@@ -461,6 +461,8 @@ footer {
     &.ppicon-cancel {
       position: absolute;
       top: 0;
+      font-size: @font-size-h3;
+      padding-top: 9px;
     }
   }
 }
@@ -507,7 +509,7 @@ footer {
   width: 72%;
   @media (min-width: @screen-sm-min) {
     margin-left: 0;
-    margin-top: 8px;
+    margin-top: 9px;
     width: 82%;
   }
 
@@ -516,8 +518,15 @@ footer {
     border: none;
     border-radius: @border-radius-small;
     color: @white;
-    padding: .35em @grid-gutter-width/2;
+    padding: 1.1em @grid-gutter-width/2;
     width: 100%;
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .search-input {
+    height: 26px;
   }
 
   ::-webkit-input-placeholder {color: @brand-primary;}
@@ -548,6 +557,7 @@ footer {
   .add-game-link();
   a {
     padding-right: 14px;
+    padding-top: 18px;
   }
 }
 
@@ -1016,6 +1026,10 @@ form > .form-group:first-child { margin-top: 5px; }
   margin: 0;
   &:hover {
     opacity: 1;
+  }
+  & a span.ppicon-cancel {
+    font-size: @font-size-h3;
+    padding-top: 9px;
   }
 }
 
