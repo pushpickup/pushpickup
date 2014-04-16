@@ -49,8 +49,10 @@
   <div class="options-main row">
     {{#if SEql 'searching' 'not'}}
       {{> settingsCog}}
-      {{> startSearch}}
-      {{> addGameLink}}
+      {{#unless SGet 'viewing-settings'}}
+        {{> startSearch}}
+        {{> addGameLink}}
+      {{/unless}}
     {{else}}
       {{#if SEql 'searching' 'during'}}
         {{> searchInput}}
@@ -361,6 +363,9 @@
       <a><span class="app-header-icon ppicon-cog"></span></a>
     {{/if}}
   </div>
+  {{#if SGet 'viewing-settings'}}
+    <h1 class="title">Settings</h1>
+  {{/if}}
 </template>
 
 <template name="startSearch">
