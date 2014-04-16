@@ -40,7 +40,7 @@ var getUserLocation = function (onSuccess /* optional */) {
 
 Deps.autorun(function () {
   if (Session.equals("get-user-location", "success")) {
-    $('.search-input input[type=search]').val("Current Location");
+    $('.search-input[type=search]').val("Current Location");
     Meteor.setTimeout(function () {
       Session.set("get-user-location", null);
     }, 1000);
@@ -203,11 +203,11 @@ Template.layout.created = function () {
 };
 
 Template.devNav.events({
-  'click .start-search a': function () {
+  'click .start-search-init': function () {
     Session.set('searching', 'during');
     Session.set("viewing-settings", false);
   },
-  'click .search-input input': function () {
+  'click .search-input': function () {
     Session.set('searching', 'during');
   },
   'click .exit-search a': function () {
@@ -224,8 +224,16 @@ Template.devNav.events({
 });
 
 Template.settingsCog.events({
-  "click a": function () {
+  "click": function () {
     Session.toggle("viewing-settings");
+  }
+});
+
+Template.devBody.events({
+  "click": function() {
+    if(Session.equals("viewing-settings", true)) {
+      Session.set("viewing-settings", false);
+    } 
   }
 });
 
@@ -651,7 +659,7 @@ Template.searchInput.rendered = function () {
   var template = this;
   autocomplete && google.maps.event.clearListeners(autocomplete);
   autocomplete = new google.maps.places.Autocomplete(
-    template.find('.search-input input'),
+    template.find('.search-input'),
     {types: ['(cities)']});
   google.maps.event.addListener(
     autocomplete, 'place_changed', onPlaceChanged);

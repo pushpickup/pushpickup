@@ -12,11 +12,7 @@
 
 <template name="devMain">
   {{> devNav}}
-  {{> coverPhoto }}
-  <div class="container">
-    {{> alerts where="main"}}
-    {{> devBody}}
-  </div>
+  {{> devBody}}
 </template>
 
 <template name="devFooter">
@@ -27,13 +23,17 @@
 </template>
 
 <template name="devBody">
-  {{#if SEql 'searching' 'after'}}
-    {{> findingsMap}}
-    <!-- {{> subscribe}} -->
-    {{> listOfGames}}
-  {{else}}
-    {{> listOfGames}}
-  {{/if}}
+  {{> coverPhoto }}
+  <div class="container">
+    {{> alerts where="main"}}
+    {{#if SEql 'searching' 'after'}}
+      {{> findingsMap}}
+      <!-- {{> subscribe}} -->
+      {{> listOfGames}}
+    {{else}}
+      {{> listOfGames}}
+    {{/if}}
+  </div>
 </template>
 
 <template name="devNav">
@@ -49,8 +49,10 @@
   <div class="options-main row">
     {{#if SEql 'searching' 'not'}}
       {{> settingsCog}}
-      {{> startSearch}}
-      {{> addGameLink}}
+      {{#unless SGet 'viewing-settings'}}
+        {{> startSearch}}
+        {{> addGameLink}}
+      {{/unless}}
     {{else}}
       {{#if SEql 'searching' 'during'}}
         {{> searchInput}}
@@ -73,16 +75,14 @@
 
 <template name="optionsExtended">
   <div class="options-extended row">
-    <div class="content-all">
-      {{> alerts where="top"}}
-      {{#if SGet 'viewing-settings'}}
-        {{> settings}}
-      {{/if}}
-      {{#if SEql 'searching' 'during'}}
-        {{> selectGameTypes}}
-        {{> runSearch}}
-      {{/if}}
-    </div>
+    {{> alerts where="top"}}
+    {{#if SGet 'viewing-settings'}}
+      {{> settings}}
+    {{/if}}
+    {{#if SEql 'searching' 'during'}}
+      {{> selectGameTypes}}
+      {{> runSearch}}
+    {{/if}}
   </div>
 </template>
 
@@ -90,12 +90,14 @@
   <div class="cover-photo-container">
     <img src="/img/streetbasketball.jpg" class="cover-photo">
   </div>
+  {{#if SEql 'searching' 'not'}}
   <div class="headline-container">
     <div class="container">
       <h1 class="headline-primary">Welcome to PushPickup.</h1>
       <p>Better than email for organizing pickup basketball, soccer, and ultimate.</p>
     </div>
   </div>
+  {{/if}}
 </template>
 
 <template name="listOfGames">
@@ -356,17 +358,20 @@
 <template name="settingsCog">
   <div class="settings-cog">
     {{#if SGet 'viewing-settings'}}
-      <a><span class="nav-icon ppicon-cancel"></span></a>
+      <a><span class="app-header-icon ppicon-cancel"></span></a>
     {{else}}
-      <a><span class="nav-icon ppicon-cog"></span></a>
+      <a><span class="app-header-icon ppicon-cog"></span></a>
     {{/if}}
   </div>
+  {{#if SGet 'viewing-settings'}}
+    <h1 class="title">Settings</h1>
+  {{/if}}
 </template>
 
 <template name="startSearch">
-  <div class="start-search">
-    <a class="start-search-input">
-      <span class="nav-icon ppicon-search"></span>
+  <div class="start-search-container">
+    <a class="start-search-init">
+      <span class="app-header-icon ppicon-search"></span>
       <label>Find Games</label>
     </a>
   </div>
@@ -379,11 +384,8 @@
 </template>
 
 <template name="searchInput">
-  <div class="search-input">
-    <div class="input-group">
-      <input class="form-control" type="search" placeholder="Enter Location"
-             autofocus required>
-    </div>
+  <div class="search-input-container">
+      <input type="search" class="search-input" placeholder="Enter Location" autofocus required>
   </div>
 </template>
 
@@ -413,7 +415,7 @@
 <template name="selectGameTypes">
   <div class="select-game-types">
     {{#each options}}
-      <div><label>
+      <div class="each-game-type"><label>
           <input type="checkbox" value="{{value}}" checked>
           {{value}}
       </label></div>
@@ -430,7 +432,16 @@
 
 <template name="back">
   <div class="back">
-    <a><span class="nav-icon ppicon-left-open"></span></a>
+    <a><span class="app-header-icon ppicon-left-open"></span></a>
+  </div>
+</template>
+
+<template name="backToList">
+  <div class="back back-to-list">
+    <a href="/">
+      <span class="app-header-icon ppicon-left-open"></span>
+      <label>Pickups</label>
+    </a>
   </div>
 </template>
 
@@ -495,30 +506,21 @@
 <template name="devDetailNav">
   <div class="app-header">
     <div class="dev-detail-nav container">
-      <div class="content-all row">
-        {{> backToList}}
-        {{> gameTypeIndicator}}
-        {{> editGameLink}}
-        {{> shareGameLink}}
-        {{> copyGameLink}}
-      </div>
+      {{> backToList}}
+      {{> gameTypeIndicator}}
+      {{> editGameLink}}
+      {{> shareGameLink}}
+      {{> copyGameLink}}
     </div>
-  </div>
-</template>
-
-<template name="backToList">
-  <div class="back-to-list">
-    <a href="/">
-      <span class="nav-icon ppicon-left-open pull-left"></span>
-      Pickups
-    </a>
   </div>
 </template>
 
 <template name="shareGameLink">
   <div class="share-game-link">
-    <a><span class="nav-icon ppicon-link pull-left"></span>
-      Share</a>
+    <a>
+      <span class="app-header-icon ppicon-link pull-left"></span>
+      <label>Share</label>
+    </a>
   </div>
 </template>
 
@@ -528,7 +530,7 @@
       <input type="text"
              id="copyGameLink"
              value="{{baseURL}}{{pathFor 'devDetail'}}">
-      <button type="button" class="close" aria-hidden="true"><span class="nav-icon ppicon-cancel"></span></button>
+      <button type="button" class="close" aria-hidden="true"><span class="app-header-icon ppicon-cancel"></span></button>
     {{/if}}
   </div>
 </template>
@@ -708,7 +710,7 @@
       <div class="container">
         <div class="close">
           <a href="/">
-            <span class="nav-icon ppicon-cancel"></span>
+            <span class="app-header-icon ppicon-cancel"></span>
           </a>
         </div>
         <h1 class="title">{{title}}</h1>
