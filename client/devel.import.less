@@ -24,7 +24,7 @@ input, button, select, textarea {
 
 @media (max-width: @screen-xs) {
   input, select, textarea {
-    &:focus { font-size: 16px; } // prevent Auto Zoom.
+    font-size: 16px; // prevent Auto Zoom.
   }
 }
 
@@ -499,7 +499,7 @@ footer {
     cursor: pointer;
     font-size: @font-size-base;
     font-weight: normal;
-    margin: 9px @grid-gutter-width/2 0 0;
+    margin: 8px @grid-gutter-width/2 0 0;
   }
 }
 
@@ -519,15 +519,11 @@ footer {
     border: none;
     border-radius: @border-radius-small;
     color: @white;
-    padding: 1.1em @grid-gutter-width/2;
+    padding: 8px @grid-gutter-width/2 7px;
     width: 100%;
     &:focus {
       outline: none;
     }
-  }
-
-  .search-input {
-    height: 26px;
   }
 
   ::-webkit-input-placeholder {color: @brand-primary;}
@@ -558,7 +554,7 @@ footer {
   .add-game-link();
   a {
     padding-right: 14px;
-    padding-top: 18px;
+    padding-top: 16px;
   }
 }
 
