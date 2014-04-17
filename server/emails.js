@@ -1,6 +1,10 @@
 // Extend the functionality of `accounts-password` package
 // to send custom emails
 
+Accounts.emailTemplates.from = "PushPickup <support@pushpickup.com>";
+Accounts.emailTemplates.siteName = Meteor.absoluteUrl()
+  .replace(/^https?:\/\//, '').replace(/\/$/, '');
+
 emailTemplates = {
   from: "PushPickup <support@pushpickup.com>",
   siteName: Meteor.absoluteUrl()
