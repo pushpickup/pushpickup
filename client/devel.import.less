@@ -420,7 +420,7 @@ footer {
   display: block;
   cursor: pointer;
   font-size: ceil((@font-size-base * 1.5));
-  padding: .5em @grid-gutter-width/2 .4em;
+  padding: .55em @grid-gutter-width/2 .35em;
   &.text-muted { color: @text-muted; }
 }
 
@@ -489,7 +489,8 @@ footer {
 
   .app-header-icon {
     .pull-left();
-    padding-right: 8px;
+    padding-left: 8px;
+    padding-right: 4px;
   }
 
   label {
@@ -498,7 +499,7 @@ footer {
     cursor: pointer;
     font-size: @font-size-base;
     font-weight: normal;
-    margin: 8px @grid-gutter-width/2 0 0;
+    margin: 9px @grid-gutter-width/2 0 0;
   }
 }
 
@@ -568,6 +569,7 @@ footer {
 
   .app-header-icon {
     .pull-left();
+    padding-left: 8px;
     padding-right: 2px;
     @media (min-width: @screen-sm-min) {
       padding-left: 0;
@@ -588,6 +590,11 @@ footer {
   margin-right: @grid-gutter-width/2;
   @media (min-width: @screen-sm-min) {
     margin-right: 0;
+  }
+
+  .app-header-icon {
+    font-size: ceil((@font-size-base * 1.1));
+    padding: .85em .3em;
   }
 }
 
