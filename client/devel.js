@@ -1127,9 +1127,9 @@ Template.soloGameMap.rendered = function () {
     position: latLng, map: map
   });
 
-  var infowindow = new google.maps.InfoWindow({
-    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
-  });
+//  var infowindow = new google.maps.InfoWindow({
+//    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+//  });
 
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.open(map,marker);
@@ -1138,9 +1138,9 @@ Template.soloGameMap.rendered = function () {
   // A weird hack -- I don't know why an immediate `infowindow.open`
   // escapes notice of the default AutoPan. By waiting one second,
   // the map will autopan to accomodate the infowindow.
-  Meteor.setTimeout(function () {
-    infowindow.open(map,marker);
-  }, 1000);
+//  Meteor.setTimeout(function () {
+//    infowindow.open(map,marker);
+//  }, 1000);
 
 
   // Set geoWithin for subscription and determine if subscription exists.
