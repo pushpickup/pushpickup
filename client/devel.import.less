@@ -24,7 +24,7 @@ input, button, select, textarea {
 
 @media (max-width: @screen-xs) {
   input, select, textarea {
-    &:focus { font-size: 16px; } // prevent Auto Zoom.
+    font-size: 16px; // prevent Auto Zoom.
   }
 }
 
@@ -503,7 +503,7 @@ footer {
     cursor: pointer;
     font-size: @font-size-base;
     font-weight: normal;
-    margin: 9px @grid-gutter-width/2 0 0;
+    margin: 8px @grid-gutter-width/2 0 0;
   }
 }
 
@@ -531,10 +531,6 @@ footer {
     &:focus {
       outline: none;
     }
-  }
-
-  .search-input {
-    height: 26px;
   }
 
   ::-webkit-input-placeholder {color: @brand-primary;}
