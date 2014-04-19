@@ -178,6 +178,9 @@ var handlebarsHelperMap = {
   baseURL: function () {
     return Meteor.absoluteUrl().slice(0,-1);
   },
+  old: function (date) {
+    return date < moment().subtract('weeks',1).toDate();
+  },
   past: function (date) {
     return date < new Date();
   },

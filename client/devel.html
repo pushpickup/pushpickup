@@ -558,7 +558,9 @@
         {{> whosPlayingSummary}}
       {{/unless}}
       {{> comments}}
-      {{> addComment}}
+      {{#unless old startsAt}}
+        {{> addComment}}
+      {{/unless}}
     </div>
   </div>
 </template>
