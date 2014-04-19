@@ -1085,5 +1085,17 @@
         {{/each}}
       </ul>
     {{/spinnerIfWaiting}}
+    <h3>User info</h3>
+    {{#spinnerIfWaiting toComplete='all-users-snapshot'}}
+      <ul>
+        {{#each allUsers}}
+          <li>
+            name: {{name}}, email: {{email.address}},
+            registered: {{whenRegistered}}, verified email: {{email.verified}},
+            games added: {{gamesAdded}}, games joined: {{gamesJoined}}
+          </li>
+        {{/each}}
+      </ul>
+    {{/spinnerIfWaiting}}
   </div>
 </template>

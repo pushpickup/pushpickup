@@ -261,5 +261,21 @@ Meteor.methods({
 
     return Games.find({startsAt: {$gte: new Date()}},
                {fields: {type: 1, startsAt: 1, location: 1}}).fetch();
+  },
+  "allUsersSnapshot": function () {
+    var user = this.userId && Meteor.users.findOne(this.userId);
+    if (!user || !user.admin)
+      throw new Meteor.Error(401, "Admin access only");
+
+    return Meteor.users.find({}, {
+      fields: {profile: 1, emails: 1, createdAt: 1}}).map(function (u) {
+        return {
+          name: u.profile && u.profile.name || "Anonymous",
+          email: u.emails[0],
+          createdAt: u.createdAt,
+          gamesAdded: Games.find({'creator.userId': u._id}).count(),
+          gamesJoined: Games.find({'players.userId': u._id}).count()
+        };
+      });
   }
 });
