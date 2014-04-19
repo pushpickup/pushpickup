@@ -1091,7 +1091,8 @@
         {{#each allUsers}}
           <li>
             name: {{name}}, email: {{email.address}},
-            registered: {{whenRegistered}}, verified email: {{email.verified}},
+            registered: {{whenRegistered}},
+            verified email: {{#if email.verified}}true{{else}}false{{/if}},
             games added: {{gamesAdded}}, games joined: {{gamesJoined}}
           </li>
         {{/each}}

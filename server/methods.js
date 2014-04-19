@@ -271,7 +271,8 @@ Meteor.methods({
       fields: {profile: 1, emails: 1, createdAt: 1}}).map(function (u) {
         return {
           name: u.profile && u.profile.name || "Anonymous",
-          email: u.emails[0],
+          email: u.emails && u.emails[0] ||
+            {address: "no email", verified: false},
           createdAt: u.createdAt,
           gamesAdded: Games.find({'creator.userId': u._id}).count(),
           gamesJoined: Games.find({'players.userId': u._id}).count()
