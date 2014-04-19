@@ -735,7 +735,7 @@ Template.findingsMap.rendered = function () {
 
   var map = new google.maps.Map(
     self.find('.findings-map-canvas'), {
-      zoom: 12, //18 good for one-game zoom
+      zoom: 8, //18 good for one-game zoom
       center: geoUtils.toLatLng(Session.get("selectedLocationPoint")),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
@@ -804,7 +804,7 @@ Template.findingsMap.rendered = function () {
   self._syncMapWithSearch = Deps.autorun(function () {
     if (Session.equals("searching", "after")) {
       map.panTo(geoUtils.toLatLng(Session.get("selectedLocationPoint")));
-      map.setZoom(12);
+      map.setZoom(8);
       // implicit Session.set('geoWithin',...) via map 'idle' listener
     }
   });
@@ -1087,7 +1087,7 @@ Template.devDetail.events({
     Session.set("copy-game-link", this._id);
   },
   "click .copy-game-link input": function () {
-    var copyGameLink = document.getElementById("copyGameLink")
+    var copyGameLink = document.getElementById("copyGameLink");
     copyGameLink.selectionStart = 0;
     copyGameLink.selectionEnd = 999;
     copyGameLink.readOnly = true;
