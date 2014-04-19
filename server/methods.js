@@ -4,8 +4,10 @@ Meteor.methods({
     check(location, GeoJSONPoint);
     return Games.find({
       'startsAt': {$lt: new Date()},
-      'location.geoJSON': {$near: {$geometry: location}}
-    }, {limit: 15}).fetch();
+      'location.geoJSON': {
+        $near: {$geometry: location},
+        $maxDistance: 100000 // 100,000 m => 62 miles
+      }}, {limit: 15}).fetch();
   },
   "sendVerificationEmail": function () {
     this.unblock();
