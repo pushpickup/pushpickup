@@ -4,8 +4,10 @@ Meteor.methods({
     check(location, GeoJSONPoint);
     return Games.find({
       'startsAt': {$lt: new Date()},
-      'location.geoJSON': {$near: {$geometry: location}}
-    }, {limit: 15}).fetch();
+      'location.geoJSON': {
+        $near: {$geometry: location},
+        $maxDistance: 100000 // 100,000 m => 62 miles
+      }}, {limit: 15}).fetch();
   },
   "sendVerificationEmail": function () {
     this.unblock();
@@ -259,5 +261,22 @@ Meteor.methods({
 
     return Games.find({startsAt: {$gte: new Date()}},
                {fields: {type: 1, startsAt: 1, location: 1}}).fetch();
+  },
+  "allUsersSnapshot": function () {
+    var user = this.userId && Meteor.users.findOne(this.userId);
+    if (!user || !user.admin)
+      throw new Meteor.Error(401, "Admin access only");
+
+    return Meteor.users.find({}, {
+      fields: {profile: 1, emails: 1, createdAt: 1}}).map(function (u) {
+        return {
+          name: u.profile && u.profile.name || "Anonymous",
+          email: u.emails && u.emails[0] ||
+            {address: "no email", verified: false},
+          createdAt: u.createdAt,
+          gamesAdded: Games.find({'creator.userId': u._id}).count(),
+          gamesJoined: Games.find({'players.userId': u._id}).count()
+        };
+      });
   }
 });

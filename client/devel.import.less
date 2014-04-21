@@ -31,6 +31,10 @@ input, button, select, textarea {
   }
 }
 
+.form-control {
+  outline: none;
+}
+
 
 h1 {
     font-size: 3em;
@@ -522,7 +526,9 @@ footer {
     border: none;
     border-radius: @border-radius-small;
     color: @white;
-    padding: 8px @grid-gutter-width/2 7px;
+    @media (max-width: @screen-xs) {
+      font-size: 16px;
+    }
     width: 100%;
     &:focus {
       outline: none;
@@ -537,6 +543,7 @@ footer {
 
   input[type='search']{
     .box-shadow(none);
+    padding: 7px 7px 4px 7px;
   }
 }
 
@@ -557,7 +564,9 @@ footer {
   .add-game-link();
   a {
     padding-right: 14px;
-    padding-top: 16px;
+    @media (min-width: @screen-sm-min) {
+      padding-top: 17px;
+    }
   }
 }
 
@@ -623,7 +632,6 @@ footer {
     border: 0;
     border-radius: @border-radius-small;
     color: @white;
-    font-size: @font-size-base*1.1;
     padding: 6px 12px;
     width: 82%;
     @media (min-width: @screen-sm-min) {
@@ -678,6 +686,10 @@ footer {
 .map-canvas {
   width: auto;
   height: 150px;
+}
+
+.findings-map-canvas.map-canvas {
+  height: 225px;
 }
 
 .game-type-indicator, .ppicon-add-friend {
@@ -993,7 +1005,11 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .add-self-and-friends .close, .add-friends.well .close {
-  padding: 8px;
+  padding: 0 8px 8px 8px;
+  margin-top: -2px;
+  &:hover {
+    background: none;
+  }
 }
 
 .add-info-or-sign-in {

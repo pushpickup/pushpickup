@@ -6,8 +6,6 @@
     </div>
   </div>
   {{> yield}}
-  {{> devFooter}}
-  
 </template>
 
 <template name="devMain">
@@ -383,7 +381,7 @@
 
 <template name="searchInput">
   <div class="search-input-container">
-      <input type="search" class="search-input" placeholder="Enter Location" autofocus required>
+      <input type="search" class="search-input" placeholder="Search City" required>
   </div>
 </template>
 
@@ -558,7 +556,9 @@
         {{> whosPlayingSummary}}
       {{/unless}}
       {{> comments}}
-      {{> addComment}}
+      {{#unless old startsAt}}
+        {{> addComment}}
+      {{/unless}}
     </div>
   </div>
 </template>
@@ -707,7 +707,7 @@
     <div class="app-header">
       <div class="container">
         <div class="close">
-          <a href="/">
+          <a href="{{#if editingGame}}/g/{{_id}}{{else}}/{{/if}}">
             <span class="app-header-icon ppicon-cancel"></span>
           </a>
         </div>
@@ -878,7 +878,8 @@
              that Iubenda lists).
              DW 2014/04/01
           -->
-        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script></li>
+        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
+      </li>
       <li class="sign-out trigger list-group-item">Sign Out</li>
     {{else}}
       {{> settingsItem name="sign-in"}}
@@ -888,6 +889,16 @@
       {{else}}
         {{> settingsItem name="forgot-password"}}
       {{/if}}
+      <!-- This is a hack. I intend to move this into a template, but need to take a little to do it correctly. - SM -->
+      <li class="list-group-item">
+        <!-- "Free" option requires this embedding and limits to four
+             "services"; luckily, we only collect personal data in
+             conjunction with the four services I selected (from all ~ 200
+             that Iubenda lists).
+             DW 2014/04/01
+          -->
+        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
+      </li>
       {{> settingsItem name="help-and-feedback"}}
     {{/if}}
   </ul>
@@ -1068,6 +1079,19 @@
           <li>
             {{type}} {{fromNow}} at {{location.name}}
             (<a href="g/{{_id}}">link</a>)
+          </li>
+        {{/each}}
+      </ul>
+    {{/spinnerIfWaiting}}
+    <h3>User info</h3>
+    {{#spinnerIfWaiting toComplete='all-users-snapshot'}}
+      <ul>
+        {{#each allUsers}}
+          <li>
+            name: {{name}}, email: {{email.address}},
+            registered: {{whenRegistered}},
+            verified email: {{#if email.verified}}true{{else}}false{{/if}},
+            games added: {{gamesAdded}}, games joined: {{gamesJoined}}
           </li>
         {{/each}}
       </ul>

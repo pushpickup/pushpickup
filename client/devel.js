@@ -178,6 +178,9 @@ var handlebarsHelperMap = {
   baseURL: function () {
     return Meteor.absoluteUrl().slice(0,-1);
   },
+  old: function (date) {
+    return date < moment().subtract('weeks',1).toDate();
+  },
   past: function (date) {
     return date < new Date();
   },
@@ -735,7 +738,7 @@ Template.findingsMap.rendered = function () {
 
   var map = new google.maps.Map(
     self.find('.findings-map-canvas'), {
-      zoom: 12, //18 good for one-game zoom
+      zoom: 8, //18 good for one-game zoom
       center: geoUtils.toLatLng(Session.get("selectedLocationPoint")),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
@@ -804,7 +807,7 @@ Template.findingsMap.rendered = function () {
   self._syncMapWithSearch = Deps.autorun(function () {
     if (Session.equals("searching", "after")) {
       map.panTo(geoUtils.toLatLng(Session.get("selectedLocationPoint")));
-      map.setZoom(12);
+      map.setZoom(8);
       // implicit Session.set('geoWithin',...) via map 'idle' listener
     }
   });
@@ -1087,7 +1090,7 @@ Template.devDetail.events({
     Session.set("copy-game-link", this._id);
   },
   "click .copy-game-link input": function () {
-    var copyGameLink = document.getElementById("copyGameLink")
+    var copyGameLink = document.getElementById("copyGameLink");
     copyGameLink.selectionStart = 0;
     copyGameLink.selectionEnd = 999;
     copyGameLink.readOnly = true;
@@ -1127,9 +1130,9 @@ Template.soloGameMap.rendered = function () {
     position: latLng, map: map
   });
 
-  var infowindow = new google.maps.InfoWindow({
-    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
-  });
+//  var infowindow = new google.maps.InfoWindow({
+//    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+//  });
 
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.open(map,marker);
@@ -1138,9 +1141,9 @@ Template.soloGameMap.rendered = function () {
   // A weird hack -- I don't know why an immediate `infowindow.open`
   // escapes notice of the default AutoPan. By waiting one second,
   // the map will autopan to accomodate the infowindow.
-  Meteor.setTimeout(function () {
-    infowindow.open(map,marker);
-  }, 1000);
+//  Meteor.setTimeout(function () {
+//    infowindow.open(map,marker);
+//  }, 1000);
 
 
   // Set geoWithin for subscription and determine if subscription exists.
@@ -2159,7 +2162,15 @@ Template.adminView.created = function () {
     } else {
       alert("Error: " + err.message);
     }
-    Session.set("waiting-on", null);
+    Session.set("waiting-on", "all-users-snapshot");
+    Meteor.call("allUsersSnapshot", function (err, res) {
+      if (!err) {
+        Session.set("all-users-snapshot", res);
+      } else {
+        alert("Error: " + err.message);
+      }
+      Session.set("waiting-on", null);
+    });
   });
 };
 
@@ -2170,6 +2181,18 @@ Template.adminView.helpers({
   },
   fromNow: function () {
     return moment(this.startsAt).fromNow();
+  },
+  allUsers: function () {
+    // an array snapshot of minimal info on all users in the system
+    //
+    // `_.sortBy` sorts in ascending order, so `-u.gamesJoined` puts
+    // active players up top.
+    return _.sortBy(Session.get("all-users-snapshot"), function (u) {
+      return -u.gamesJoined;
+    });
+  },
+  whenRegistered: function () {
+    return moment(this.createdAt).fromNow();
   }
 });
 
