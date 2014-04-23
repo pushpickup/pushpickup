@@ -468,11 +468,16 @@ Template.addSelfAndFriends.events({
               if (! error) {
                 Session.set("joined-game", game._id);
                 Session.set("unauth-join", null); // logged in now
+                Alerts.throw({
+                    message: "You've joined this game -- be sure to invite your friends!",
+                    type: "success", where: game._id,
+                    autoremove: 5000
+                  });
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +
                       ". Your friends have been invited. We'll let you know when they join!",
-                    type: "success", where: "addjoinFriends",
+                    type: "success", where: game._id,
                     autoremove: 5000
                   });
                 }
@@ -1189,11 +1194,6 @@ Template.joinOrLeave.events({
     } else {
       Session.set("unauth-join", this._id);
     }
-    Alerts.throw({
-      message: "You've successfully signed-up, please remember to add your friends!",
-      type: "success", where: game._id,
-      autoremove: 5000
-    });
   },
   "click .leave-game": function () {
     Meteor.call("leaveGame", this._id);

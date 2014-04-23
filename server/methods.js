@@ -70,7 +70,7 @@ Meteor.methods({
     var day = correctMoment.format('ddd');
     var time = correctMoment.format('h:mma');
     
-    sendEmail({
+    sendInvitationEmail({
       from: emailTemplates.from,
       to: addedEmail,
       subject: game.type+" | "+day+". "+time+" at"+game.location.name,
