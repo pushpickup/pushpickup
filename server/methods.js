@@ -48,14 +48,18 @@ Meteor.methods({
       return false;
     }
   },
-  "notifyAddedFriend": function (options) {
+  "notifyInvitedFriend": function (options) {
     this.unblock();
     check(options, {
-      addedId: String,
+      added: {name: String, email: ValidEmail},
       adderId: String,
       gameId: String
     });
-    var added = Meteor.users.findOne(options.addedId);
+    var added = options.added;
+    var addedEmail = added.email;
+    var addedName = added.name;
+    console.log('added email', addedEmail)
+    console.log('added name', addedName)
     var adder = Meteor.users.findOne(options.adderId);
     var game = Games.findOne(options.gameId);
     if (!added || !adder || !game)
@@ -65,27 +69,28 @@ Meteor.methods({
     var dayLong = correctMoment.format('dddd');
     var day = correctMoment.format('ddd');
     var time = correctMoment.format('h:mma');
-
-    var ifUnverified = (added.emails[0].verified) ? "" :
-          "Please [verify](" + verifyEmailUrl(added._id)
-          + ") your account so you can receive updates made to the game.\n\n";
+    
     sendEmail({
       from: emailTemplates.from,
-      to: added.emails[0].address,
-      subject: " You're in: "+game.type+" on "+dayLong+" at "+time,
-      text: "- "+game.location.name+"\n"
-        + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
-        + "* [View details on PushPickup](" + Meteor.absoluteUrl('g/'+game._id) + ")\n"
-        + "\n"
-        + "You were added to this game by "+adder.profile.name
+      to: addedEmail,
+      subject: game.type+" | "+day+". "+time+" at"+game.location.name,
+      text: "Hi "+addedName+", \n"
+        + "You have been invited by "+adder.profile.name
         + " ("+adder.emails[0].address+").\n"
+        + " to play pickup "+game.type+":\n"
+        + "- "+game.location.name+"\n"
+        + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
         + "\n"
-        + ifUnverified
-        + "If you can't make it, please [leave the game]("
-        + leaveGameUrl(added._id, game._id) + ") "
-        +"so others will know.\n"
+        + "[Join the game on PushPickup](" + Meteor.absoluteUrl('g/'+game._id) + ")"
+        + " and your friend will be notified that you want to play!\n"
         + "\n"
-        + "Have a good game!"
+        + "Is this your first time hearing of PushPickup? "
+        + "Well, simply put, it's the best way to organize pickup basketball, "
+        + "soccer, and ultimate frisbee. Please let us know what you think -- "
+        + "you can just reply to this email.\n"
+        + "\n"
+        + "Sincerely,\n"
+        + "Donny Winston & Stewart McCoy"
     });
   },
   // Send email that game organizer can forward to friends so that they
