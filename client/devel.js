@@ -629,8 +629,6 @@ Template.selectGameTypes.helpers({
   },
   shouldBeChecked: function(value) {
     var games = Session.get('game-types');
-    console.log(games)
-    console.log('checking value of ', value)
 
     if (games.indexOf(value) > -1){
       console.log(value)
@@ -739,7 +737,7 @@ Template.searchQuery.helpers({
   },
   city: function() {
     var location = Session.get('userSelectedLocation');
-    var city = location.split(" ")[0]
+    var city = location.split(",")[0]
     return city
   }
 });
