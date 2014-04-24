@@ -1257,6 +1257,7 @@ Template.addComment.events({
       Session.set("unauth-comment", comment);
     } else {
       Meteor.call("addComment", comment, self._id);
+      $('input.comment').val('');
     }
   }
 });
