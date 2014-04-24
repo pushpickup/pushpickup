@@ -381,7 +381,12 @@
 
 <template name="searchInput">
   <div class="search-input-container">
-      <input type="search" class="search-input" placeholder="Search City" required>
+      {{#if SEql 'searching' 'after'}}
+        <input type="search" class="search-input" placeholder="Search City" required value="search after">
+      {{else}}
+        <input type="search" class="search-input" placeholder="Search City" required>
+      {{/if}}
+
   </div>
 </template>
 
@@ -834,7 +839,7 @@
 <template name="devSelectLocation">
   <div class="select-location">
     <div class="input-group">
-      <input class="form-control location" type="text" placeholder="Add Location"
+      <input class="form-control location" type="text" placeholder="Add Venue"
              value="{{location.name}}"
              required>
       <span class="input-group-addon">
