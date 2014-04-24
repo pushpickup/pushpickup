@@ -27,6 +27,7 @@
     {{#if SEql 'searching' 'after'}}
       {{> findingsMap}}
       <!-- {{> subscribe}} -->
+      {{> searchQuery}}
       {{> listOfGames}}
     {{else}}
       {{> listOfGames}}
@@ -96,6 +97,12 @@
     </div>
   </div>
   {{/if}}
+</template>
+
+<template name="searchQuery">
+  <li class="list-group-item">
+    <b>{{games}} in {{city}}</b>
+  </li>
 </template>
 
 <template name="listOfGames">
@@ -382,9 +389,13 @@
 <template name="searchInput">
   <div class="search-input-container">
       {{#if SEql 'searching' 'after'}}
-        <input type="search" class="search-input" placeholder="Search City" required>
+        <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}">
       {{else}}
-        <input type="search" class="search-input" placeholder="Search City" required>
+        {{#if SEql 'searching' 'during'}}
+          <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}">
+        {{else}}
+          <input type="search" class="search-input" placeholder="Search City" required value="">
+        {{/if}}
       {{/if}}
 
   </div>
@@ -416,10 +427,15 @@
 <template name="selectGameTypes">
   <div class="select-game-types">
     {{#each options}}
-      <div class="each-game-type"><label>
-          <input type="checkbox" value="{{value}}" checked>
+        <div class="each-game-type"><label>
+        {{#if shouldBeChecked value}}
+          <input id="js-game-type" type="checkbox" value="{{value}}" checked>
           {{value}}
-      </label></div>
+        {{else}}
+          <input id="js-game-type" type="checkbox" value="{{value}}">
+          {{value}}
+        {{/if}}
+        </label></div>
     {{/each}}
   </div>
 </template>
