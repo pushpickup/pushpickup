@@ -631,7 +631,6 @@ Template.selectGameTypes.helpers({
     var games = Session.get('game-types');
 
     if (games.indexOf(value) > -1){
-      console.log(value)
       return 'true'
     }
     return ''
@@ -738,6 +737,7 @@ Template.searchQuery.helpers({
   city: function() {
     var location = Session.get('userSelectedLocation');
     var city = location.split(",")[0]
+    if (!city) city = "this region"
     return city
   }
 });
