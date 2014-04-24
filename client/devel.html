@@ -24,13 +24,24 @@
   {{> coverPhoto }}
   <div class="container">
     {{> alerts where="main"}}
-    {{#if SEql 'searching' 'after'}}
-      {{> findingsMap}}
-      <!-- {{> subscribe}} -->
-      {{> searchQuery}}
+    {{#if SEql 'searching' 'not'}}
       {{> listOfGames}}
     {{else}}
-      {{> listOfGames}}
+      {{#if SEql 'searching' 'after'}}
+        {{> findingsMap}}
+        <!-- {{> subscribe}} -->
+        {{> searchQuery}}
+        {{> listOfGames}}
+      {{else}}
+        {{#if SGet 'search-results'}}
+          {{> findingsMap}}
+          <!-- {{> subscribe}} -->
+          {{> searchQuery}}
+          {{> listOfGames}}
+        {{else}}
+          {{> listOfGames}}
+        {{/if}}
+      {{/if}}
     {{/if}}
   </div>
 </template>

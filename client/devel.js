@@ -717,20 +717,39 @@ Template.runSearch.events({
 Template.searchQuery.helpers({
   games: function(){
     var gameTypes = Session.get('game-types')
+    gameTypes = gameTypes.sort()
     var len = gameTypes.length
     var game = gameTypes[0]
     var l = game.length;
     
     game = game[0].toUpperCase() + game.slice(1,l)
+    if (game == 'Ultimate') game = 'Ultimate Frisbee'
 
-    if (len > 1) {
+    if (len > 2) {
       for (var i=1; i < len; i++) {
         var gameType = gameTypes[i]
         l = gameType.length
         gameType = gameType[0].toUpperCase() + gameType.slice(1,l)
-    
-        game = game + ' and ' + gameType
+
+        if (gameType == 'Ultimate')
+          gameType = 'Ultimate Frisbee'
+
+        if (i == len - 1)
+          game = game + ', and ' + gameType
+        else
+          game = game + ', ' + gameType
       }
+    }
+
+    if (len == 2) {
+      var gameType = gameTypes[1]
+      l = gameType.length
+      gameType = gameType[0].toUpperCase() + gameType.slice(1,l)
+
+      if (gameType == 'Ultimate')
+          gameType = 'Ultimate Frisbee'
+
+      game = game + ' and ' + gameType
     }
     return game
   },
@@ -1779,6 +1798,7 @@ Template.devSelectLocation.rendered = function () {
   autocomplete = new google.maps.places.Autocomplete(
     template.find('.select-location input'),
       {types: ['geocode']});
+  
   google.maps.event.addListener(
     autocomplete, 'place_changed', onSelectLocationChanged);
 };
