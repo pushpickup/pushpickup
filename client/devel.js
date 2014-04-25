@@ -53,8 +53,10 @@ Deps.autorun(function () {
 
 Deps.autorun(function (c) {
   if (Session.equals("dev-mode", true)) {
-    getUserLocation();
-    c.stop();
+    if (Session.equals("dev-detail", false)) {
+      getUserLocation();
+      c.stop();      
+    }
   }
 });
 
@@ -203,6 +205,13 @@ Template.devLayout.created = function () {
 };
 Template.layout.created = function () {
   Session.set("dev-mode", false);
+  Session.set('dev-detail', false);
+};
+Template.devDetail.created = function() {
+  Session.set('dev-detail', true)
+};
+Template.devBody.created = function() {
+  Session.set('dev-detail', false);
 };
 
 Template.devNav.events({
