@@ -53,8 +53,10 @@ Deps.autorun(function () {
 
 Deps.autorun(function (c) {
   if (Session.equals("dev-mode", true)) {
-    getUserLocation();
-    c.stop();
+    if (Session.equals("dev-detail", false)) {
+      getUserLocation();
+      c.stop();      
+    }
   }
 });
 
@@ -68,7 +70,7 @@ Deps.autorun(function () {
   if (! Session.equals("dev-mode", true))
     return;
 
-  if (! Session.equals("searching", "after")) {
+  if (Session.equals("search-results", false)) {
     // No map, so no map bounds to poll.
     // Get nearby or user-involved games that are upcoming.
     // Pull in up to initialNumGamesRequested of the nearest past games.
@@ -203,6 +205,15 @@ Template.devLayout.created = function () {
 };
 Template.layout.created = function () {
   Session.set("dev-mode", false);
+  Session.set('dev-detail', false);
+};
+Template.devDetail.rendered = function() {
+  Session.set('dev-detail', true)
+};
+Template.devBody.rendered = function() {
+  Session.set('dev-detail', false);
+  Session.set('dev-mode', true);
+  getUserLocation();
 };
 
 Template.devNav.events({
@@ -218,11 +229,15 @@ Template.devNav.events({
       Session.set('searching', 'after');
     } else {
       Session.set('searching', 'not');
+      Session.set('userSelectedLocation', '')
+      Session.set('game-types', _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'))
     }
   },
   'click .back a': function () {
     Session.set('searching', 'not');
     Session.set('search-results', false);
+    Session.set('userSelectedLocation', '')
+    Session.set('game-types', _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'))
   }
 });
 
@@ -622,6 +637,17 @@ Template.selectGameTypes.helpers({
   options: function () {
     // TODO: retrieve :checked via Session
     return GameOptions.find({option: "type"},{sort: {value: 1}});
+  },
+  shouldBeChecked: function(value) {
+    var games = Session.get('game-types');
+
+    if (games.indexOf(value) > -1){
+      return 'true'
+    }
+    return ''
+  },
+  deselectBoxes: function() {
+
   }
 });
 
@@ -668,6 +694,12 @@ Template.searchInput.rendered = function () {
     autocomplete, 'place_changed', onPlaceChanged);
 };
 
+Template.searchInput.helpers({
+  selected_city: function() {
+    return Session.get('userSelectedLocation')
+  }
+});
+
 Template.getCurrentLocation.events({
   "click .get-current-location.btn": function (evt, templ) {
     getUserLocation(function (point) {
@@ -689,6 +721,54 @@ Template.runSearch.events({
                 inputValues(".select-game-types input:checked"));
     Session.set("searching", "after");
     Session.set("search-results", true);
+    Session.set('userSelectedLocation', $('.search-input[type=search]').val())
+  }
+});
+
+Template.searchQuery.helpers({
+  games: function(){
+    var gameTypes = Session.get('game-types')
+    gameTypes = gameTypes.sort()
+    var len = gameTypes.length
+    var game = gameTypes[0]
+    var l = game.length;
+    
+    game = game[0].toUpperCase() + game.slice(1,l)
+    if (game == 'Ultimate') game = 'Ultimate Frisbee'
+
+    if (len > 2) {
+      for (var i=1; i < len; i++) {
+        var gameType = gameTypes[i]
+        l = gameType.length
+        gameType = gameType[0].toUpperCase() + gameType.slice(1,l)
+
+        if (gameType == 'Ultimate')
+          gameType = 'Ultimate Frisbee'
+
+        if (i == len - 1)
+          game = game + ', and ' + gameType
+        else
+          game = game + ', ' + gameType
+      }
+    }
+
+    if (len == 2) {
+      var gameType = gameTypes[1]
+      l = gameType.length
+      gameType = gameType[0].toUpperCase() + gameType.slice(1,l)
+
+      if (gameType == 'Ultimate')
+          gameType = 'Ultimate Frisbee'
+
+      game = game + ' and ' + gameType
+    }
+    return game
+  },
+  city: function() {
+    var location = Session.get('userSelectedLocation');
+    var city = location.split(",")[0]
+    if (!city) city = "this region"
+    return city
   }
 });
 
@@ -1728,7 +1808,9 @@ Template.devSelectLocation.rendered = function () {
   var template = this;
   autocomplete && google.maps.event.clearListeners(autocomplete);
   autocomplete = new google.maps.places.Autocomplete(
-    template.find('.select-location input'));
+    template.find('.select-location input'),
+      {types: ['geocode']});
+  
   google.maps.event.addListener(
     autocomplete, 'place_changed', onSelectLocationChanged);
 };
