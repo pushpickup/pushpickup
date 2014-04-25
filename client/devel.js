@@ -70,7 +70,7 @@ Deps.autorun(function () {
   if (! Session.equals("dev-mode", true))
     return;
 
-  if (! Session.equals("searching", "after")) {
+  if (Session.equals("search-results", false)) {
     // No map, so no map bounds to poll.
     // Get nearby or user-involved games that are upcoming.
     // Pull in up to initialNumGamesRequested of the nearest past games.
