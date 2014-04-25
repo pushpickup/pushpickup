@@ -78,6 +78,25 @@ a {
   }
 }
 
+//extended options search
+.extended-search-container {
+  position: absolute;
+  z-index: 2;
+  // Simulate mobile experience on larger devices
+  @media (min-width: @screen-sm-min) {
+    max-width: 450px;
+  }
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+.background {
+  width: 100%;
+  background-color: @brand-primary;
+  position: absolute;
+  min-height: 113px;
+}
+
 .row {
   margin-left: 0;
   margin-right: 0;

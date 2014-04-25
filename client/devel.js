@@ -54,6 +54,7 @@ Deps.autorun(function () {
 Deps.autorun(function (c) {
   if (Session.equals("dev-mode", true)) {
     if (Session.equals("dev-detail", false)) {
+      console.log('getting user location')
       getUserLocation();
       c.stop();      
     }
@@ -207,11 +208,14 @@ Template.layout.created = function () {
   Session.set("dev-mode", false);
   Session.set('dev-detail', false);
 };
-Template.devDetail.created = function() {
+Template.devDetail.rendered = function() {
   Session.set('dev-detail', true)
 };
-Template.devBody.created = function() {
+Template.devBody.rendered = function() {
+  console.log('rendered function')
   Session.set('dev-detail', false);
+  Session.set('dev-mode', true);
+  getUserLocation();
 };
 
 Template.devNav.events({

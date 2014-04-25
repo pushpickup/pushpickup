@@ -52,6 +52,7 @@
       {{> optionsMain}}
       {{> optionsExtended}}
     </div>
+      {{> searchExtended}}
   </div>
 </template>
 
@@ -89,11 +90,25 @@
     {{#if SGet 'viewing-settings'}}
       {{> settings}}
     {{/if}}
-    {{#if SEql 'searching' 'during'}}
-      {{> selectGameTypes}}
-      {{> runSearch}}
-    {{/if}}
   </div>
+</template>
+
+<template name="searchExtended">
+  {{#if SEql 'searching' 'during'}}
+    {{#if SGet 'search-results'}}
+      <div class="background">
+        <div class="container extended-search-container">
+          {{> selectGameTypes}}
+          {{> runSearch}}
+        </div>
+      </div>
+    {{else}}
+      <div class="container">
+        {{> selectGameTypes}}
+        {{> runSearch}}
+      </div>
+    {{/if}}
+  {{/if}}
 </template>
 
 <template name="coverPhoto">
