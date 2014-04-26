@@ -1807,8 +1807,7 @@ Template.devSelectLocation.rendered = function () {
   var template = this;
   autocomplete && google.maps.event.clearListeners(autocomplete);
   autocomplete = new google.maps.places.Autocomplete(
-    template.find('.select-location input'),
-      {types: ['geocode']});
+    template.find('.select-location input'));
   
   google.maps.event.addListener(
     autocomplete, 'place_changed', onSelectLocationChanged);
