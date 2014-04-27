@@ -398,13 +398,17 @@ footer {
 }
 
 .list-of-games {
-  .list-group-item:first-child {
-    padding: 10px 15px;
-  }
-}
+  .list-group-item {
+    padding: 0;
 
-.list-group-item {
-  padding: 0;
+    &:first-child {
+      padding: 10px 15px;
+    }
+
+    &.listed-game {
+      padding: 0;
+    }
+  }
 }
 
 .list-group-item:first-child {
@@ -942,6 +946,7 @@ form > .form-group:first-child { margin-top: 5px; }
   position: absolute;
   top: 32px;
   right: 1px;
+  z-index: 3;
 }
 
 .join-game-link a, .ppicon-add-friend {
@@ -998,10 +1003,6 @@ form > .form-group:first-child { margin-top: 5px; }
   @media (min-width: @screen-sm-min) {
     padding: 10px 0 15px;
   }
-}
-
-.listed-game {
-  padding-bottom: 0;
 }
 
 .add-self-and-friends {
