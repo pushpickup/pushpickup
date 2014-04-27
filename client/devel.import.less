@@ -397,6 +397,12 @@ footer {
   }
 }
 
+.list-of-games {
+  .list-group-item:first-child {
+    padding: 10px 15px;
+  }
+}
+
 .list-group-item {
   padding: 0;
 }
@@ -735,7 +741,9 @@ footer {
 .listed-game .game-summary {
   cursor: pointer;
   padding: 10px 10px 10px 40px;
+  position: relative;
   width: 100%;
+  z-index: 2;
   .game-when {
 
     .day {
