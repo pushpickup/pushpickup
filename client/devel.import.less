@@ -397,6 +397,19 @@ footer {
   }
 }
 
+.list-of-games {
+  .list-group-item {
+    padding: 0;
+
+    &:first-child {
+      padding: 10px 15px;
+    }
+
+    &.listed-game {
+      padding: 0;
+    }
+  }
+}
 
 .list-group-item:first-child {
   border-top-left-radius:  0;
@@ -721,9 +734,20 @@ footer {
   color: @text-muted;
 }
 
+.listed-game .game-type-indicator {
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  z-index: 1;
+}
+
+
 .listed-game .game-summary {
   cursor: pointer;
-  padding-bottom: 10px;
+  padding: 10px 10px 10px 40px;
+  position: relative;
+  width: 100%;
+  z-index: 2;
   .game-when {
 
     .day {
@@ -734,7 +758,6 @@ footer {
 
 .past.listed-game .game-summary {
   .text-muted;
-  width: 240px;
 }
 
 .place {
@@ -878,7 +901,7 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .dev-detail-body {
-  margin-bottom: @grid-gutter-width / 2;
+  padding-bottom: 4em;
   @media (min-width: @screen-sm-min) {
     border: 1px solid @gray-lighter;
     border-top: none;
@@ -888,6 +911,7 @@ form > .form-group:first-child { margin-top: 5px; }
     margin: @grid-gutter-width/2 0;
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
+    position: relative;
   }
 
   .organizers-note > div {
@@ -913,7 +937,7 @@ form > .form-group:first-child { margin-top: 5px; }
 .dev-detail-body .add-friends-link {
   display: inline-block;
   position: absolute;
-  top: 165px;
+  top: 5px;
   right: 1px;
 }
 
@@ -922,21 +946,11 @@ form > .form-group:first-child { margin-top: 5px; }
   position: absolute;
   top: 32px;
   right: 1px;
+  z-index: 3;
 }
 
 .join-game-link a, .ppicon-add-friend {
   padding: 20px;
-}
-
-.listed-game .game-summary {
-  display: inline-block;
-  padding-left: 10px;
-  width: 200px;
-}
-
-.listed-game .game-type-indicator {
-  float: left;
-  margin-top: 20px;
 }
 
 .list-group {
@@ -989,14 +1003,6 @@ form > .form-group:first-child { margin-top: 5px; }
   @media (min-width: @screen-sm-min) {
     padding: 10px 0 15px;
   }
-}
-
-.listed-game {
-  padding-bottom: 0;
-}
-
-.listed-game .add-players {
-  margin: 0 -15px;
 }
 
 .add-self-and-friends {
@@ -1080,7 +1086,7 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .game-form {
   .clearfix();
-  padding-bottom: 15px;
+  padding-bottom: 4em;
   @media (min-width: @screen-sm-min) {
     border: 1px solid @gray-lighter;
     border-top: 0;
@@ -1226,8 +1232,7 @@ label[for="requestedNumPlayers"] {
 
 .form-control.game-note {
   .add-game-input();
-  background: @gray-lighter;
-  border: none;
+  border: 1px solid fade(@brand-primary, 30%);
   border-radius: @border-radius-small;
 }
 
