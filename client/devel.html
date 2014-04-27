@@ -229,6 +229,9 @@
     <div class="organizer-info">
       Added by {{creator.name}}
     </div>
+    {{#unless past startsAt}}
+        {{#if userInGame}} {{> addFriendsLink}} {{/if}}
+    {{/unless}}
   </div>
 </template>
 
@@ -594,7 +597,6 @@
       {{> soloGameMap}}
       {{> soloGameSummary}}
       {{#unless past startsAt}}
-        {{#if userInGame}} {{> addFriendsLink}} {{/if}}
         {{> addPlayers}}
         {{> joinOrLeave}}
       {{/unless}}

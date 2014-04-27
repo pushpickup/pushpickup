@@ -540,10 +540,10 @@ Template.addFriends.events({
           Alerts.throw({
             message: "Thanks, " + Meteor.user().profile.name +
               ". Your friend has been added (and will get an email notification if you added their address)!",
-            type: "success", where: game._id,
-            autoremove: 5000
+            type: "success", where: game._id
           });
           Session.set("add-friends", null);
+          window.scrollTo(0,0);
         } else {
           // typical error: email in use
           // BUT we're currently allowing users to add friends
@@ -1711,6 +1711,7 @@ Template.devEditableGame.events({
             Alerts.throw(_.extend({where: result.gameId}, addedAlert));
             Session.set("strange-passwd", result.password);
             Router.go('devDetail', {_id: result.gameId});
+            window.scrollTo(0,0);
           } else {
             // typical error: email in use
             console.log(error);
@@ -1749,6 +1750,7 @@ Template.devEditableGame.events({
                 Router.go('devDetail', {_id: result.gameId});
                 Meteor.call("sendForwardableInvite", result.gameId);
                 Alerts.throw(_.extend({where: result.gameId}, addedAlert));
+                window.scrollTo(0,0);
               } else {
                 console.log(error);
                 Alerts.throw({
@@ -1783,6 +1785,7 @@ Template.devEditableGame.events({
           Router.go('devDetail', {_id: result.gameId});
           Meteor.call("sendForwardableInvite", result.gameId);
           Alerts.throw(_.extend({where: result.gameId}, addedAlert));
+          window.scrollTo(0,0);
         } else {
           console.log(error);
           Alerts.throw({
