@@ -155,6 +155,12 @@
     {{> gameTypeIndicator}}
     {{> listedGameSummary}}
     {{#unless past startsAt}}
+      {{#if userInGame}}
+        {{> addFriendsLink}}
+      {{/if}}
+      {{#if organizing}}
+        {{> addFriendsLink}}
+      {{/if}}
       {{> alerts where=_id}}
       {{> addPlayers}}
     {{/unless}}
@@ -302,9 +308,7 @@
     <form class="add-friends" role="form">
       {{> inviteFriendsInput}}
       {{> alerts where="addjoinFriends"}}
-      <button type="submit" class="btn invite-friends">
-        <span class="ppicon-add-friend">Invite friends</span>
-      </button>
+      <button type="submit" class="btn join-game"> Invite {{pluralize numFriends "friend" "friends"}}</button>
     </form>
   </div>
 </template>
@@ -586,17 +590,34 @@
 
 <template name="joinOrLeave">
   <div class="join-or-leave">
-    {{#unless addingPlayers}}
-      {{#unless userInGame}}
-        <button type="button" class="btn join-game">Join game</button>
-      {{else}}
-        {{> alerts where="addjoinFriends"}}
-        <button type="button" class="btn invite-friends">
-          <span class="ppicon-add-friend"> Invite friends</span>
-        </button>
-        <a class="leave-game">Leave game</a>
+    {{#if organizing}}
+      {{#unless addingPlayers}}
+        {{#unless userInGame}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn join-game-and-invite" style="width:100%">Join game</a>
+        {{else}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{/unless}}
       {{/unless}}
-    {{/unless}}
+    {{else}}
+      {{#unless addingPlayers}}
+        {{#unless userInGame}}
+          <button type="button" class="btn join-game">Join game</button>
+        {{else}}
+          {{> alerts where="addjoinFriends"}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{/unless}}
+      {{/unless}}
+    {{/if}}
+
   </div>
 </template>
 
