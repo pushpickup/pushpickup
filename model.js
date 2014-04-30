@@ -238,7 +238,7 @@ Meteor.methods({
         // receive reminders first and then cancellation e-mails after.
         // However, there is a possibility that the scheduled job just ran before we cancelled,
         // so they might still get both e-mails.
-        gameReminders.cancelReminderFromOrganizer(id);
+        Meteor.isServer && gameReminders.cancelReminderFromOrganizer(id);
 
         if (Meteor.isServer) {
             this.unblock();
