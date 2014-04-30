@@ -155,10 +155,7 @@
     {{> gameTypeIndicator}}
     {{> listedGameSummary}}
     {{#unless past startsAt}}
-      {{#if userInGame}}
-        {{> addFriendsLink}}
-      {{/if}}
-      {{#if organizing}}
+      {{#if organizingOrPlaying}}
         {{> addFriendsLink}}
       {{/if}}
       {{> alerts where=_id}}
