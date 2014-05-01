@@ -233,14 +233,14 @@ Meteor.methods({
             return user._id === game.creator.userId || user.admin;
         }));
 
-        // Cancels the reminder about the upcoming game.
-        // Calling this before e-mails are sent so that they won't
-        // receive reminders first and then cancellation e-mails after.
-        // However, there is a possibility that the scheduled job just ran before we cancelled,
-        // so they might still get both e-mails.
-        Meteor.isServer && gameReminders.cancelReminderFromOrganizer(id);
-
         if (Meteor.isServer) {
+            // Cancels the reminder about the upcoming game.
+            // Calling this before e-mails are sent so that they won't
+            // receive reminders first and then cancellation e-mails after.
+            // However, there is a possibility that the scheduled job just ran before we cancelled,
+            // so they might still get both e-mails.
+            gameReminders.cancelReminderFromOrganizer(id);
+
             this.unblock();
             var email;
             _.each(game.players, function (player) {
