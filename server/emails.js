@@ -284,6 +284,24 @@ sendInvitationEmail = function (email, options) {
   Email.send(email);
 };
 
+// Use instead of `Email.send` to ensure defaults such as a link at bottom
+// to unsubscribe from all emails, and an html body derived from the text body.
+sendInviterNotifyEmail = function (email, options) {
+  var address = getEmailAddress(email.to);
+  options = _.extend({
+    withHTMLbody: ! Meteor.settings.DEVELOPMENT
+  }, options);
+  if (options.withHTMLbody) {
+    email = withHTMLbody(email);
+  }
+  
+  // got rid of all the checks for whether user exists
+  // and has verified email address, etc.
+  // Assumes that the invited friend may not be in the system and
+  // will just send an email anyways
+  Email.send(email);
+};
+
 
 ////
 //  Email-sending procedures

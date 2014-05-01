@@ -309,6 +309,9 @@ Template.joinGameLink.events({
 
 var addSelfToGame = function (gameId) {
   if (! gameId) { return; }
+  var path = Router.current().path;
+  var inviteeId = path.split('?')[1]
+
   Meteor.call("addSelf", {
     gameId: gameId,
     name: Meteor.user().profile.name
@@ -318,9 +321,22 @@ var addSelfToGame = function (gameId) {
       Session.set("unauth-join", null);
       Alerts.throw({
         message: "You've joined this game -- be sure to invite your friends!",
-        type: "success", where: game._id,
+        type: "success", where: gameId,
         autoremove: 5000
       });
+
+      var fullName = Meteor.user().profile.name;
+      var email = Meteor.user().emails[0].address;
+
+      if (inviteeId) {
+        Meteor.call(
+          "dev.notifyInviter", gameId, email, fullName, inviteeId,
+          function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+          });
+      }
     } else {
       console.log(err);
       Alerts.throw({
@@ -412,6 +428,10 @@ var alertables = {
 
 Template.addSelfAndFriends.events({
   "submit form": function (event, template) {
+    
+    var path = Router.current().path
+    var inviteeId = path.split('?')[1]
+
     var game = this;
     event.preventDefault();
     Alerts.clearSeen({where: "addSelfAndFriends"});
@@ -444,7 +464,15 @@ Template.addSelfAndFriends.events({
                   type: "success", where: game._id,
                   autoremove: 5000
                 });
-                console.log('should have thrown alert')
+                if (inviteeId) {
+                  Meteor.call(
+                    "dev.notifyInviter", game._id, email, fullName, inviteeId,
+                    function (error, result) {
+                      if (error) {
+                        console.log(error);
+                      }
+                    });
+                }
               } else {
                 console.log(err);
               }
@@ -484,6 +512,20 @@ Template.addSelfAndFriends.events({
                     type: "success", where: game._id,
                     autoremove: 5000
                   });
+                var path = Router.current().path;
+                var inviteeId = path.split('?')[1];
+                var email = Meteor.user().emails[0].address;
+                var fullName = Meteor.user.profile.name;
+
+                if (inviteeId) {
+                  Meteor.call(
+                    "dev.notifyInviter", game._id, email, fullName, inviteeId,
+                    function (error, result) {
+                      if (error) {
+                        console.log(error);
+                      }
+                    });
+                }
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +

@@ -155,6 +155,15 @@ Meteor.methods
         added: friend, gameId: gameId, adderId: self.userId
     maybeMakeGameOn gameId
   
+  "dev.notifyInviter": (gameId, email, fullName, inviteeId) ->
+    check(gameId, String)
+    if not Games.findOne(gameId)
+      throw new Meteor.Error 404, "Game not found"
+
+    Meteor.call "notifyInviter",
+      addedEmail: email, addedName: fullName, gameId: gameId, inviteeId: inviteeId
+    "ok"
+
   "addUserSub": (types, days, region) ->
     # DEACTIVATED for now
     return false

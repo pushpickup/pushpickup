@@ -69,6 +69,9 @@ Meteor.methods({
     var dayLong = correctMoment.format('dddd');
     var day = correctMoment.format('ddd');
     var time = correctMoment.format('h:mma');
+
+    var inviteeId = Invitees.insert({inviterEmail: adder.emails[0].address, 
+      inviterName: adder.profile.name});
     
     sendInvitationEmail({
       from: emailTemplates.from,
@@ -81,7 +84,7 @@ Meteor.methods({
         + "- "+game.location.name+"\n"
         + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
         + "\n"
-        + "[Join the game on PushPickup](" + Meteor.absoluteUrl('g/'+game._id) + ")"
+        + "[Join the game on PushPickup](" + Meteor.absoluteUrl('g/'+game._id+"?"+inviteeId) + ")"
         + " and your friend will be notified that you want to play!\n"
         + "\n"
         + "Is this your first time hearing of PushPickup? "
@@ -92,6 +95,48 @@ Meteor.methods({
         + "Sincerely,\n"
         + "Donny Winston & Stewart McCoy"
     });
+
+
+  },
+  "notifyInviter": function (options) {
+    this.unblock();
+    
+    var inviterInfo = Invitees.findOne(options.inviteeId)
+
+    // if they try to sign up from the same link twice, let's not notify
+    // the user over and over again...
+
+    if (inviterInfo){
+      var addedEmail = options.addedEmail;
+      var addedName = options.addedName;
+      
+
+      var inviterEmail = inviterInfo.inviterEmail;
+      var inviterName = inviterInfo.inviterName;
+
+      var game = Games.findOne(options.gameId);
+      
+      var correctMoment = utils.startsAtMomentWithOffset(game);
+      var dayLong = correctMoment.format('dddd');
+      var day = correctMoment.format('ddd');
+      var time = correctMoment.format('h:mma');
+      
+      sendInviterNotifyEmail({
+        from: emailTemplates.from,
+        to: inviterEmail,
+        subject: addedName + " joined " + game.type+" | "+day+". "+time+" at"+game.location.name,
+        text: "Hi "+inviterName+", \n"
+          + addedName + " ("+addedEmail+") "
+          + "just joined the pickup game "
+          +game.type+":\n"
+          + "- "+game.location.name+"\n"
+          + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
+          + "\n"
+          + "Just thought we'd let you know!\n"
+      });
+
+      Invitees.remove(options.inviteeId);
+    }
   },
   // Send email that game organizer can forward to friends so that they
   // can easily join the game.
