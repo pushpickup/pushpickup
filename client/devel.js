@@ -686,12 +686,14 @@ var simplifyLocation = function (given) {
 var autocomplete = null;
 Template.searchInput.rendered = function () {
   var template = this;
-  autocomplete && google.maps.event.clearListeners(autocomplete);
-  autocomplete = new google.maps.places.Autocomplete(
-    template.find('.search-input'),
-    {types: ['(cities)']});
-  google.maps.event.addListener(
-    autocomplete, 'place_changed', onPlaceChanged);
+  if (Session.equals("searching", "during")) {
+    autocomplete && google.maps.event.clearListeners(autocomplete);
+    autocomplete = new google.maps.places.Autocomplete(
+      template.find('.search-input'),
+      {types: ['(cities)']});
+    google.maps.event.addListener(
+      autocomplete, 'place_changed', onPlaceChanged);
+  }
 };
 
 Template.searchInput.helpers({

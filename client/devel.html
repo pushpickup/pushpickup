@@ -418,12 +418,14 @@
 <template name="searchInput">
   <div class="search-input-container">
       {{#if SEql 'searching' 'after'}}
-        <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}">
+        <a class="search-input">
+          {{selected_city}}
+        </a>
       {{else}}
         {{#if SEql 'searching' 'during'}}
-          <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}">
+          <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}" autofocus />
         {{else}}
-          <input type="search" class="search-input" placeholder="Search City" required value="">
+          <input type="search" class="search-input" placeholder="Search City" required value="" autofocus />
         {{/if}}
       {{/if}}
 
