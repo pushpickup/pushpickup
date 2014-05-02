@@ -24,12 +24,24 @@
   {{> coverPhoto }}
   <div class="container">
     {{> alerts where="main"}}
-    {{#if SEql 'searching' 'after'}}
-      {{> findingsMap}}
-      <!-- {{> subscribe}} -->
+    {{#if SEql 'searching' 'not'}}
       {{> listOfGames}}
     {{else}}
-      {{> listOfGames}}
+      {{#if SEql 'searching' 'after'}}
+        {{> findingsMap}}
+        <!-- {{> subscribe}} -->
+        {{> searchQuery}}
+        {{> listOfGames}}
+      {{else}}
+        {{#if SGet 'search-results'}}
+          {{> findingsMap}}
+          <!-- {{> subscribe}} -->
+          {{> searchQuery}}
+          {{> listOfGames}}
+        {{else}}
+          {{> listOfGames}}
+        {{/if}}
+      {{/if}}
     {{/if}}
   </div>
 </template>
@@ -40,6 +52,7 @@
       {{> optionsMain}}
       {{> optionsExtended}}
     </div>
+      {{> searchExtended}}
   </div>
 </template>
 
@@ -77,11 +90,25 @@
     {{#if SGet 'viewing-settings'}}
       {{> settings}}
     {{/if}}
-    {{#if SEql 'searching' 'during'}}
-      {{> selectGameTypes}}
-      {{> runSearch}}
-    {{/if}}
   </div>
+</template>
+
+<template name="searchExtended">
+  {{#if SEql 'searching' 'during'}}
+    {{#if SGet 'search-results'}}
+      <div class="background">
+        <div class="container extended-search-container">
+          {{> selectGameTypes}}
+          {{> runSearch}}
+        </div>
+      </div>
+    {{else}}
+      <div class="container">
+        {{> selectGameTypes}}
+        {{> runSearch}}
+      </div>
+    {{/if}}
+  {{/if}}
 </template>
 
 <template name="coverPhoto">
@@ -96,6 +123,12 @@
     </div>
   </div>
   {{/if}}
+</template>
+
+<template name="searchQuery">
+  <li class="list-group-item">
+    <b>{{games}} in {{city}}</b>
+  </li>
 </template>
 
 <template name="listOfGames">
@@ -380,7 +413,18 @@
 
 <template name="searchInput">
   <div class="search-input-container">
-      <input type="search" class="search-input" placeholder="Search City" required>
+      {{#if SEql 'searching' 'after'}}
+        <a class="search-input truncate">
+          {{selected_city}}
+        </a>
+      {{else}}
+        {{#if SEql 'searching' 'during'}}
+          <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}" autofocus />
+        {{else}}
+          <input type="search" class="search-input" placeholder="Search City" required value="" autofocus />
+        {{/if}}
+      {{/if}}
+
   </div>
 </template>
 
@@ -410,10 +454,15 @@
 <template name="selectGameTypes">
   <div class="select-game-types">
     {{#each options}}
-      <div class="each-game-type"><label>
-          <input type="checkbox" value="{{value}}" checked>
+        <div class="each-game-type"><label>
+        {{#if shouldBeChecked value}}
+          <input id="js-game-type" type="checkbox" value="{{value}}" checked>
           {{value}}
-      </label></div>
+        {{else}}
+          <input id="js-game-type" type="checkbox" value="{{value}}">
+          {{value}}
+        {{/if}}
+        </label></div>
     {{/each}}
   </div>
 </template>
@@ -853,7 +902,7 @@
 <template name="devSelectLocation">
   <div class="select-location">
     <div class="input-group">
-      <input class="form-control location" type="text" placeholder="Add Location"
+      <input class="form-control location" type="text" placeholder="Add Venue"
              value="{{location.name}}"
              required>
       <span class="input-group-addon">
