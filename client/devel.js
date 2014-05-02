@@ -602,8 +602,7 @@ Template.inviteFriends.events({
       "dev.inviteFriends", game._id, friends, function (error, result) {
         if (!error) {
           Alerts.throw({
-            message: "Thanks, " + Meteor.user().profile.name +
-              ". Your friend has been sent an invitation :)",
+            message: "Your friend has been sent an invitation :)",
             type: "success", where: game._id
           });
           Session.set("invite-friends", null);

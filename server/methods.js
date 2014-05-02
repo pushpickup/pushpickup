@@ -76,16 +76,18 @@ Meteor.methods({
     sendInvitationEmail({
       from: emailTemplates.from,
       to: addedEmail,
-      subject: game.type+" | "+day+". "+time+" at"+game.location.name,
+      subject: _.string.capitalize(game.type) + " "
+        + day + ". " + time + " at "
+        + game.location.name.replace(/,.*/,''),
       text: "Hi "+addedName+", \n"
-        + "You have been invited by "+adder.profile.name
-        + " ("+adder.emails[0].address+").\n"
+        + "You've been invited by "+adder.profile.name
+        + " ("+adder.emails[0].address+")\n"
         + " to play pickup "+game.type+":\n"
-        + "- "+game.location.name+"\n"
+        + "* "+game.location.name+"\n"
         + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
         + "\n"
-        + "[Join the game on PushPickup](" + Meteor.absoluteUrl('g/'+game._id+"?"+inviteeId) + ")"
-        + " and your friend will be notified that you want to play!\n"
+        + "[Join the game](" + Meteor.absoluteUrl('g/'+game._id) + ")"
+        + " with "+adder.profile.name + "on PushPickup.\n"
         + "\n"
         + "Is this your first time hearing of PushPickup? "
         + "Well, simply put, it's the best way to organize pickup basketball, "
@@ -95,8 +97,6 @@ Meteor.methods({
         + "Sincerely,\n"
         + "Donny Winston & Stewart McCoy"
     });
-
-
   },
   "notifyInviter": function (options) {
     this.unblock();
@@ -124,15 +124,15 @@ Meteor.methods({
       sendInviterNotifyEmail({
         from: emailTemplates.from,
         to: inviterEmail,
-        subject: addedName + " joined " + game.type+" | "+day+". "+time+" at"+game.location.name,
+        subject: addedName + " joined " + game.type+" on "+day+" at "+time+" at"+game.location.name,
         text: "Hi "+inviterName+", \n"
           + addedName + " ("+addedEmail+") "
-          + "just joined the pickup game "
-          +game.type+":\n"
-          + "- "+game.location.name+"\n"
-          + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
+          + "just joined the pickup "+game.type+" game "
+          + "you're playing in:\n"
+          + "* "+game.location.name+"\n"
+          + "* "+day+". "+time+" with "+game.requested.players+" others\n"
           + "\n"
-          + "Just thought we'd let you know!\n"
+          + "Inviting friends always makes for a better game!\n"
       });
 
       Invitees.remove(options.inviteeId);
