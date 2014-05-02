@@ -188,7 +188,7 @@
     {{> gameTypeIndicator}}
     {{> listedGameSummary}}
     {{#unless past startsAt}}
-      {{#if userInGame}}
+      {{#if organizingOrPlaying}}
         {{> addFriendsLink}}
       {{/if}}
       {{> alerts where=_id}}
@@ -316,8 +316,8 @@
     {{/if}}
     <!-- 'unauth-join' and 'add-friends' should never both be non-null
          because 'add-friends' is for authenticated users. -->
-    {{#if SEql 'add-friends' _id}}
-      {{> addFriends}}
+    {{#if SEql 'invite-friends' _id}}
+      {{> inviteFriends}}
     {{/if}}
   </div>
 </template>
@@ -329,52 +329,51 @@
       {{#unless currentUser}}
         {{> addInfoOrSignIn action="join"}}
       {{/unless}}
-      {{> unauthAddFriends}}
       {{> alerts where="addSelfAndFriends"}}
       <button type="submit" class="btn join-game">Join Game</button>
     </form>
   </div>
 </template>
 
-<template name="addFriends">
+<template name="inviteFriends">
   <div class="add-friends well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
     <form class="add-friends" role="form">
-      {{> addFriendsInput}}
-      {{> alerts where="addFriends"}}
-      <button type="submit" class="btn add-friends">Add friends</button>
+      {{> inviteFriendsInput}}
+      {{> alerts where="addjoinFriends"}}
+      <button type="submit" class="btn join-game"> Invite {{pluralize numFriends "friend" "friends"}}</button>
     </form>
   </div>
 </template>
 
-<template name="unauthAddFriends">
-  {{#if SEql 'unauth-add-friends' _id}}
-    {{> addFriendsInput}}
+<template name="unauthInviteFriends">
+  {{#if SEql 'unauth-invite-friends' _id}}
+    {{> inviteFriendsInput}}
   {{else}}
-    {{> unauthAddFriendsLink}}
+    {{> unauthInviteFriendsLink}}
   {{/if}}
 </template>
 
-<template name="unauthAddFriendsLink">
+<template name="unauthInviteFriendsLink">
   <div class="form-group">
     <p class="form-control-static">
-      <a class="unauth-add-friends-link">
+      <a class="unauth-invite-friends-link">
         <span class="glyphicon glyphicon-plus-sign"></span>
-        Add friend</a>
+        Invite friend</a>
     </p>
   </div>
 </template>
 
-<template name="addFriendsInput">
+<template name="inviteFriendsInput">
   {{#each friends}}
-    <p class="form-heading">Add friend</p>
+    <p class="form-heading">Invite friends</p>
     <div class="tight form-group">
       <input type="text" class="form-control friend-name"
              placeholder="Friend's name"
              value="{{name}}" id="{{_id}}"
              required autofocus>
       <input type="email" class="form-control friend-email"
-             placeholder="Friend's email (optional)"
+             placeholder="Friend's email"
              value="{{email}}" id="{{_id}}">
     </div>
   {{/each}}
@@ -382,7 +381,7 @@
     <p class="form-control-static">
       <a class="add-another-friend">
         <span class="glyphicon glyphicon-plus-sign"></span>
-        Add friend</a>
+        Add friend to invite</a>
     </p>
   </div>
 </template>
@@ -640,13 +639,34 @@
 
 <template name="joinOrLeave">
   <div class="join-or-leave">
-    {{#unless addingPlayers}}
-      {{#unless userInGame}}
-        <button type="button" class="btn join-game">Join game</button>
-      {{else}}
-        <button type="button" class="btn leave-game">Leave game</button>
+    {{#if organizing}}
+      {{#unless addingPlayers}}
+        {{#unless userInGame}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn join-game-and-invite" style="width:100%">Join game</a>
+        {{else}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{/unless}}
       {{/unless}}
-    {{/unless}}
+    {{else}}
+      {{#unless addingPlayers}}
+        {{#unless userInGame}}
+          <button type="button" class="btn join-game">Join game</button>
+        {{else}}
+          {{> alerts where="addjoinFriends"}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{/unless}}
+      {{/unless}}
+    {{/if}}
+
   </div>
 </template>
 

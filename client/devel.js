@@ -171,7 +171,7 @@ var handlebarsHelperMap = {
     }));
   },
   pluralize: function (hasLength, singular, plural) {
-    if (hasLength.length === 1) {
+    if (hasLength.length === 1 || hasLength === 1) {
       return singular;
     } else {
       return plural;
@@ -302,13 +302,13 @@ Template.listOfGames.events({
 
 Template.addFriendsLink.events({
   "click .add-friends-link a": function () {
-    Session.set("add-friends", this._id);
+    Session.set("invite-friends", this._id);
   }
 });
 
-Template.unauthAddFriendsLink.events({
-  "click .unauth-add-friends-link": function () {
-    Session.set("unauth-add-friends", this._id);
+Template.unauthInviteFriendsLink.events({
+  "click .unauth-invite-friends-link": function () {
+    Session.set("unauth-invite-friends", this._id);
   }
 });
 
@@ -331,6 +331,11 @@ var addSelfToGame = function (gameId) {
     if (!err) {
       Session.set("joined-game", gameId);
       Session.set("unauth-join", null);
+      Alerts.throw({
+        message: "You've joined this game -- be sure to invite your friends!",
+        type: "success", where: game._id,
+        autoremove: 5000
+      });
     } else {
       console.log(err);
       Alerts.throw({
@@ -406,10 +411,10 @@ var alertables = {
       alert: {message: "Enter your password to sign in"}
     }];
   },
-  addFriends: function (friends) {
+  inviteFriends: function (friends) {
     return [{
       value: friends, pattern: [{name: NonEmptyString,
-                                 email: Match.Optional(ValidEmail)}],
+                                 email: ValidEmail}],
       alert: {message: "A friend's email either doesn't look right "
               + "or needs a name to go with it"}
     }];
@@ -428,7 +433,7 @@ Template.addSelfAndFriends.events({
     // rejects "empty" friends
     var friends = makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
-    if (! Alerts.test(alertables.addFriends(friends),
+    if (! Alerts.test(alertables.inviteFriends(friends),
                       {type: "danger", where: "addSelfAndFriends"})) {
       return;
     }
@@ -449,6 +454,12 @@ Template.addSelfAndFriends.events({
                 Session.set("joined-game", game._id);
                 Session.set("unauth-join", null);
                 Session.set("strange-passwd", result.password);
+                Alerts.throw({
+                  message: "You've joined this game -- be sure to invite your friends!",
+                  type: "success", where: game._id,
+                  autoremove: 5000
+                });
+                console.log('should have thrown alert')
               } else {
                 console.log(err);
               }
@@ -483,10 +494,15 @@ Template.addSelfAndFriends.events({
               if (! error) {
                 Session.set("joined-game", game._id);
                 Session.set("unauth-join", null); // logged in now
+                Alerts.throw({
+                    message: "You've joined this game -- be sure to invite your friends!",
+                    type: "success", where: game._id,
+                    autoremove: 5000
+                  });
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +
-                      ". Your friend has been added (and will get an email notification if you added their address)!",
+                      ". Your friends have been invited. We'll let you know when they join!",
                     type: "success", where: game._id,
                     autoremove: 5000
                   });
@@ -518,31 +534,37 @@ Template.addSelfAndFriends.destroyed = function () {
   Alerts.collection.remove({where: "addSelfAndFriends"});
 };
 
-Template.addFriends.events({
+Template.inviteFriends.helpers({
+  numFriends: function() {
+    return FriendsToAdd.find().count();
+  }
+});
+
+Template.inviteFriends.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
-    Alerts.clearSeen({where: "addFriends"});
+    Alerts.clearSeen({where: "inviteFriends"});
     var friends = makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
     if (_.isEmpty(friends)) {
       Alerts.throw({message: "Even imaginary friends have names",
-                    type: "danger", where: "addFriends"});
+                    type: "danger", where: "inviteFriends"});
       return;
     }
-    if (! Alerts.test(alertables.addFriends(friends),
-                      {type: "danger", where: "addFriends"})) {
+    if (! Alerts.test(alertables.inviteFriends(friends),
+                      {type: "danger", where: "inviteFriends"})) {
       return;
     }
     Meteor.call(
-      "dev.addFriends", game._id, friends, function (error, result) {
+      "dev.inviteFriends", game._id, friends, function (error, result) {
         if (!error) {
           Alerts.throw({
             message: "Thanks, " + Meteor.user().profile.name +
-              ". Your friend has been added (and will get an email notification if you added their address)!",
+              ". Your friend has been sent an invitation :)",
             type: "success", where: game._id
           });
-          Session.set("add-friends", null);
+          Session.set("invite-friends", null);
           window.scrollTo(0,0);
         } else {
           // typical error: email in use
@@ -552,48 +574,59 @@ Template.addFriends.events({
           if (error instanceof Meteor.Error) {
             Alerts.throw({
               message: error.reason,
-              type: "danger", where: "addFriends"
+              type: "danger", where: "inviteFriends"
             });
           } else {
             Alerts.throw({
               message: "Hmm, something went wrong. Try again?",
-              type: "danger", where: "addFriends"
+              type: "danger", where: "inviteFriends"
             });
           }
         }
       });
   },
   "click .add-friends .close": function () {
-    Session.set("add-friends", null);
+    Session.set("invite-friends", null);
   }
 });
 
-Template.addFriends.destroyed = function () {
-  Alerts.collection.remove({where: "addFriends"});
+Template.inviteFriends.destroyed = function () {
+  Alerts.collection.remove({where: "inviteFriends"});
 };
 
 // used exclusively by Template.addFriendsInput
 FriendsToAdd = new Meteor.Collection(null);
 
-Template.addFriendsInput.created = function () {
+Template.inviteFriendsInput.created = function () {
   FriendsToAdd.insert({name: "", email: ""});
 };
 
-Template.addFriendsInput.destroyed = function () {
+Template.inviteFriendsInput.destroyed = function () {
   FriendsToAdd.remove({}); // words b/c Meteor.Collection is local
-  Session.set("add-friends", null);
-  Session.set("unauth-add-friends", null);
+  Session.set("invite-friends", null);
+  Session.set("unauth-invite-friends", null);
 };
 
-Template.addFriendsInput.events({
+Template.inviteFriendsInput.events({
   "click .add-another-friend": function () {
     FriendsToAdd.insert({name: "", email: ""});
   }
 });
 
-Template.addFriendsInput.helpers({
+Template.inviteFriendsInput.helpers({
   friends: function () {
     return FriendsToAdd.find();
+  }
+});
+
+Template.listedGame.helpers({
+  organizingOrPlaying: function () {
+    var game = this;
+    var isPlaying = Games.findOne({_id: game._id, 'players.userId': Meteor.userId()})
+    var isOrganizing = this.creator.userId == Meteor.userId();
+    if (isPlaying || isOrganizing)
+      return true
+    return false
   }
 });
 
@@ -1260,7 +1293,10 @@ Template.joinOrLeave.helpers({
   addingPlayers: function () {
     var game = this;
     return Session.equals("unauth-join", game._id) ||
-      Session.equals("add-friends", game._id);
+      Session.equals("invite-friends", game._id);
+  },
+  organizing: function () {
+    return this.creator.userId == Meteor.userId();
   }
 });
 
@@ -1274,6 +1310,17 @@ Template.joinOrLeave.events({
   },
   "click .leave-game": function () {
     Meteor.call("leaveGame", this._id);
+  },
+  "click .invite-friends": function() {
+    Session.set("invite-friends", this._id);
+  },
+  "click .join-game-and-invite": function () {
+    if (Meteor.userId()) {
+      addSelfToGame(this._id);
+    } else {
+      Session.set("unauth-join", this._id);
+    }
+    Session.set("invite-friends", this._id);
   }
 });
 
@@ -1705,6 +1752,7 @@ Template.devEditableGame.events({
                 }, function (err) {
                   if (!err) {
                     Session.set("joined-game", result.gameId);
+
                   }
                 });
               }
@@ -1747,6 +1795,11 @@ Template.devEditableGame.events({
                 }, function (err) {
                   if (!err) {
                     Session.set("joined-game", result.gameId);
+                    Alerts.throw({
+                      message: "You've joined this game -- be sure to invite your friends!",
+                      type: "success", where: game._id,
+                      autoremove: 5000
+                    });
                   }
                 });
                 Router.go('devDetail', {_id: result.gameId});
