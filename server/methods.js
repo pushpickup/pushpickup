@@ -76,15 +76,17 @@ Meteor.methods({
     sendInvitationEmail({
       from: emailTemplates.from,
       to: addedEmail,
-      subject: _.string.capitalize(game.type) + " "
+      subject: "You're invited:" + _.string.capitalize(game.type) + " "
         + day + ". " + time + " at "
         + game.location.name.replace(/,.*/,''),
       text: "Hi "+addedName+", \n"
+        + "\n"
         + "You've been invited by "+adder.profile.name
-        + " ("+adder.emails[0].address+")\n"
+        + " ("+adder.emails[0].address+")"
         + " to play pickup "+game.type+":\n"
+        + "\n"
         + "* "+game.location.name+"\n"
-        + "* "+day+". "+time+" w/ "+game.requested.players+" others\n"
+        + "* "+day+". "+time+" with "+game.requested.players+" others\n"
         + "\n"
         + "[Join the game](" + Meteor.absoluteUrl('g/'+game._id) + ")"
         + " with "+adder.profile.name + "on PushPickup.\n"
