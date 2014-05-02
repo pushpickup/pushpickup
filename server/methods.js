@@ -76,7 +76,7 @@ Meteor.methods({
     sendInvitationEmail({
       from: emailTemplates.from,
       to: addedEmail,
-      subject: "You're invited:" + _.string.capitalize(game.type) + " "
+      subject: "You're invited: " + _.string.capitalize(game.type) + " "
         + day + ". " + time + " at "
         + game.location.name.replace(/,.*/,''),
       text: "Hi "+addedName+", \n"
