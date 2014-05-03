@@ -89,7 +89,7 @@ Meteor.methods({
         + "* "+day+". "+time+" with "+game.requested.players+" others\n"
         + "\n"
         + "[Join the game](" + Meteor.absoluteUrl('g/'+game._id) + ")"
-        + " with "+adder.profile.name + "on PushPickup.\n"
+        + " with "+adder.profile.name + " on PushPickup.\n"
         + "\n"
         + "Is this your first time hearing of PushPickup? "
         + "Well, simply put, it's the best way to organize pickup basketball, "
