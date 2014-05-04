@@ -51,14 +51,14 @@ Deps.autorun(function () {
   }
 });
 
-Deps.autorun(function (c) {
-  if (Session.equals("dev-mode", true)) {
-    if (Session.equals("dev-detail", false)) {
-      // getUserLocation();
-      c.stop();      
-    }
-  }
-});
+// Deps.autorun(function (c) {
+//   if (Session.equals("dev-mode", true)) {
+//     if (Session.equals("dev-detail", false)) {
+//       // getUserLocation();
+//       c.stop();      
+//     }
+//   }
+// });
 
 PastGames = new Meteor.Collection(null);
 var setPastGames = function (arr) {
