@@ -26,6 +26,7 @@
     {{> alerts where="main"}}
     {{#if SEql 'searching' 'not'}}
       {{> setLocation}}
+      {{> listHeader}}
       {{> listOfGames}}
     {{else}}
       {{#if SEql 'searching' 'after'}}

@@ -1,8 +1,10 @@
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
 
+// Set default location to Berkeley
 var sanPabloParkBerkeleyCA = {
-	"type" : "Point", "coordinates" : [-122.284786, 37.855271]
+	"type" : "Point", 
+  "coordinates" : [-122.284786, 37.855271]
 };
 Session.setDefault("current-location", sanPabloParkBerkeleyCA);
 Session.setDefault("map-center", sanPabloParkBerkeleyCA);
@@ -25,6 +27,8 @@ var getUserLocation = function (onSuccess /* optional */) {
         "coordinates": [position.coords.longitude,
                         position.coords.latitude]
       };
+  //     // https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&sensor=true
+      
       Session.set("get-user-location", "success");
       Session.set("current-location", point);
       onSuccess && onSuccess(point);
@@ -51,14 +55,12 @@ Deps.autorun(function () {
   }
 });
 
-// Deps.autorun(function (c) {
-//   if (Session.equals("dev-mode", true)) {
-//     if (Session.equals("dev-detail", false)) {
-//       // getUserLocation();
-//       c.stop();      
-//     }
-//   }
-// });
+Deps.autorun(function (c) {
+  if (Session.equals("get-user-location", "get")) {
+    getUserLocation();
+    Session.set("get-user-location", null);
+  }
+});
 
 PastGames = new Meteor.Collection(null);
 var setPastGames = function (arr) {
