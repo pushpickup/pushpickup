@@ -940,6 +940,7 @@
       <!-- {{> settingsItem name="subscriptions"}} -->
       {{> settingsItem name="change-email-address"}}
       {{> settingsItem name="change-password"}}
+      {{> settingsItem name="change-location"}}
       {{> settingsItem name="help-and-feedback"}}
       <li class="list-group-item">
         <!-- "Free" option requires this embedding and limits to four
@@ -959,6 +960,9 @@
       {{else}}
         {{> settingsItem name="forgot-password"}}
       {{/if}}
+      {{> settingsItem name="change-location"}}
+      {{> settingsItem name="help-and-feedback"}}
+
       <!-- This is a hack. I intend to move this into a template, but need to take a little to do it correctly. - SM -->
       <li class="list-group-item">
         <!-- "Free" option requires this embedding and limits to four
@@ -969,7 +973,6 @@
           -->
         <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
       </li>
-      {{> settingsItem name="help-and-feedback"}}
     {{/if}}
   </ul>
 </template>
