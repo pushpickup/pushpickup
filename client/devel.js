@@ -54,7 +54,7 @@ Deps.autorun(function () {
 Deps.autorun(function (c) {
   if (Session.equals("dev-mode", true)) {
     if (Session.equals("dev-detail", false)) {
-      getUserLocation();
+      // getUserLocation();
       c.stop();      
     }
   }
@@ -213,7 +213,7 @@ Template.devDetail.rendered = function() {
 Template.devBody.rendered = function() {
   Session.set('dev-detail', false);
   Session.set('dev-mode', true);
-  getUserLocation();
+  // getUserLocation();
 };
 
 Template.devNav.events({

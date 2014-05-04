@@ -23,6 +23,9 @@
 <template name="devBody">
   {{> coverPhoto }}
   <div class="container">
+
+    {{> setLocation}}
+
     {{> alerts where="main"}}
     {{#if SEql 'searching' 'not'}}
       {{> listOfGames}}
