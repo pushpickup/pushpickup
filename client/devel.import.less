@@ -31,6 +31,10 @@ input, button, select, textarea {
   }
 }
 
+.form-control {
+  outline: none;
+}
+
 
 h1 {
     font-size: 3em;
@@ -72,6 +76,25 @@ a {
   @media (min-width: @screen-sm-min) {
     max-width: 450px;
   }
+}
+
+//extended options search
+.extended-search-container {
+  position: absolute;
+  z-index: 2;
+  // Simulate mobile experience on larger devices
+  @media (min-width: @screen-sm-min) {
+    max-width: 450px;
+  }
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+.background {
+  width: 100%;
+  background-color: @brand-primary;
+  position: absolute;
+  min-height: 113px;
 }
 
 .row {
@@ -207,13 +230,16 @@ button {
     .btn-lg;
     .btn-block;
   }
-  &.leave-game {
+  &.invite-friends {
     .btn-lg;
     .btn-block;
     background-color: rgba(0, 0, 0, 0.25);
     color: @white;
   }
-
+&.leave-game{
+  text-align: center;
+  width: 100%;
+}
   &.find-games {
     .btn-header;
     .btn-lg;
@@ -374,6 +400,19 @@ footer {
   }
 }
 
+.list-of-games {
+  .list-group-item {
+    padding: 0;
+
+    &:first-child {
+      padding: 10px 15px;
+    }
+
+    &.listed-game {
+      padding: 0;
+    }
+  }
+}
 
 .list-group-item:first-child {
   border-top-left-radius:  0;
@@ -517,13 +556,17 @@ footer {
     width: 82%;
   }
 
-  input {
+  .search-input {
+    .box-shadow(none);
     background: @brand-secondary;
     border: none;
     border-radius: @border-radius-small;
     color: @white;
-    padding: 8px @grid-gutter-width/2 7px;
     width: 100%;
+    padding: 7px;
+    @media (max-width: @screen-xs) {
+      font-size: 16px;
+    }
     &:focus {
       outline: none;
     }
@@ -534,10 +577,15 @@ footer {
   ::-moz-placeholder {color: @brand-primary;}
 
   :-ms-input-placeholder {color: @brand-primary;}
+}
 
-  input[type='search']{
-    .box-shadow(none);
+.search-input-container .search-input.truncate {
+  @media (max-width: @screen-sm-min) {
+    width: 270px;
   }
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .add-game-link {
@@ -557,7 +605,9 @@ footer {
   .add-game-link();
   a {
     padding-right: 14px;
-    padding-top: 16px;
+    @media (min-width: @screen-sm-min) {
+      padding-top: 17px;
+    }
   }
 }
 
@@ -611,8 +661,7 @@ footer {
 
 .copy-game-link {
   background: @brand-primary;
-  margin-bottom: @grid-gutter-width/2;
-  margin-left: @grid-gutter-width/2;
+  padding: 0 0 @grid-gutter-width/2 @grid-gutter-width/2;
   width: 100%;
   @media (min-width: @screen-sm-min) {
     margin-left: 0;
@@ -623,9 +672,8 @@ footer {
     border: 0;
     border-radius: @border-radius-small;
     color: @white;
-    font-size: @font-size-base*1.1;
     padding: 6px 12px;
-    width: 82%;
+    width: 86%;
     @media (min-width: @screen-sm-min) {
       width: 94%;
     }
@@ -680,6 +728,10 @@ footer {
   height: 150px;
 }
 
+.findings-map-canvas.map-canvas {
+  height: 225px;
+}
+
 .game-type-indicator, .ppicon-add-friend {
   font-size: @font-size-large;
   color: @brand-primary;
@@ -690,9 +742,20 @@ footer {
   color: @text-muted;
 }
 
+.listed-game .game-type-indicator {
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  z-index: 1;
+}
+
+
 .listed-game .game-summary {
   cursor: pointer;
-  padding-bottom: 10px;
+  padding: 10px 10px 10px 40px;
+  position: relative;
+  width: 100%;
+  z-index: 2;
   .game-when {
 
     .day {
@@ -703,7 +766,6 @@ footer {
 
 .past.listed-game .game-summary {
   .text-muted;
-  width: 240px;
 }
 
 .place {
@@ -847,7 +909,7 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .dev-detail-body {
-  margin-bottom: @grid-gutter-width / 2;
+  padding-bottom: 4em;
   @media (min-width: @screen-sm-min) {
     border: 1px solid @gray-lighter;
     border-top: none;
@@ -857,6 +919,7 @@ form > .form-group:first-child { margin-top: 5px; }
     margin: @grid-gutter-width/2 0;
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
+    position: relative;
   }
 
   .organizers-note > div {
@@ -882,7 +945,7 @@ form > .form-group:first-child { margin-top: 5px; }
 .dev-detail-body .add-friends-link {
   display: inline-block;
   position: absolute;
-  top: 165px;
+  top: 5px;
   right: 1px;
 }
 
@@ -891,21 +954,11 @@ form > .form-group:first-child { margin-top: 5px; }
   position: absolute;
   top: 32px;
   right: 1px;
+  z-index: 3;
 }
 
 .join-game-link a, .ppicon-add-friend {
   padding: 20px;
-}
-
-.listed-game .game-summary {
-  display: inline-block;
-  padding-left: 10px;
-  width: 200px;
-}
-
-.listed-game .game-type-indicator {
-  float: left;
-  margin-top: 20px;
 }
 
 .list-group {
@@ -960,14 +1013,6 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 }
 
-.listed-game {
-  padding-bottom: 0;
-}
-
-.listed-game .add-players {
-  margin: 0 -15px;
-}
-
 .add-self-and-friends {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -993,7 +1038,11 @@ form > .form-group:first-child { margin-top: 5px; }
 }
 
 .add-self-and-friends .close, .add-friends.well .close {
-  padding: 8px;
+  padding: 0 8px 8px 8px;
+  margin-top: -2px;
+  &:hover {
+    background: none;
+  }
 }
 
 .add-info-or-sign-in {
@@ -1045,7 +1094,7 @@ form > .form-group:first-child { margin-top: 5px; }
 
 .game-form {
   .clearfix();
-  padding-bottom: 15px;
+  padding-bottom: 4em;
   @media (min-width: @screen-sm-min) {
     border: 1px solid @gray-lighter;
     border-top: 0;
@@ -1191,8 +1240,7 @@ label[for="requestedNumPlayers"] {
 
 .form-control.game-note {
   .add-game-input();
-  background: @gray-lighter;
-  border: none;
+  border: 1px solid fade(@brand-primary, 30%);
   border-radius: @border-radius-small;
 }
 
@@ -1235,4 +1283,12 @@ label[for="requestedNumPlayers"] {
 
 .alert-success {
   margin-bottom: 0px;
+}
+
+.btn.invite-friends {
+  background-color: #e5e5e5;
+}
+
+.btn.leave-game {
+  margin-top: 8px;
 }

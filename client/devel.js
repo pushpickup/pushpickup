@@ -53,8 +53,10 @@ Deps.autorun(function () {
 
 Deps.autorun(function (c) {
   if (Session.equals("dev-mode", true)) {
-    getUserLocation();
-    c.stop();
+    if (Session.equals("dev-detail", false)) {
+      getUserLocation();
+      c.stop();      
+    }
   }
 });
 
@@ -68,7 +70,7 @@ Deps.autorun(function () {
   if (! Session.equals("dev-mode", true))
     return;
 
-  if (! Session.equals("searching", "after")) {
+  if (Session.equals("search-results", false)) {
     // No map, so no map bounds to poll.
     // Get nearby or user-involved games that are upcoming.
     // Pull in up to initialNumGamesRequested of the nearest past games.
@@ -169,7 +171,7 @@ var handlebarsHelperMap = {
     }));
   },
   pluralize: function (hasLength, singular, plural) {
-    if (hasLength.length === 1) {
+    if (hasLength.length === 1 || hasLength === 1) {
       return singular;
     } else {
       return plural;
@@ -177,6 +179,9 @@ var handlebarsHelperMap = {
   },
   baseURL: function () {
     return Meteor.absoluteUrl().slice(0,-1);
+  },
+  old: function (date) {
+    return date < moment().subtract('weeks',1).toDate();
   },
   past: function (date) {
     return date < new Date();
@@ -200,6 +205,15 @@ Template.devLayout.created = function () {
 };
 Template.layout.created = function () {
   Session.set("dev-mode", false);
+  Session.set('dev-detail', false);
+};
+Template.devDetail.rendered = function() {
+  Session.set('dev-detail', true)
+};
+Template.devBody.rendered = function() {
+  Session.set('dev-detail', false);
+  Session.set('dev-mode', true);
+  getUserLocation();
 };
 
 Template.devNav.events({
@@ -215,11 +229,15 @@ Template.devNav.events({
       Session.set('searching', 'after');
     } else {
       Session.set('searching', 'not');
+      Session.set('userSelectedLocation', '')
+      Session.set('game-types', _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'))
     }
   },
   'click .back a': function () {
     Session.set('searching', 'not');
     Session.set('search-results', false);
+    Session.set('userSelectedLocation', '')
+    Session.set('game-types', _.pluck(GameOptions.find({option: "type"}).fetch(), 'value'))
   }
 });
 
@@ -284,13 +302,13 @@ Template.listOfGames.events({
 
 Template.addFriendsLink.events({
   "click .add-friends-link a": function () {
-    Session.set("add-friends", this._id);
+    Session.set("invite-friends", this._id);
   }
 });
 
-Template.unauthAddFriendsLink.events({
-  "click .unauth-add-friends-link": function () {
-    Session.set("unauth-add-friends", this._id);
+Template.unauthInviteFriendsLink.events({
+  "click .unauth-invite-friends-link": function () {
+    Session.set("unauth-invite-friends", this._id);
   }
 });
 
@@ -306,6 +324,9 @@ Template.joinGameLink.events({
 
 var addSelfToGame = function (gameId) {
   if (! gameId) { return; }
+  var path = Router.current().path;
+  var inviteeId = path.split('?')[1]
+
   Meteor.call("addSelf", {
     gameId: gameId,
     name: Meteor.user().profile.name
@@ -313,6 +334,24 @@ var addSelfToGame = function (gameId) {
     if (!err) {
       Session.set("joined-game", gameId);
       Session.set("unauth-join", null);
+      Alerts.throw({
+        message: "You've joined this game -- be sure to invite your friends!",
+        type: "success", where: gameId,
+        autoremove: 5000
+      });
+
+      var fullName = Meteor.user().profile.name;
+      var email = Meteor.user().emails[0].address;
+
+      if (inviteeId) {
+        Meteor.call(
+          "dev.notifyInviter", gameId, email, fullName, inviteeId,
+          function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+          });
+      }
     } else {
       console.log(err);
       Alerts.throw({
@@ -388,10 +427,10 @@ var alertables = {
       alert: {message: "Enter your password to sign in"}
     }];
   },
-  addFriends: function (friends) {
+  inviteFriends: function (friends) {
     return [{
       value: friends, pattern: [{name: NonEmptyString,
-                                 email: Match.Optional(ValidEmail)}],
+                                 email: ValidEmail}],
       alert: {message: "A friend's email either doesn't look right "
               + "or needs a name to go with it"}
     }];
@@ -404,13 +443,17 @@ var alertables = {
 
 Template.addSelfAndFriends.events({
   "submit form": function (event, template) {
+    
+    var path = Router.current().path
+    var inviteeId = path.split('?')[1]
+
     var game = this;
     event.preventDefault();
     Alerts.clearSeen({where: "addSelfAndFriends"});
     // rejects "empty" friends
     var friends = makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
-    if (! Alerts.test(alertables.addFriends(friends),
+    if (! Alerts.test(alertables.inviteFriends(friends),
                       {type: "danger", where: "addSelfAndFriends"})) {
       return;
     }
@@ -431,6 +474,20 @@ Template.addSelfAndFriends.events({
                 Session.set("joined-game", game._id);
                 Session.set("unauth-join", null);
                 Session.set("strange-passwd", result.password);
+                Alerts.throw({
+                  message: "You've joined this game -- be sure to invite your friends!",
+                  type: "success", where: game._id,
+                  autoremove: 5000
+                });
+                if (inviteeId) {
+                  Meteor.call(
+                    "dev.notifyInviter", game._id, email, fullName, inviteeId,
+                    function (error, result) {
+                      if (error) {
+                        console.log(error);
+                      }
+                    });
+                }
               } else {
                 console.log(err);
               }
@@ -465,10 +522,29 @@ Template.addSelfAndFriends.events({
               if (! error) {
                 Session.set("joined-game", game._id);
                 Session.set("unauth-join", null); // logged in now
+                Alerts.throw({
+                    message: "You've joined this game -- be sure to invite your friends!",
+                    type: "success", where: game._id,
+                    autoremove: 5000
+                  });
+                var path = Router.current().path;
+                var inviteeId = path.split('?')[1];
+                var email = Meteor.user().emails[0].address;
+                var fullName = Meteor.user.profile.name;
+
+                if (inviteeId) {
+                  Meteor.call(
+                    "dev.notifyInviter", game._id, email, fullName, inviteeId,
+                    function (error, result) {
+                      if (error) {
+                        console.log(error);
+                      }
+                    });
+                }
                 if (! _.isEmpty(friends)) {
                   Alerts.throw({
                     message: "Thanks, " + Meteor.user().profile.name +
-                      ". Your friend has been added (and will get an email notification if you added their address)!",
+                      ". Your friends have been invited. We'll let you know when they join!",
                     type: "success", where: game._id,
                     autoremove: 5000
                   });
@@ -500,32 +576,37 @@ Template.addSelfAndFriends.destroyed = function () {
   Alerts.collection.remove({where: "addSelfAndFriends"});
 };
 
-Template.addFriends.events({
+Template.inviteFriends.helpers({
+  numFriends: function() {
+    return FriendsToAdd.find().count();
+  }
+});
+
+Template.inviteFriends.events({
   "submit form": function (event, template) {
     var game = this;
     event.preventDefault();
-    Alerts.clearSeen({where: "addFriends"});
+    Alerts.clearSeen({where: "inviteFriends"});
     var friends = makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
     if (_.isEmpty(friends)) {
       Alerts.throw({message: "Even imaginary friends have names",
-                    type: "danger", where: "addFriends"});
+                    type: "danger", where: "inviteFriends"});
       return;
     }
-    if (! Alerts.test(alertables.addFriends(friends),
-                      {type: "danger", where: "addFriends"})) {
+    if (! Alerts.test(alertables.inviteFriends(friends),
+                      {type: "danger", where: "inviteFriends"})) {
       return;
     }
     Meteor.call(
-      "dev.addFriends", game._id, friends, function (error, result) {
+      "dev.inviteFriends", game._id, friends, function (error, result) {
         if (!error) {
           Alerts.throw({
-            message: "Thanks, " + Meteor.user().profile.name +
-              ". Your friend has been added (and will get an email notification if you added their address)!",
-            type: "success", where: game._id,
-            autoremove: 5000
+            message: "Your friend has been sent an invitation :)",
+            type: "success", where: game._id
           });
-          Session.set("add-friends", null);
+          Session.set("invite-friends", null);
+          window.scrollTo(0,0);
         } else {
           // typical error: email in use
           // BUT we're currently allowing users to add friends
@@ -534,48 +615,59 @@ Template.addFriends.events({
           if (error instanceof Meteor.Error) {
             Alerts.throw({
               message: error.reason,
-              type: "danger", where: "addFriends"
+              type: "danger", where: "inviteFriends"
             });
           } else {
             Alerts.throw({
               message: "Hmm, something went wrong. Try again?",
-              type: "danger", where: "addFriends"
+              type: "danger", where: "inviteFriends"
             });
           }
         }
       });
   },
   "click .add-friends .close": function () {
-    Session.set("add-friends", null);
+    Session.set("invite-friends", null);
   }
 });
 
-Template.addFriends.destroyed = function () {
-  Alerts.collection.remove({where: "addFriends"});
+Template.inviteFriends.destroyed = function () {
+  Alerts.collection.remove({where: "inviteFriends"});
 };
 
 // used exclusively by Template.addFriendsInput
 FriendsToAdd = new Meteor.Collection(null);
 
-Template.addFriendsInput.created = function () {
+Template.inviteFriendsInput.created = function () {
   FriendsToAdd.insert({name: "", email: ""});
 };
 
-Template.addFriendsInput.destroyed = function () {
+Template.inviteFriendsInput.destroyed = function () {
   FriendsToAdd.remove({}); // words b/c Meteor.Collection is local
-  Session.set("add-friends", null);
-  Session.set("unauth-add-friends", null);
+  Session.set("invite-friends", null);
+  Session.set("unauth-invite-friends", null);
 };
 
-Template.addFriendsInput.events({
+Template.inviteFriendsInput.events({
   "click .add-another-friend": function () {
     FriendsToAdd.insert({name: "", email: ""});
   }
 });
 
-Template.addFriendsInput.helpers({
+Template.inviteFriendsInput.helpers({
   friends: function () {
     return FriendsToAdd.find();
+  }
+});
+
+Template.listedGame.helpers({
+  organizingOrPlaying: function () {
+    var game = this;
+    var isPlaying = Games.findOne({_id: game._id, 'players.userId': Meteor.userId()})
+    var isOrganizing = this.creator.userId == Meteor.userId();
+    if (isPlaying || isOrganizing)
+      return true
+    return false
   }
 });
 
@@ -619,6 +711,17 @@ Template.selectGameTypes.helpers({
   options: function () {
     // TODO: retrieve :checked via Session
     return GameOptions.find({option: "type"},{sort: {value: 1}});
+  },
+  shouldBeChecked: function(value) {
+    var games = Session.get('game-types');
+
+    if (games.indexOf(value) > -1){
+      return 'true'
+    }
+    return ''
+  },
+  deselectBoxes: function() {
+
   }
 });
 
@@ -657,13 +760,21 @@ var simplifyLocation = function (given) {
 var autocomplete = null;
 Template.searchInput.rendered = function () {
   var template = this;
-  autocomplete && google.maps.event.clearListeners(autocomplete);
-  autocomplete = new google.maps.places.Autocomplete(
-    template.find('.search-input'),
-    {types: ['(cities)']});
-  google.maps.event.addListener(
-    autocomplete, 'place_changed', onPlaceChanged);
+  if (Session.equals("searching", "during")) {
+    autocomplete && google.maps.event.clearListeners(autocomplete);
+    autocomplete = new google.maps.places.Autocomplete(
+      template.find('.search-input'),
+      {types: ['(cities)']});
+    google.maps.event.addListener(
+      autocomplete, 'place_changed', onPlaceChanged);
+  }
 };
+
+Template.searchInput.helpers({
+  selected_city: function() {
+    return Session.get('userSelectedLocation')
+  }
+});
 
 Template.getCurrentLocation.events({
   "click .get-current-location.btn": function (evt, templ) {
@@ -686,6 +797,54 @@ Template.runSearch.events({
                 inputValues(".select-game-types input:checked"));
     Session.set("searching", "after");
     Session.set("search-results", true);
+    Session.set('userSelectedLocation', $('.search-input[type=search]').val())
+  }
+});
+
+Template.searchQuery.helpers({
+  games: function(){
+    var gameTypes = Session.get('game-types')
+    gameTypes = gameTypes.sort()
+    var len = gameTypes.length
+    var game = gameTypes[0]
+    var l = game.length;
+    
+    game = game[0].toUpperCase() + game.slice(1,l)
+    if (game == 'Ultimate') game = 'Ultimate Frisbee'
+
+    if (len > 2) {
+      for (var i=1; i < len; i++) {
+        var gameType = gameTypes[i]
+        l = gameType.length
+        gameType = gameType[0].toUpperCase() + gameType.slice(1,l)
+
+        if (gameType == 'Ultimate')
+          gameType = 'Ultimate Frisbee'
+
+        if (i == len - 1)
+          game = game + ', and ' + gameType
+        else
+          game = game + ', ' + gameType
+      }
+    }
+
+    if (len == 2) {
+      var gameType = gameTypes[1]
+      l = gameType.length
+      gameType = gameType[0].toUpperCase() + gameType.slice(1,l)
+
+      if (gameType == 'Ultimate')
+          gameType = 'Ultimate Frisbee'
+
+      game = game + ' and ' + gameType
+    }
+    return game
+  },
+  city: function() {
+    var location = Session.get('userSelectedLocation');
+    var city = location.split(",")[0]
+    if (!city) city = "this region"
+    return city
   }
 });
 
@@ -735,7 +894,7 @@ Template.findingsMap.rendered = function () {
 
   var map = new google.maps.Map(
     self.find('.findings-map-canvas'), {
-      zoom: 12, //18 good for one-game zoom
+      zoom: 8, //18 good for one-game zoom
       center: geoUtils.toLatLng(Session.get("selectedLocationPoint")),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: false,
@@ -804,7 +963,7 @@ Template.findingsMap.rendered = function () {
   self._syncMapWithSearch = Deps.autorun(function () {
     if (Session.equals("searching", "after")) {
       map.panTo(geoUtils.toLatLng(Session.get("selectedLocationPoint")));
-      map.setZoom(12);
+      map.setZoom(8);
       // implicit Session.set('geoWithin',...) via map 'idle' listener
     }
   });
@@ -1087,7 +1246,7 @@ Template.devDetail.events({
     Session.set("copy-game-link", this._id);
   },
   "click .copy-game-link input": function () {
-    var copyGameLink = document.getElementById("copyGameLink")
+    var copyGameLink = document.getElementById("copyGameLink");
     copyGameLink.selectionStart = 0;
     copyGameLink.selectionEnd = 999;
     copyGameLink.readOnly = true;
@@ -1127,9 +1286,9 @@ Template.soloGameMap.rendered = function () {
     position: latLng, map: map
   });
 
-  var infowindow = new google.maps.InfoWindow({
-    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
-  });
+//  var infowindow = new google.maps.InfoWindow({
+//    content: "<a href=\"https://maps.google.com/maps?saddr=My+Location&daddr="+latLng.lat()+","+latLng.lng()+"\" target=\"_blank\">Get directions</a>"
+//  });
 
   google.maps.event.addListener(marker, 'click', function() {
     infowindow.open(map,marker);
@@ -1138,9 +1297,9 @@ Template.soloGameMap.rendered = function () {
   // A weird hack -- I don't know why an immediate `infowindow.open`
   // escapes notice of the default AutoPan. By waiting one second,
   // the map will autopan to accomodate the infowindow.
-  Meteor.setTimeout(function () {
-    infowindow.open(map,marker);
-  }, 1000);
+//  Meteor.setTimeout(function () {
+//    infowindow.open(map,marker);
+//  }, 1000);
 
 
   // Set geoWithin for subscription and determine if subscription exists.
@@ -1175,7 +1334,10 @@ Template.joinOrLeave.helpers({
   addingPlayers: function () {
     var game = this;
     return Session.equals("unauth-join", game._id) ||
-      Session.equals("add-friends", game._id);
+      Session.equals("invite-friends", game._id);
+  },
+  organizing: function () {
+    return this.creator.userId == Meteor.userId();
   }
 });
 
@@ -1189,6 +1351,17 @@ Template.joinOrLeave.events({
   },
   "click .leave-game": function () {
     Meteor.call("leaveGame", this._id);
+  },
+  "click .invite-friends": function() {
+    Session.set("invite-friends", this._id);
+  },
+  "click .join-game-and-invite": function () {
+    if (Meteor.userId()) {
+      addSelfToGame(this._id);
+    } else {
+      Session.set("unauth-join", this._id);
+    }
+    Session.set("invite-friends", this._id);
   }
 });
 
@@ -1254,6 +1427,7 @@ Template.addComment.events({
       Session.set("unauth-comment", comment);
     } else {
       Meteor.call("addComment", comment, self._id);
+      $('input.comment').val('').blur();
     }
   }
 });
@@ -1619,6 +1793,7 @@ Template.devEditableGame.events({
                 }, function (err) {
                   if (!err) {
                     Session.set("joined-game", result.gameId);
+
                   }
                 });
               }
@@ -1627,6 +1802,7 @@ Template.devEditableGame.events({
             Alerts.throw(_.extend({where: result.gameId}, addedAlert));
             Session.set("strange-passwd", result.password);
             Router.go('devDetail', {_id: result.gameId});
+            window.scrollTo(0,0);
           } else {
             // typical error: email in use
             console.log(error);
@@ -1660,11 +1836,17 @@ Template.devEditableGame.events({
                 }, function (err) {
                   if (!err) {
                     Session.set("joined-game", result.gameId);
+                    Alerts.throw({
+                      message: "You've joined this game -- be sure to invite your friends!",
+                      type: "success", where: game._id,
+                      autoremove: 5000
+                    });
                   }
                 });
                 Router.go('devDetail', {_id: result.gameId});
                 Meteor.call("sendForwardableInvite", result.gameId);
                 Alerts.throw(_.extend({where: result.gameId}, addedAlert));
+                window.scrollTo(0,0);
               } else {
                 console.log(error);
                 Alerts.throw({
@@ -1699,6 +1881,7 @@ Template.devEditableGame.events({
           Router.go('devDetail', {_id: result.gameId});
           Meteor.call("sendForwardableInvite", result.gameId);
           Alerts.throw(_.extend({where: result.gameId}, addedAlert));
+          window.scrollTo(0,0);
         } else {
           console.log(error);
           Alerts.throw({
@@ -1725,6 +1908,7 @@ Template.devSelectLocation.rendered = function () {
   autocomplete && google.maps.event.clearListeners(autocomplete);
   autocomplete = new google.maps.places.Autocomplete(
     template.find('.select-location input'));
+  
   google.maps.event.addListener(
     autocomplete, 'place_changed', onSelectLocationChanged);
 };
@@ -2159,7 +2343,15 @@ Template.adminView.created = function () {
     } else {
       alert("Error: " + err.message);
     }
-    Session.set("waiting-on", null);
+    Session.set("waiting-on", "all-users-snapshot");
+    Meteor.call("allUsersSnapshot", function (err, res) {
+      if (!err) {
+        Session.set("all-users-snapshot", res);
+      } else {
+        alert("Error: " + err.message);
+      }
+      Session.set("waiting-on", null);
+    });
   });
 };
 
@@ -2170,6 +2362,18 @@ Template.adminView.helpers({
   },
   fromNow: function () {
     return moment(this.startsAt).fromNow();
+  },
+  allUsers: function () {
+    // an array snapshot of minimal info on all users in the system
+    //
+    // `_.sortBy` sorts in ascending order, so `-u.gamesJoined` puts
+    // active players up top.
+    return _.sortBy(Session.get("all-users-snapshot"), function (u) {
+      return -u.gamesJoined;
+    });
+  },
+  whenRegistered: function () {
+    return moment(this.createdAt).fromNow();
   }
 });
 

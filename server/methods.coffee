@@ -44,13 +44,13 @@ Meteor.methods
     if not this.userId
       throw new Meteor.Error 401, "Must be signed in"
     Meteor.call "addSelf", gameId: gameId
-    Meteor.call("dev.addFriends", gameId, friends) if friends.length > 0
+    Meteor.call("dev.inviteFriends", gameId, friends) if friends.length > 0
     "ok"
   "dev.unauth.addSelfAndFriends": (gameId, email, name, friends) ->
     check(friends, [Match.Any])
     adder = Meteor.call "dev.unauth.addSelf", gameId, email, name
     this.setUserId adder.userId
-    Meteor.call("dev.addFriends", gameId, friends) if friends.length > 0
+    Meteor.call("dev.inviteFriends", gameId, friends) if friends.length > 0
     adder # client may want adder.password to loginWithPassword
 
   # This method, which sends no verification email, is intended to compose
@@ -127,7 +127,7 @@ Meteor.methods
     sendEnrollmentEmail newUser.userId,
       email: email, thankYouFor: "subscribing to game announcements"
     newUser
-  "dev.addFriends": (gameId, friends) ->
+  "dev.inviteFriends": (gameId, friends) ->
     this.unblock()
     self = this
     if not self.userId
@@ -135,49 +135,35 @@ Meteor.methods
     if friends.length is 0
       throw new Meteor.Error 400, "Must give one or more friends"
     for friend in friends
-      Meteor.call "dev.addFriend", gameId, friend
+      Meteor.call "dev.inviteFriend", gameId, friend
     user = Meteor.users.findOne self.userId
     name = user.profile.name or "Someone"
-    notifyOrganizer gameId, joined:
-      userId: user._id, name: name, numFriends: friends.length
     "ok"
-  "dev.addFriend": (gameId, friend) ->
+  "dev.inviteFriend": (gameId, friend) ->
     self = this
     if not self.userId
       throw new Meteor.Error 401, "Must be signed in"
     check(gameId, String)
     if not Games.findOne(gameId)
       throw new Meteor.Error 404, "Game not found"
-    check(friend, {name: String, email: Match.Optional(ValidEmail)})
+    check(friend, {name: String, email: ValidEmail})
 
     if _.isEmpty friend.email
-      Games.update gameId,
-        $push: players: name: friend.name, friendId: self.userId, rsvp: "in"
+      throw new Meteor.Error 400, "Must provide email"
     else
-      emailOwner = Meteor.users.findOne({'emails.address': friend.email});
-      if emailOwner
-        unless Games.findOne({_id: gameId, 'players.userId': emailOwner._id})
-          Games.update gameId,
-            $push: players:
-              name: friend.name
-              friendId: self.userId
-              userId: emailOwner._id
-              rsvp: "in"
-          Meteor.call "notifyAddedFriend",
-            addedId: emailOwner._id, gameId: gameId, adderId: self.userId
-      else
-        newUserId = Accounts.createUser
-          email: friend.email
-          profile: name: friend.name
-        Games.update gameId,
-          $push: players:
-            name: friend.name
-            friendId: self.userId
-            userId: newUserId
-            rsvp: "in"
-        Meteor.call "notifyAddedFriend",
-          addedId: newUserId, gameId: gameId, adderId: self.userId
+      Meteor.call "notifyInvitedFriend",
+        added: friend, gameId: gameId, adderId: self.userId
     maybeMakeGameOn gameId
+  
+  "dev.notifyInviter": (gameId, email, fullName, inviteeId) ->
+    check(gameId, String)
+    if not Games.findOne(gameId)
+      throw new Meteor.Error 404, "Game not found"
+
+    Meteor.call "notifyInviter",
+      addedEmail: email, addedName: fullName, gameId: gameId, inviteeId: inviteeId
+    "ok"
+
   "addUserSub": (types, days, region) ->
     # DEACTIVATED for now
     return false
