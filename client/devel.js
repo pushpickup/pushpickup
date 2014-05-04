@@ -34,7 +34,6 @@ var getUserLocation = function (onSuccess /* optional */) {
       onSuccess && onSuccess(point);
     }, function() {
       Session.set("get-user-location", "failure");
-      alert('Error: The Geolocation service failed.');
     });
   } else {
     Session.set("get-user-location", "failure");
@@ -45,14 +44,15 @@ var getUserLocation = function (onSuccess /* optional */) {
 Deps.autorun(function () {
   if (Session.equals("get-user-location", "success")) {
     $('.search-input[type=search]').val("Current Location");
-    Meteor.setTimeout(function () {
-      Session.set("get-user-location", null);
-    }, 1000);
-  } else if (Session.equals("get-user-location", "failure")) {
-    Meteor.setTimeout(function () {
-      Session.set("get-user-location", null);
-    }, 1000);
-  }
+    // Meteor.setTimeout(function () {
+    //   Session.set("get-user-location", null);
+    // }, 1000);
+  } 
+  // else if (Session.equals("get-user-location", "failure")) {
+  //   Meteor.setTimeout(function () {
+  //     Session.set("get-user-location", null);
+  //   }, 1000);
+  // }
 });
 
 Deps.autorun(function (c) {
@@ -2049,7 +2049,7 @@ var sessionToggler = function (action) {
 _.each([
   'sign-in', 'sign-up', 'forgot-password', 'set-password',
   'subscriptions', 'change-email-address', 'change-password',
-  'help-and-feedback'
+  'change-location', 'help-and-feedback'
 ], function (action) {
   var key =  "click ."+action+".trigger";
   var eventMap = {};

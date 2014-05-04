@@ -1,19 +1,33 @@
 <template name="setLocation">
   <div class="set-location">
 
-    {{#if currentUser}}
-      <h2>Set your location</h2>
-      <span class="subtitle">We'll ask you for it just this once to <br/>
-      show you games within an hour drive.</span>
-    {{else}}
-      <h2>Want to get a pickup game?</h2>
-      <span class="subtitle">We need to know your location to help find<br/>
-      games near you.</span>
+    {{#if locationFailed}}
+      <div class="alert alert-warning">
+        Could not obtain location. You may need to reset your location settings.
+        <br/>Settings > General > Reset  
+      </div>
     {{/if}}
 
-    <a href="#" class="location-link"><i class="fa fa-location-arrow"></i></a>
+    {{#if locationObtained}}
+      <div class="alert alert-success alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        Location saved! It can be updated in settings :)
+      </div>
+    {{else}}
 
-    <span class="small-subtitle">Find my location</span>
+      {{#if currentUser}}
+        <h2>Set your location</h2>
+        <span class="subtitle">We'll ask you for it just this once to <br/>
+        show you games within an hour drive.</span>
+      {{else}}
+        <h2>Want to get a pickup game?</h2>
+        <span class="subtitle">We need to know your location to help find<br/>
+        games near you.</span>
+      {{/if}}
 
+      <a href="#" class="location-link"><i class="fa fa-location-arrow"></i></a>
+
+      <span class="small-subtitle">Find my location</span>
+    {{/if}}
   </div>
 </template>
