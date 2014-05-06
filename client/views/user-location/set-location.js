@@ -12,5 +12,8 @@ Template.setLocation.helpers({
   },
   locationObtained: function() {
     return Session.equals("get-user-location", "success");
+  },
+  locationPending: function() {
+    return Session.equals("get-user-location", "pending");
   }
 })

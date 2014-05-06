@@ -3,11 +3,16 @@ Session.setDefault('search-results', false);
 
 // Set default location to Berkeley
 var sanPabloParkBerkeleyCA = {
-	"type" : "Point", 
-  "coordinates" : [-122.284786, 37.855271]
+	"geo" : {
+    "type" : "Point", 
+    "coordinates" : [-122.284786, 37.855271],  
+  },
+  "city" : "Berkeley",
+  "state" : "CA"
 };
 Session.setDefault("current-location", sanPabloParkBerkeleyCA);
-Session.setDefault("map-center", sanPabloParkBerkeleyCA);
+Session.setDefault("map-center", sanPabloParkBerkeleyCA.geo);
+Session.setDefault("user-location-set", false);
 
 Session.setDefault(
   "game-types",
@@ -22,16 +27,49 @@ var getUserLocation = function (onSuccess /* optional */) {
   Session.set("get-user-location", "pending");
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
-      var point = {
-        "type": "Point",
-        "coordinates": [position.coords.longitude,
+      var location = {
+        "geo" : {
+          "type": "Point",
+          "coordinates": [position.coords.longitude,
                         position.coords.latitude]
+        }
       };
-  //     // https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&sensor=true
+      // console.log("https://maps.googleapis.com/maps/api/geocode/json?latlng="+point.coordinates[1]+","+point.coordinates[0]+"&sensor=true");
       
-      Session.set("get-user-location", "success");
-      Session.set("current-location", point);
-      onSuccess && onSuccess(point);
+      HTTP.get("http://api.geonames.org/findNearbyPlaceNameJSON?lat="+position.coords.latitude+"&lng="+position.coords.longitude+"&radius=7&username="+GEONAMES_USERNAME,
+        {}, function(err, res) {
+          if(err)
+          {
+            console.log(err);
+          } else {
+
+            if(!res.data.geonames)
+            {
+              console.log("register an account on geonames.com, activate it, and set the username in client/config.js");
+              console.log(res.data.status.message);
+            }
+
+            res.data.geonames.sort(function(a, b) {
+              var keyA = a.population,
+                  keyB = b.population;
+
+              if(keyA < keyB) return 1;
+              if(keyA > keyB) return -1;
+              return 0;
+            });
+
+            // console.log(res.data.geonames);
+
+            location.city = res.data.geonames[0].name;
+            location.state = res.data.geonames[0].adminCode1;
+
+            Session.set("current-location", location);
+            Session.set("user-location-set", true);
+            Session.set("get-user-location", "success");  
+          }
+        });
+
+      onSuccess && onSuccess(location);
     }, function() {
       Session.set("get-user-location", "failure");
     });
@@ -46,7 +84,7 @@ Deps.autorun(function () {
     $('.search-input[type=search]').val("Current Location");
     // Meteor.setTimeout(function () {
     //   Session.set("get-user-location", null);
-    // }, 1000);
+    // }, 5000);
   } 
   // else if (Session.equals("get-user-location", "failure")) {
   //   Meteor.setTimeout(function () {
@@ -58,7 +96,6 @@ Deps.autorun(function () {
 Deps.autorun(function (c) {
   if (Session.equals("get-user-location", "get")) {
     getUserLocation();
-    Session.set("get-user-location", null);
   }
 });
 
@@ -106,7 +143,7 @@ Deps.autorun(function () {
     Deps.autorun(function () {
       Session.set("gamesReady", false);
       Meteor.subscribe(
-        "nearby-upcoming-games", Session.get("current-location"), {
+        "nearby-upcoming-games", Session.get("current-location").geo, {
           types: Session.get("game-types"),
           maxDistance: Session.get("max-distance"),
           limit: Session.get("num-games-requested")
@@ -116,7 +153,7 @@ Deps.autorun(function () {
     // Grab up to initialNumGamesRequested past games
     // as near as possible to current location
     Deps.autorun(function () {
-      var location = Session.get("current-location");
+      var location = Session.get("current-location").geo;
       Meteor.call("nearest-past-games", location, function (err, res) {
         if (!err) setPastGames(res);
       });
@@ -683,7 +720,7 @@ Template.listedGameSummary.helpers({
   placeDistance: function () {
     return (0.00062137119 * GeoJSON.pointDistance(
       this.location.geoJSON,
-      Session.get("current-location")
+      Session.get("current-location").geo
     )).toFixed(1) + " mi"; // conversion from meters to miles
   }
 });

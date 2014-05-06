@@ -1,6 +1,12 @@
 <template name="devChangeLocation">
   <form class="dev-change-location" role="form">
-    <p class="form-heading">Your location is saved as <b>City, State</b></p>
-    <button class="btn update-location" type="submit">Update my location</button>
+    {{#if userLocationSet}}
+      <p class="form-heading">Your location is saved as <b>{{city}}, {{state}}</b></p>
+      <button class="btn update-location" type="submit">Update my location</button>
+    {{else}}
+      <p class="form-heading">Set your location</p>
+      <button class="btn update-location" type="submit">Find my location</button>
+    {{/if}}
+    
   </form>
 </template>
