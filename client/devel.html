@@ -1079,7 +1079,7 @@
       <ol>
         {{#each upcomingGames}}
           <li>
-            <a href="g/{{_id}}">{{type}} {{fromNow}}</a>) at {{location.name}}
+            <a href="g/{{_id}}">{{type}} {{fromNow}}</a> at {{location.name}}
           </li>
         {{/each}}
       </ol>
@@ -1089,9 +1089,11 @@
       <ol>
         {{#each allUsers}}
           <li>
-            name: {{name}}, email: {{email.address}},
-            registered: {{whenRegistered}}, verified email: {{email.verified}},
-            games added: {{gamesAdded}}, games joined: {{gamesJoined}}
+            <ul>
+              <li>{{name}}, {{email.address}}</li>
+              <li>registered: {{whenRegistered}}, verified email: {{email.verified}}</li>
+              <li>games added: {{gamesAdded}}, games joined: {{gamesJoined}}</li>
+            </ul>
           </li>
         {{/each}}
       </ol>
