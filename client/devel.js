@@ -46,7 +46,7 @@ var getUserLocation = function (onSuccess /* optional */) {
       };
       // console.log("https://maps.googleapis.com/maps/api/geocode/json?latlng="+point.coordinates[1]+","+point.coordinates[0]+"&sensor=true");
       
-      HTTP.get("http://api.geonames.org/findNearbyPlaceNameJSON?lat="+position.coords.latitude+"&lng="+position.coords.longitude+"&radius=7&username="+GEONAMES_USERNAME,
+      HTTP.get("http://api.geonames.org/findNearbyPlaceNameJSON?lat="+position.coords.latitude+"&lng="+position.coords.longitude+"&radius=5&cities=cities1000&style=medium&username="+GEONAMES_USERNAME,
         {}, function(err, res) {
           if(err)
           {
