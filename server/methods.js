@@ -1,4 +1,7 @@
 Meteor.methods({
+  saveUserLocation: function (location) {
+    Meteor.users.upsert(Meteor.userId(), {$set: {"profile.location": location}});
+  },
   "nearest-past-games": function (location) {
     this.unblock();
     check(location, GeoJSONPoint);

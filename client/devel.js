@@ -65,7 +65,16 @@ var getUserLocation = function (onSuccess /* optional */) {
 
             Session.set("current-location", location);
             Session.set("user-location-set", true);
-            Session.set("get-user-location", "success");  
+            Session.set("get-user-location", "success");
+
+            // Save to user account
+            if(Meteor.user()) {
+              Meteor.call('saveUserLocation', location, function (err, res) {
+                // handle error
+                if(err)
+                  console.log(err);
+              });
+            }
           }
         });
 
@@ -98,6 +107,14 @@ Deps.autorun(function (c) {
     getUserLocation();
   }
 });
+
+Deps.autorun(function (c) {
+  if(Meteor.user() && Meteor.user().profile.location) {
+    Session.set("current-location", Meteor.user().profile.location);
+    Session.set("get-user-location", "success");
+  }
+
+})
 
 PastGames = new Meteor.Collection(null);
 var setPastGames = function (arr) {
@@ -147,6 +164,7 @@ Deps.autorun(function () {
           types: Session.get("game-types"),
           maxDistance: Session.get("max-distance"),
           limit: Session.get("num-games-requested")
+          
         }, function () { Session.set("gamesReady", true); });
     });
 
