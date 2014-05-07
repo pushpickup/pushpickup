@@ -1,8 +1,8 @@
 Template.listHeader.helpers({
   currentCity: function() {
-    return Session.get("current-location").city + ', ' + Session.get("current-location").state;
+    return AmplifiedSession.get("current-location").city + ', ' + AmplifiedSession.get("current-location").state;
   },
   userLocationSet : function () {
-    return Session.get("user-location-set");
+    return AmplifiedSession.get("user-location-set");
   },
 });

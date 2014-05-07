@@ -1,3 +1,13 @@
+AmplifiedSession = _.extend({}, Session, {
+    keys: _.object(_.map(amplify.store(), function (value, key) {
+        return [key, JSON.stringify(value)];
+    })),
+    set: function (key, value) {
+        Session.set.apply(this, arguments);
+        amplify.store(key, value);
+    }
+});
+
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
 
@@ -10,9 +20,9 @@ var sanPabloParkBerkeleyCA = {
   "city" : "Berkeley",
   "state" : "CA"
 };
-Session.setDefault("current-location", sanPabloParkBerkeleyCA);
+AmplifiedSession.setDefault("current-location", sanPabloParkBerkeleyCA);
 Session.setDefault("map-center", sanPabloParkBerkeleyCA.geo);
-Session.setDefault("user-location-set", false);
+AmplifiedSession.setDefault("user-location-set", false);
 
 Session.setDefault(
   "game-types",
@@ -63,18 +73,18 @@ var getUserLocation = function (onSuccess /* optional */) {
             location.city = res.data.geonames[0].name;
             location.state = res.data.geonames[0].adminCode1;
 
-            Session.set("current-location", location);
-            Session.set("user-location-set", true);
+            AmplifiedSession.set("current-location", location);
+            AmplifiedSession.set("user-location-set", true);
             Session.set("get-user-location", "success");
 
             // Save to user account
-            if(Meteor.user()) {
-              Meteor.call('saveUserLocation', location, function (err, res) {
-                // handle error
-                if(err)
-                  console.log(err);
-              });
-            }
+            // if(Meteor.user()) {
+            //   Meteor.call('saveUserLocation', location, function (err, res) {
+            //     // handle error
+            //     if(err)
+            //       console.log(err);
+            //   });
+            // }
           }
         });
 
@@ -91,9 +101,9 @@ var getUserLocation = function (onSuccess /* optional */) {
 Deps.autorun(function () {
   if (Session.equals("get-user-location", "success")) {
     $('.search-input[type=search]').val("Current Location");
-    // Meteor.setTimeout(function () {
-    //   Session.set("get-user-location", null);
-    // }, 5000);
+    Meteor.setTimeout(function () {
+      Session.set("get-user-location", null);
+    }, 5000);
   } 
   // else if (Session.equals("get-user-location", "failure")) {
   //   Meteor.setTimeout(function () {
@@ -110,7 +120,7 @@ Deps.autorun(function (c) {
 
 Deps.autorun(function (c) {
   if(Meteor.user() && Meteor.user().profile.location) {
-    Session.set("current-location", Meteor.user().profile.location);
+    AmplifiedSession.set("current-location", Meteor.user().profile.location);
     Session.set("get-user-location", "success");
   }
 
@@ -160,7 +170,7 @@ Deps.autorun(function () {
     Deps.autorun(function () {
       Session.set("gamesReady", false);
       Meteor.subscribe(
-        "nearby-upcoming-games", Session.get("current-location").geo, {
+        "nearby-upcoming-games", AmplifiedSession.get("current-location").geo, {
           types: Session.get("game-types"),
           maxDistance: Session.get("max-distance"),
           limit: Session.get("num-games-requested")
@@ -171,7 +181,7 @@ Deps.autorun(function () {
     // Grab up to initialNumGamesRequested past games
     // as near as possible to current location
     Deps.autorun(function () {
-      var location = Session.get("current-location").geo;
+      var location = AmplifiedSession.get("current-location").geo;
       Meteor.call("nearest-past-games", location, function (err, res) {
         if (!err) setPastGames(res);
       });
@@ -738,7 +748,7 @@ Template.listedGameSummary.helpers({
   placeDistance: function () {
     return (0.00062137119 * GeoJSON.pointDistance(
       this.location.geoJSON,
-      Session.get("current-location").geo
+      AmplifiedSession.get("current-location").geo
     )).toFixed(1) + " mi"; // conversion from meters to miles
   }
 });

@@ -9,12 +9,12 @@ Template.devChangeLocation.events({
 
 Template.devChangeLocation.helpers({
   userLocationSet : function () {
-    return Session.get("user-location-set");
+    return AmplifiedSession.get("user-location-set");
   },
   city : function () {
-    return Session.get("current-location").city;
+    return AmplifiedSession.get("current-location").city;
   },
   state : function () {
-    return Session.get("current-location").state;
+    return AmplifiedSession.get("current-location").state;
   }
 })

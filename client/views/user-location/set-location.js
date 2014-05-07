@@ -15,5 +15,13 @@ Template.setLocation.helpers({
   },
   locationPending: function() {
     return Session.equals("get-user-location", "pending");
+  },
+  showSetLocation : function () {
+    if(!AmplifiedSession.get("user-location-set") || Session.equals("get-user-location", "success"))
+    {
+      return true;
+    } else {
+      return false;
+    }
   }
 })
