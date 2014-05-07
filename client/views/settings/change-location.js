@@ -11,10 +11,10 @@ Template.devChangeLocation.helpers({
   userLocationSet : function () {
     return AmplifiedSession.get("user-location-set");
   },
-  city : function () {
-    return AmplifiedSession.get("current-location").city;
+  location: function () {
+    if(AmplifiedSession.get("current-location").city)
+      return AmplifiedSession.get("current-location").city + ', ' + AmplifiedSession.get("current-location").state;
+    else
+      return false;
   },
-  state : function () {
-    return AmplifiedSession.get("current-location").state;
-  }
 })

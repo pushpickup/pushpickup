@@ -57,26 +57,30 @@ var getUserLocation = function (onSuccess /* optional */) {
             {
               console.log("register an account on geonames.com, activate it, and set the username in client/config.js");
               console.log(res.data.status.message);
+
+              AmplifiedSession.set("current-location", location);
+              AmplifiedSession.set("user-location-set", true);
+              Session.set("get-user-location", "success");
+              
+            } else {
+              res.data.geonames.sort(function(a, b) {
+                var keyA = a.population,
+                    keyB = b.population;
+
+                if(keyA < keyB) return 1;
+                if(keyA > keyB) return -1;
+                return 0;
+              });
+
+              // console.log(res.data.geonames);
+
+              location.city = res.data.geonames[0].name;
+              location.state = res.data.geonames[0].adminCode1;
+
+              AmplifiedSession.set("current-location", location);
+              AmplifiedSession.set("user-location-set", true);
+              Session.set("get-user-location", "success");
             }
-
-            res.data.geonames.sort(function(a, b) {
-              var keyA = a.population,
-                  keyB = b.population;
-
-              if(keyA < keyB) return 1;
-              if(keyA > keyB) return -1;
-              return 0;
-            });
-
-            // console.log(res.data.geonames);
-
-            location.city = res.data.geonames[0].name;
-            location.state = res.data.geonames[0].adminCode1;
-
-            AmplifiedSession.set("current-location", location);
-            AmplifiedSession.set("user-location-set", true);
-            Session.set("get-user-location", "success");
-
             // Save to user account
             // if(Meteor.user()) {
             //   Meteor.call('saveUserLocation', location, function (err, res) {

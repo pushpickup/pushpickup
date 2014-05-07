@@ -34,6 +34,11 @@ var nearbyGamesQuery = function (location, options) {
   };
 };
 
+// Meteor.publish("everywhere-games", function (options) {
+//   return Games.find({}, { 'startsAt': {$gte: new Date()} }), {
+//     sort: {startsAt: 1}, limit: 15 });
+// });
+
 Meteor.publish("nearby-upcoming-games", function (location, options) {
   var nearby = nearbyGamesQuery(location, options);
   var limit = options.limit || 15; // `check`ed by nearbyGamesQuery
