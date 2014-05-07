@@ -1,12 +1,4 @@
-AmplifiedSession = _.extend({}, Session, {
-    keys: _.object(_.map(amplify.store(), function (value, key) {
-        return [key, JSON.stringify(value)];
-    })),
-    set: function (key, value) {
-        Session.set.apply(this, arguments);
-        amplify.store(key, value);
-    }
-});
+
 
 Session.setDefault('searching', 'not');
 Session.setDefault('search-results', false);
@@ -34,9 +26,11 @@ var initialNumGamesRequested = 15;
 Session.setDefault("num-games-requested", initialNumGamesRequested);
 
 var getUserLocation = function (onSuccess /* optional */) {
+
   Session.set("get-user-location", "pending");
-  if(navigator.geolocation) {
+  if(navigator.geolocation) {    
     navigator.geolocation.getCurrentPosition(function(position) {
+
       var location = {
         "geo" : {
           "type": "Point",
@@ -44,19 +38,27 @@ var getUserLocation = function (onSuccess /* optional */) {
                         position.coords.latitude]
         }
       };
+
+      console.log(position.coords.longitude + ", " + position.coords.latitude);
       // console.log("https://maps.googleapis.com/maps/api/geocode/json?latlng="+point.coordinates[1]+","+point.coordinates[0]+"&sensor=true");
       
-      HTTP.get("http://api.geonames.org/findNearbyPlaceNameJSON?lat="+position.coords.latitude+"&lng="+position.coords.longitude+"&radius=7&username="+GEONAMES_USERNAME,
+      HTTP.get("http://api.geonames.org/findNearbyPlaceNameJSON?lat="+position.coords.latitude+"&lng="+position.coords.longitude+"&radius=5&cities=cities1000&style=medium&username="+GEONAMES_USERNAME,
         {}, function(err, res) {
           if(err)
           {
-            console.log(err);
+            // console.log(err);
+
+            // This set of three lines is repeated in the code, needs to be put in a function.
+            AmplifiedSession.set("current-location", location);
+            AmplifiedSession.set("user-location-set", true);
+            Session.set("get-user-location", "success");
+
           } else {
 
             if(!res.data.geonames)
             {
-              console.log("register an account on geonames.com, activate it, and set the username in client/config.js");
-              console.log(res.data.status.message);
+              // console.log("register an account on geonames.com, activate it, and set the username in client/config.js");
+              // console.log(res.data.status.message);
 
               AmplifiedSession.set("current-location", location);
               AmplifiedSession.set("user-location-set", true);
@@ -95,7 +97,7 @@ var getUserLocation = function (onSuccess /* optional */) {
       onSuccess && onSuccess(location);
     }, function() {
       Session.set("get-user-location", "failure");
-    });
+    }, { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 });
   } else {
     Session.set("get-user-location", "failure");
     console.log('Error: Your browser doesn\'t support geolocation.');
@@ -105,22 +107,15 @@ var getUserLocation = function (onSuccess /* optional */) {
 Deps.autorun(function () {
   if (Session.equals("get-user-location", "success")) {
     $('.search-input[type=search]').val("Current Location");
+    console.log("get-user-location = success")
     Meteor.setTimeout(function () {
       Session.set("get-user-location", null);
     }, 5000);
-  } 
-  // else if (Session.equals("get-user-location", "failure")) {
-  //   Meteor.setTimeout(function () {
-  //     Session.set("get-user-location", null);
-  //   }, 1000);
-  // }
-});
-
-Deps.autorun(function (c) {
-  if (Session.equals("get-user-location", "get")) {
+  } else if (Session.equals("get-user-location", "get")) {
     getUserLocation();
   }
 });
+
 
 // Deps.autorun(function (c) {
 //   if(Meteor.user() && Meteor.user().profile.location) {

@@ -1,7 +1,10 @@
 Template.devChangeLocation.events({
   "submit form": function (event, template) {
     event.preventDefault();
+    
     Session.set('get-user-location', 'get');
+    AmplifiedSession.set("user-location-set", false);
+
     Session.set("settings-change-location", false);
     Session.set("viewing-settings", false);
   }
