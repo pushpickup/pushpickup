@@ -266,7 +266,7 @@ Meteor.methods({
     if (!game)
       return {
         userId: user._id,
-        error: new Meteor.Error(403, "Game-on trigger is for unknown game")
+        error: new Meteor.Error(403, "That game was canceled, so we can't send a reminder.")
       };
 
     if (game.status === "proposed") {

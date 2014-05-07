@@ -1147,27 +1147,27 @@
   <div class="admin-view">
     <h3>Upcoming games</h3>
     {{#spinnerIfWaiting toComplete='all-games-snapshot'}}
-      <ul>
+      <ol>
         {{#each upcomingGames}}
           <li>
-            {{type}} {{fromNow}} at {{location.name}}
-            (<a href="g/{{_id}}">link</a>)
+            <a href="g/{{_id}}">{{type}} {{fromNow}}</a> at {{location.name}}
           </li>
         {{/each}}
-      </ul>
+      </ol>
     {{/spinnerIfWaiting}}
     <h3>User info</h3>
     {{#spinnerIfWaiting toComplete='all-users-snapshot'}}
-      <ul>
+      <ol>
         {{#each allUsers}}
           <li>
-            name: {{name}}, email: {{email.address}},
-            registered: {{whenRegistered}},
-            verified email: {{#if email.verified}}true{{else}}false{{/if}},
-            games added: {{gamesAdded}}, games joined: {{gamesJoined}}
+            <ul>
+              <li>{{name}}, {{email.address}}</li>
+              <li>registered: {{whenRegistered}}, verified email: {{email.verified}}</li>
+              <li>games added: {{gamesAdded}}, games joined: {{gamesJoined}}</li>
+            </ul>
           </li>
         {{/each}}
-      </ul>
+      </ol>
     {{/spinnerIfWaiting}}
   </div>
 </template>
