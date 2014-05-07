@@ -61,7 +61,7 @@ var getUserLocation = function (onSuccess /* optional */) {
               AmplifiedSession.set("current-location", location);
               AmplifiedSession.set("user-location-set", true);
               Session.set("get-user-location", "success");
-              
+
             } else {
               res.data.geonames.sort(function(a, b) {
                 var keyA = a.population,
@@ -122,13 +122,12 @@ Deps.autorun(function (c) {
   }
 });
 
-Deps.autorun(function (c) {
-  if(Meteor.user() && Meteor.user().profile.location) {
-    AmplifiedSession.set("current-location", Meteor.user().profile.location);
-    Session.set("get-user-location", "success");
-  }
-
-})
+// Deps.autorun(function (c) {
+//   if(Meteor.user() && Meteor.user().profile.location) {
+//     AmplifiedSession.set("current-location", Meteor.user().profile.location);
+//     Session.set("get-user-location", "success");
+//   }
+// })
 
 PastGames = new Meteor.Collection(null);
 var setPastGames = function (arr) {
