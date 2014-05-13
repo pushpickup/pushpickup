@@ -1,0 +1,28 @@
+<template name="devSignIn">
+  <form class="dev-sign-in" role="form">
+    <div class="tight form-group">
+      <input type="email" class="form-control email"
+             placeholder="Your email" value="{{email}}" required autofocus>
+      <input type="password" class="form-control password"
+             placeholder="Your password" required>
+    </div>
+    {{> alerts where="devSignIn"}}
+    <button class="btn sign-in" type="submit">Sign in</button>
+  </form>
+</template>
+
+<!-- Old code? -->
+<template name="signIn">
+  <form class="form-accounts sign-in" role="form">
+    <h2 class="form-heading">Please sign in</h2>
+    <div class="form-group {{error}}">
+      <input type="text" class="login form-control"
+             placeholder="Username or Email" required autofocus>
+      <input type="password" class="password form-control"
+             placeholder="Password" required>
+    </div>
+    {{{alerts}}}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+  <p class="text-center">{{#link route="get-reset-link"}}Forgot password?{{/link}}</p>
+</template>

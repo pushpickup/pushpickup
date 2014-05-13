@@ -1,0 +1,32 @@
+<template name="devSignUp">
+  <form class="dev-sign-up" role="form">
+    <p class="form-heading"><strong>Glad to have you!</strong></p>
+    <p>Be sure to check for your email confirmation.</p>
+    <div class="tight form-group">
+      <input type="text" class="form-control full-name"
+             placeholder="Your full name" required autofocus>
+      <input type="email" class="form-control email"
+             placeholder="Your email" value="{{email}}" required>
+      <input type="password" class="form-control password"
+             placeholder="Your password" required>
+    </div>
+    {{> alerts where="devSignUp"}}
+    <button class="btn sign-up" type="submit">Sign up</button>
+  </form>
+</template>
+
+
+<!-- Old Code? -->
+<template name="sendVerificationEmail">
+  <form class="form-accounts get-verify-link" role="form">
+    <h3 class="form-heading">Add email address</h3>
+    <div class="form-group {{error}}">
+      <span class="help-block">Check for an email from
+        support@pushpickup.com to verify your email address</span>
+      <input type="email" class="email form-control"
+             placeholder="Email address" required autofocus>
+    </div>
+    {{{alerts}}}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">OK</button>
+  </form>
+</template>
