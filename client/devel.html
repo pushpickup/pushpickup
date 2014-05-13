@@ -1,24 +1,9 @@
-<template name="devLayout">
-  <div class="container">
-    <div class="row">
-      <div id="alerts">
-      </div>
-    </div>
-  </div>
-  {{> yield}}
-</template>
-
 <template name="devMain">
   {{> devNav}}
   {{> devBody}}
 </template>
 
-<template name="devFooter">
-  {{#unless omit}}
-    <div class="footer row">
-    </div>
-  {{/unless}}
-</template>
+
 
 <template name="devBody">
   {{> coverPhoto }}
@@ -133,88 +118,9 @@
   </li>
 </template>
 
-<template name="listOfGames">
-  <ul class="list-of-games list-group">
-    {{#if currentUser}}
-      {{#each userOrganizingUpcoming}}
-        {{> listedGame}}
-      {{/each}}
-      {{#each userPlayingUpcoming}}
-        {{> listedGame}}
-      {{/each}}
-    {{/if}}
-
-    {{#each nonuserUpcoming}}
-      {{> listedGame}}
-    {{/each}}
-
-    {{#if SGet 'gamesReady'}}
-      {{#if noneUpcoming}}
-        <li class="list-group-item">
-          There are no upcoming games
-          {{#if SGet 'search-results'}}
-            in this region.
-          {{else}}
-            within {{maxDistance}}.
-          {{/if}}
-          You should <a href="/addGame">add a game</a> and invite your friends!
-        </li>
-      {{/if}}
-    {{else}}
-      <li class="list-group-item">
-        {{> spinner}}
-      </li>
-    {{/if}}
-
-    {{#each pastGames}}
-      {{> listedGame}}
-    {{/each}}
-
-    {{> loadMoreGames}}
-  </ul>
-  {{#if SGet 'viewing-settings'}}
-    <div class="overlay"></div>
-  {{/if}}
-</template>
-
-<template name="loadMoreGames">
-  {{#unless noMoreGames}}
-    <div class="load-more-games">
-      <a>Load more</a>
-    </div>
-  {{/unless}}
-</template>
-
-<template name="listedGame">
-  <li class="list-group-item listed-game {{#if past startsAt}}past{{/if}}">
-    {{> gameTypeIndicator}}
-    {{> listedGameSummary}}
-    {{#unless past startsAt}}
-      {{#if organizingOrPlaying}}
-        {{> addFriendsLink}}
-      {{/if}}
-      {{> alerts where=_id}}
-      {{> addPlayers}}
-    {{/unless}}
-  </li>
-</template>
-
 <template name="gameTypeIndicator">
   <div class="game-type-indicator">
     <span class="ppicon-{{type}}"></span>
-  </div>
-</template>
-
-<template name="listedGameSummary">
-  <div class="game-summary">
-    {{> gameWhen}}
-    {{> whoIsPlaying}}
-    <div class="place">
-      <div class="place-name">
-        {{placeName}}
-        <!-- <span class="place-distance">({{placeDistance}})</span> -->
-      </div>
-    </div>
   </div>
 </template>
 
@@ -993,60 +899,6 @@
   {{/if}}
 </template>
 
-<template name="devSignIn">
-  <form class="dev-sign-in" role="form">
-    <div class="tight form-group">
-      <input type="email" class="form-control email"
-             placeholder="Your email" value="{{email}}" required autofocus>
-      <input type="password" class="form-control password"
-             placeholder="Your password" required>
-    </div>
-    {{> alerts where="devSignIn"}}
-    <button class="btn sign-in" type="submit">Sign in</button>
-  </form>
-</template>
-
-<template name="devSignUp">
-  <form class="dev-sign-up" role="form">
-    <p class="form-heading"><strong>Glad to have you!</strong></p>
-    <p>Be sure to check for your email confirmation.</p>
-    <div class="tight form-group">
-      <input type="text" class="form-control full-name"
-             placeholder="Your full name" required autofocus>
-      <input type="email" class="form-control email"
-             placeholder="Your email" value="{{email}}" required>
-      <input type="password" class="form-control password"
-             placeholder="Your password" required>
-    </div>
-    {{> alerts where="devSignUp"}}
-    <button class="btn sign-up" type="submit">Sign up</button>
-  </form>
-</template>
-
-<template name="devSetPassword">
-  <form class="dev-set-password" role="form">
-    <p class="form-heading">Set your password:</p>
-    <div class="form-group">
-      <input type="password" class="form-control"
-             placeholder="Your new password" required autofocus>
-    </div>
-    {{> alerts where="setPassword"}}
-    <button class="btn set-password" type="submit">Set password</button>
-  </form>
-</template>
-
-<template name="devForgotPassword">
-  <form class="dev-forgot-password" role="form">
-    <p class="form-heading">Get a link to reset your password:</p>
-    <div class="form-group">
-      <input type="email" class="form-control"
-             placeholder="Your email" required autofocus>
-    </div>
-    {{> alerts where="forgotPassword"}}
-    <button class="btn forgot-password" type="submit">Send reset link</button>
-  </form>
-</template>
-
 <template name="devHelpAndFeedback">
   <form class="dev-help-and-feedback" role="form">
     <p class="form-heading">What kind of feedback are you sending?</p>
@@ -1105,69 +957,6 @@
   {{/if}}
 </template>
 
-<template name="devChangeEmailAddress">
-<form class="change-email-address" role="form">
-  <div class="tight form-group">
-    <p class="form-header">Add your new email address and we'll send you
-    a verification email.</p>
-    <input type="email" class="form-control"
-           placeholder="Your new email address" required autofocus>
-    <!-- Session 'strange-passwd' only supplied during first session -->
-    <input type="password" class="form-control"
-           value="{{SGet 'strange-passwd'}}"
-           placeholder="Your password" required>
-  </div>
-  {{> alerts where="changeEmailAddress"}}
-  <button class="btn change-email-address" type="submit">
-    Update my email address
-  </button>
-</form>
-</template>
-
-<template name="devChangePassword">
-<form class="change-password" role="form">
-  <div class="tight form-group">
-    <!-- Session 'strange-passwd' only supplied during first session -->
-    <input type="password" class="old-password form-control"
-           value="{{SGet 'strange-passwd'}}"
-           placeholder="Current password" required autofocus>
-    <input type="password" class="new-password form-control"
-           placeholder="New password" required>
-  </div>
-  {{> alerts where="changePassword"}}
-  <button class="btn change-password" type="submit">Change password</button>
-</form>
-</template>
-
 <template name="tinySpinner">
   <i class="fa fa-refresh fa-spin"></i>
-</template>
-
-<template name="adminView">
-  <div class="admin-view">
-    <h3>Upcoming games</h3>
-    {{#spinnerIfWaiting toComplete='all-games-snapshot'}}
-      <ol>
-        {{#each upcomingGames}}
-          <li>
-            <a href="g/{{_id}}">{{type}} {{fromNow}}</a> at {{location.name}}
-          </li>
-        {{/each}}
-      </ol>
-    {{/spinnerIfWaiting}}
-    <h3>User info</h3>
-    {{#spinnerIfWaiting toComplete='all-users-snapshot'}}
-      <ol>
-        {{#each allUsers}}
-          <li>
-            <ul>
-              <li>{{name}}, {{email.address}}</li>
-              <li>registered: {{whenRegistered}}, verified email: {{email.verified}}</li>
-              <li>games added: {{gamesAdded}}, games joined: {{gamesJoined}}</li>
-            </ul>
-          </li>
-        {{/each}}
-      </ol>
-    {{/spinnerIfWaiting}}
-  </div>
 </template>
