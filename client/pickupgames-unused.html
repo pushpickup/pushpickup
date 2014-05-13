@@ -1,3 +1,4 @@
+<!-- #unused parent -->
 <template name="userDropdown">
   {{#if currentUser}}
     <li class="dropdown">
@@ -17,6 +18,7 @@
   {{/if}}
 </template>
 
+<!-- #unused -->
 <template name="oneGame">
   <div class="panel panel-success">
     <div class="panel-heading">A beautiful game</div>
@@ -33,6 +35,7 @@
   </div>
 </template>
 
+<!-- #unused -->
 <template name="home">
   <div class="row"><div class="span-row">{{> filter}}</div></div>
     <div class="row"><div class="span-row">
@@ -40,6 +43,7 @@
     </div></div>
 </template>
 
+<!-- #unused parent -->
 <template name="filter">
   <div id="gameFilters" class="panel panel-info">
     <div class="panel-heading">
@@ -54,6 +58,7 @@
   </div>
 </template>
 
+<!-- #unused parent -->
 <template name="addUserSub">
   <div class="addUserSub">
     <div class="singleton-button-container">
@@ -68,6 +73,7 @@
   </div>
 </template>
 
+<!-- #unused parent -->
 <template name="addUserSubMessage">
   <span class="help-block">
     {{#if SGet 'soloGame'}}
@@ -78,6 +84,7 @@
   </span>
 </template>
 
+<!-- #unused parent -->
 <template name="games">
   {{#if gamesReady}}
     <div class="panel panel-success">
@@ -109,6 +116,7 @@
   {{/if}}
 </template>
 
+<!-- #unused parent -->
 <template name="game">
   <a class="game list-group-item {{context}}">
     <div class="row game-header">
@@ -164,6 +172,7 @@
   </a>
 </template>
 
+<!-- #unused parent -->
 <template name="gameComments">
   <p><strong>{{comments.length}}
       {{pluralize comments 'Comment' 'Comments'}}</strong></p>
@@ -181,15 +190,7 @@
   {{/if}}
 </template>
 
-<template name="gameComment">
-  <blockquote>
-    <p>{{message}}</p>
-    <footer>{{userName}}, {{timestamp}}
-      {{#if canRemove}}<a class="text-danger remove-comment">remove</a>{{/if}}
-    </footer>
-  </blockquote>
-</template>
-
+<!-- #unused -->
 <template name="editableComment">
   <div class="panel panel-success">
     <div class="panel-heading">{{title}}</div>
@@ -222,6 +223,7 @@
   </div>
 </template>
 
+<!-- #unusued parent -->
 <template name="editablePlayer">
   <div class="panel panel-success">
     <div class="panel-heading">{{title}}</div>
@@ -259,6 +261,7 @@
   </div>
 </template>
 
+<!-- #unusued parent -->
 <template name="selectLocation">
   <div class="form-group {{locationError}}">
     <label for="locationSearchBox" class="control-label">Where</label>
@@ -276,6 +279,7 @@
   </div>
 </template>
 
+<!-- #unusued -->
 <template name="editableGame">
   <div id="{{id}}" class="panel">
     <div class="panel-heading">
@@ -359,6 +363,7 @@
   </div>
 </template>
 
+<!-- #unused parent -->
 <template name="locationFinder">
   <div class="input-group">
     <label class="sr-only" for="locationSearchBox">Location</label>
@@ -371,17 +376,20 @@
   </div>
 </template>
 
+<!-- #unused parent -->
 <template name="locationSearchBox">
   <input type="text" class="form-control" id="locationSearchBox"
          placeholder="Location" value="{{location.name}}" required>
 </template>
 
+<!-- #unused -->
 <template name="alertDanger">
   <div class="alert alert-danger">
     <strong>{{beginWith}}</strong> {{message}}.
   </div>
 </template>
 
+<!-- #unused -->
 <template name="alertDangerOfferSignIn">
   <div class="alert alert-danger">
     <strong>{{beginWith}}</strong> {{message}}.
@@ -389,13 +397,14 @@
   </div>
 </template>
 
+<!-- #unused -->
 <template name="alertWarning">
   <div class="alert alert-warning">
     <strong>{{beginWith}}</strong> {{message}}.
   </div>
 </template>
 
-
+<!-- #unused parent -->
 <template name="typeFilter">
   <div id="typeFilter">
     {{#each typeOptions}}
@@ -409,6 +418,7 @@
   </div>
 </template>
 
+<!-- #unused parent -->
 <template name="dayFilter">
   <div id="dayFilter">
     {{#each dayOptions}}
@@ -421,6 +431,7 @@
   </div>
 </template>
 
+<!-- #unused parent -->
 <template name="map">
   {{#constant}}
     <div id="map-wrapper">
@@ -429,6 +440,7 @@
   {{/constant}}
 </template>
 
+<!-- #unused -->
 <template name="manageUserSubs">
   <div class="panel panel-info">
     <div class="panel-heading">Manage subscriptions</div>
@@ -451,10 +463,12 @@
   </div>
 </template>
 
+<!-- #unused -->
 <template name="helpBlock">
   <span class="help-block">{{this}}</span>
 </template>
 
+<!-- #unused -->
 <template name="about">
   <div class="fromFooterContent">
     <h1>About Push Pickup</h1>
@@ -503,6 +517,7 @@
   </div>
 </template>
 
+<!-- #unused -->
 <template name="help">
   <div class="fromFooterContent">
     <h1>Help</h1>
@@ -540,3 +555,33 @@
 </template>
 
 
+<!-- Old layout ? #unused -->
+<template name="layout">
+  <div class="container">
+    {{> navbar}}
+    <div class="row">
+      <div id="alerts">
+        {{{alerts}}}
+      </div>
+    </div>
+    <div class="row">
+      <div id="manipulate">
+        {{> yield}}
+      </div>
+      <div id="map-interaction">
+        {{> map}}
+      </div>
+    </div>
+    <div class="row">
+      <footer class="footer">
+        <div>
+          <small> You can do it!</small>
+          <ul>
+            <li>{{#link route="help"}}Help{{/link}}</li>
+            <li>{{#link route="about"}}About{{/link}}</li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+  </div>
+</template>

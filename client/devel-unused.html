@@ -1,0 +1,114 @@
+<!-- Invites -->
+
+<!-- #unused ? -->
+<template name="joinGameLink">
+  <div class="join-game-link">
+    <a class="{{#if SEql 'unauth-join' _id}}text-muted{{/if}}">Join</a>
+  </div>
+</template>
+
+<!-- #unused ? -->
+<template name="unauthInviteFriends">
+  {{#if SEql 'unauth-invite-friends' _id}}
+    {{> inviteFriendsInput}}
+  {{else}}
+    {{> unauthInviteFriendsLink}}
+  {{/if}}
+</template>
+
+<!-- #unused parent ? -->
+<template name="unauthInviteFriendsLink">
+  <div class="form-group">
+    <p class="form-control-static">
+      <a class="unauth-invite-friends-link">
+        <span class="glyphicon glyphicon-plus-sign"></span>
+        Invite friend</a>
+    </p>
+  </div>
+</template>
+
+<!-- Subscriptions -->
+
+<!-- #unused ? -->
+<template name="subscribe">
+  <div class="subscribe">
+    <div class="subscribe-detail">
+      {{detail}}
+    </div>
+    {{#if SEql 'unauth-subscribe' true}}
+      {{> authenticateAndSubscribe}}
+    {{else}}
+      {{#unless subscribed}}
+        {{> subscribeButton}}
+      {{/unless}}
+    {{/if}}
+  </div>
+</template>
+
+<!-- #unused parent ? -->
+<template name="authenticateAndSubscribe">
+  <div class="authenticate-and-subscribe well">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="authenticate-and-subscribe" role="form">
+      {{#unless currentUser}}
+        {{> addInfoOrSignIn action="subscribe"}}
+      {{/unless}}
+      {{> alerts where="authenticateAndSubscribe"}}
+      <!-- Not Template.subscribeButton because we don't want to trigger
+           its event handlers-->
+      <button type="submit" class="btn subscribe">
+        <span class="glyphicon glyphicon-envelope"></span> Subscribe
+      </button>
+    </form>
+  </div>
+</template>
+
+<!-- #unused parent ? -->
+<template name="subscribeButton">
+  <div class="subscribe-button">
+    <button type="button"
+            class="btn subscribe">
+      <span class="glyphicon glyphicon-envelope"></span>
+      Subscribe</button>
+  </div>
+</template>
+
+<!-- #unused ? -->
+<template name="subscribeAfterJoined">
+  {{#unless subscribed}}
+    {{#if SEql 'joined-game' _id}}
+      <div class="subscribe-after-joined well">
+        <button type="button" class="close" aria-hidden="true">&times;</button>
+        <strong>You joined!</strong>
+        <p>Check your email for more info.</p>
+        {{> alerts where="subscribe"}}
+        <p> Would you like to receive email when new {{type}} games
+          are posted near {{placeName}}? </p>
+        {{> subscribeButton}}
+      </div>
+    {{/if}}
+  {{/unless}}
+</template>
+
+<!-- #unused ? -->
+<template name="devSubscriptions">
+  <strong class="heading">Get emails for new games</strong>
+  <p>You can use search to find locations and game types
+    to which you want to subscribe.</p>
+  {{#if loading}}
+    loading your subscriptions...
+  {{else}}
+    {{#if hasSubs}}
+      <p> You have {{subsCount}} subscriptions.</p>
+      <p>
+        <a class="text-danger unsubscribe-all">Unsubscribe completely.</a>
+      </p>
+      <p>
+        This page will get fancier soon,
+        enabling you to view and edit subscriptions.
+      </p>
+    {{else}}
+      You have no subscriptions.
+    {{/if}}
+  {{/if}}
+</template>

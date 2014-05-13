@@ -1,0 +1,7 @@
+<template name="spinnerIfWaiting">
+  {{#if SEql 'waiting-on' toComplete}}
+    {{> tinySpinner}}
+  {{else}}
+    {{> UI.contentBlock}}
+  {{/if}}
+</template>

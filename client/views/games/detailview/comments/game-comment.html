@@ -1,0 +1,8 @@
+<template name="gameComment">
+  <blockquote>
+    <p>{{message}}</p>
+    <footer>{{userName}}, {{timestamp}}
+      {{#if canRemove}}<a class="text-danger remove-comment">remove</a>{{/if}}
+    </footer>
+  </blockquote>
+</template>

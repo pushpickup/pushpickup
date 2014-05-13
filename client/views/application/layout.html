@@ -7,34 +7,3 @@
   </div>
   {{> yield}}
 </template>
-
-<!-- Old layout ? -->
-<template name="layout">
-  <div class="container">
-    {{> navbar}}
-    <div class="row">
-      <div id="alerts">
-        {{{alerts}}}
-      </div>
-    </div>
-    <div class="row">
-      <div id="manipulate">
-        {{> yield}}
-      </div>
-      <div id="map-interaction">
-        {{> map}}
-      </div>
-    </div>
-    <div class="row">
-      <footer class="footer">
-        <div>
-          <small> You can do it!</small>
-          <ul>
-            <li>{{#link route="help"}}Help{{/link}}</li>
-            <li>{{#link route="about"}}About{{/link}}</li>
-          </ul>
-        </div>
-      </footer>
-    </div>
-  </div>
-</template>

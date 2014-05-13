@@ -1,0 +1,16 @@
+<template name="getCurrentLocation">
+  <button class="btn btn-header-secondary get-current-location" type="button">
+    {{#unless SGet 'get-user-location'}}
+      <i class="fa fa-location-arrow"></i>
+    {{/unless}}
+    {{#if SEql 'get-user-location' 'pending'}}
+      <i class="fa fa-refresh fa-spin"></i>
+    {{/if}}
+    {{#if SEql 'get-user-location' 'success'}}
+      <i class="fa fa-check-circle"></i>
+    {{/if}}
+    {{#if SEql 'get-user-location' 'failure'}}
+      <i class="fa fa-exclamation"></i>
+    {{/if}}s
+  </button>
+</template>
