@@ -1,0 +1,19 @@
+<template name="optionsMain">
+  <div class="options-main row">
+    {{#if SEql 'searching' 'not'}}
+      {{> settingsCog}}
+      {{#unless SGet 'viewing-settings'}}
+        {{> startSearch}}
+        {{> addGameLink}}
+      {{/unless}}
+    {{else}}
+      {{#if SEql 'searching' 'during'}}
+        {{> searchInput}}
+        {{> searchBacktrack}}
+      {{else}}
+        {{> searchBacktrack}}
+        {{> searchInput}}
+      {{/if}}
+    {{/if}}
+  </div>
+</template>

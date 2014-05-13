@@ -1,0 +1,31 @@
+<template name="joinOrLeave">
+  <div class="join-or-leave">
+    {{#if organizing}}
+      {{#unless addingPlayers}}
+        {{#unless userInGame}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn join-game-and-invite" style="width:100%">Join game</a>
+        {{else}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{/unless}}
+      {{/unless}}
+    {{else}}
+      {{#unless addingPlayers}}
+        {{#unless userInGame}}
+          <button type="button" class="btn join-game">Join game</button>
+        {{else}}
+          {{> alerts where="addjoinFriends"}}
+          <button type="button" class="btn invite-friends">
+            <span class="ppicon-add-friend">  Invite friends</span>
+          </button>
+          <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{/unless}}
+      {{/unless}}
+    {{/if}}
+  </div>
+</template>

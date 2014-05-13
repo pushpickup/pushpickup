@@ -1,10 +1,3 @@
-<template name="devMain">
-  {{> devNav}}
-  {{> devBody}}
-</template>
-
-
-
 <template name="devBody">
   {{> coverPhoto }}
   <div class="container">
@@ -33,71 +26,6 @@
   </div>
 </template>
 
-<template name="devNav">
-  <div class="app-header">
-    <div class="container">
-      {{> optionsMain}}
-      {{> optionsExtended}}
-    </div>
-      {{> searchExtended}}
-  </div>
-</template>
-
-<template name="optionsMain">
-  <div class="options-main row">
-    {{#if SEql 'searching' 'not'}}
-      {{> settingsCog}}
-      {{#unless SGet 'viewing-settings'}}
-        {{> startSearch}}
-        {{> addGameLink}}
-      {{/unless}}
-    {{else}}
-      {{#if SEql 'searching' 'during'}}
-        {{> searchInput}}
-        {{> searchBacktrack}}
-      {{else}}
-        {{> searchBacktrack}}
-        {{> searchInput}}
-      {{/if}}
-    {{/if}}
-  </div>
-</template>
-
-<template name="searchBacktrack">
-  {{#if SEql 'searching' 'during'}}
-    {{> exitSearch}}
-  {{else}}
-    {{> back}}
-  {{/if}}
-</template>
-
-<template name="optionsExtended">
-  <div class="options-extended row">
-    {{> alerts where="top"}}
-    {{#if SGet 'viewing-settings'}}
-      {{> settings}}
-    {{/if}}
-  </div>
-</template>
-
-<template name="searchExtended">
-  {{#if SEql 'searching' 'during'}}
-    {{#if SGet 'search-results'}}
-      <div class="background">
-        <div class="container extended-search-container">
-          {{> selectGameTypes}}
-          {{> runSearch}}
-        </div>
-      </div>
-    {{else}}
-      <div class="container">
-        {{> selectGameTypes}}
-        {{> runSearch}}
-      </div>
-    {{/if}}
-  {{/if}}
-</template>
-
 <template name="coverPhoto">
   <div class="cover-photo-container">
     <img src="/img/streetbasketball.jpg" class="cover-photo">
@@ -110,44 +38,6 @@
     </div>
   </div>
   {{/if}}
-</template>
-
-<template name="searchQuery">
-  <li class="list-group-item">
-    <b>{{games}} in {{city}}</b>
-  </li>
-</template>
-
-<template name="gameTypeIndicator">
-  <div class="game-type-indicator">
-    <span class="ppicon-{{type}}"></span>
-  </div>
-</template>
-
-<template name="soloGameSummary">
-  <div class="game-summary">
-    <strong>{{type}}</strong> {{> gameWhen}}
-    {{> whoIsPlaying}}
-    <div class="place">
-      <div class="place-name">
-        {{placeName}}
-      </div>
-      <div class="place-location">{{placeLocation}}</div>
-    </div>
-    <div class="organizer-info">
-      Added by {{creator.name}}
-    </div>
-  </div>
-</template>
-
-<template name="gameWhen">
-  <div class="game-when">
-    {{#if past startsAt}}
-      Ended {{fromNow}}
-    {{else}}
-      <span class="day">{{displayDay}}</span> {{displayTime}}
-    {{/if}}
-  </div>
 </template>
 
 <template name="whoIsPlaying">
@@ -291,51 +181,6 @@
   </div>
 </template>
 
-<template name="settingsCog">
-  <div class="settings-cog">
-    {{#if SGet 'viewing-settings'}}
-      <a><span class="app-header-icon ppicon-cancel"></span></a>
-    {{else}}
-      <a><span class="app-header-icon ppicon-cog"></span></a>
-    {{/if}}
-  </div>
-  {{#if SGet 'viewing-settings'}}
-    <h1 class="title">Settings</h1>
-  {{/if}}
-</template>
-
-<template name="startSearch">
-  <div class="start-search-container">
-    <a class="start-search-init">
-      <span class="app-header-icon ppicon-search"></span>
-      <label>Find Games</label>
-    </a>
-  </div>
-</template>
-
-<template name="addGameLink">
-  <div class="add-game-link">
-    <a href="/addGame">Add game</a>
-  </div>
-</template>
-
-<template name="searchInput">
-  <div class="search-input-container">
-      {{#if SEql 'searching' 'after'}}
-        <a class="search-input truncate">
-          {{selected_city}}
-        </a>
-      {{else}}
-        {{#if SEql 'searching' 'during'}}
-          <input type="search" class="search-input" placeholder="Search City" required value="{{selected_city}}" autofocus />
-        {{else}}
-          <input type="search" class="search-input" placeholder="Search City" required value="" autofocus />
-        {{/if}}
-      {{/if}}
-
-  </div>
-</template>
-
 <template name="getCurrentLocation">
   <button class="btn btn-header-secondary get-current-location" type="button">
     {{#unless SGet 'get-user-location'}}
@@ -349,14 +194,8 @@
     {{/if}}
     {{#if SEql 'get-user-location' 'failure'}}
       <i class="fa fa-exclamation"></i>
-    {{/if}}
+    {{/if}}s
   </button>
-</template>
-
-<template name="exitSearch">
-  <div class="exit-search">
-    <a>Cancel</a>
-  </div>
 </template>
 
 <template name="selectGameTypes">
@@ -372,13 +211,6 @@
         {{/if}}
         </label></div>
     {{/each}}
-  </div>
-</template>
-
-<template name="runSearch">
-  <div class="run-search">
-    <button type="button"
-            class="btn find-games">Find games</button>
   </div>
 </template>
 
@@ -447,77 +279,6 @@
   </div>
 </template>
 
-<template name="devDetail">
-  {{> devDetailNav}}
-  <div class="container">
-    {{> alerts where="main"}}
-    {{> devDetailBody}}
-  </div>
-</template>
-
-<template name="devDetailNav">
-  <div class="app-header">
-    <div class="dev-detail-nav container">
-      {{> backToList}}
-      {{> gameTypeIndicator}}
-      {{> editGameLink}}
-      {{> shareGameLink}}
-      {{> copyGameLink}}
-    </div>
-  </div>
-</template>
-
-<template name="shareGameLink">
-  <div class="share-game-link">
-    <a>
-      <span class="app-header-icon ppicon-link pull-left"></span>
-      <label>Share</label>
-    </a>
-  </div>
-</template>
-
-<template name="copyGameLink">
-  <div class="copy-game-link">
-    {{#if SEql 'copy-game-link' _id}}
-      <input type="text"
-             id="copyGameLink"
-             value="{{baseURL}}{{pathFor 'devDetail'}}">
-      <button type="button" class="close" aria-hidden="true"><span class="app-header-icon ppicon-cancel"></span></button>
-    {{/if}}
-  </div>
-</template>
-
-<template name="editGameLink">
-  {{#if canEdit}}
-    <div class="edit-game-link">
-      <a href="{{pathFor 'devEditGame'}}">Edit</a>
-    </div>
-  {{/if}}
-</template>
-
-<template name="devDetailBody">
-  <div class="dev-detail-body row">
-    <div class="content-all">
-      {{> alerts where=_id}}
-      <!-- {{> subscribeAfterJoined}} -->
-      {{> soloGameMap}}
-      {{> soloGameSummary}}
-      {{#unless past startsAt}}
-        {{> addPlayers}}
-        {{> joinOrLeave}}
-      {{/unless}}
-      {{> organizersNote}}
-      {{#unless past startsAt}}
-        {{> whosPlayingSummary}}
-      {{/unless}}
-      {{> comments}}
-      {{#unless old startsAt}}
-        {{> addComment}}
-      {{/unless}}
-    </div>
-  </div>
-</template>
-
 <template name="subscribeAfterJoined">
   {{#unless subscribed}}
     {{#if SEql 'joined-game' _id}}
@@ -532,122 +293,6 @@
       </div>
     {{/if}}
   {{/unless}}
-</template>
-
-<template name="soloGameMap">
-  <div class="solo-game-map">
-    <div class="solo-game-map-wrapper">
-      <div class="solo-game-map-canvas map-canvas"></div>
-    </div>
-  </div>
-</template>
-
-<template name="joinOrLeave">
-  <div class="join-or-leave">
-    {{#if organizing}}
-      {{#unless addingPlayers}}
-        {{#unless userInGame}}
-          <button type="button" class="btn invite-friends">
-            <span class="ppicon-add-friend">  Invite friends</span>
-          </button>
-          <a class="btn join-game-and-invite" style="width:100%">Join game</a>
-        {{else}}
-          <button type="button" class="btn invite-friends">
-            <span class="ppicon-add-friend">  Invite friends</span>
-          </button>
-          <a class="btn leave-game" style="width:100%">Leave game</a>
-        {{/unless}}
-      {{/unless}}
-    {{else}}
-      {{#unless addingPlayers}}
-        {{#unless userInGame}}
-          <button type="button" class="btn join-game">Join game</button>
-        {{else}}
-          {{> alerts where="addjoinFriends"}}
-          <button type="button" class="btn invite-friends">
-            <span class="ppicon-add-friend">  Invite friends</span>
-          </button>
-          <a class="btn leave-game" style="width:100%">Leave game</a>
-        {{/unless}}
-      {{/unless}}
-    {{/if}}
-
-  </div>
-</template>
-
-<template name="organizersNote">
-  <div class="organizers-note">
-    {{#if note}}
-    <strong>Organizer's note</strong>
-      <div>{{note}}</div>
-    {{/if}}
-  </div>
-</template>
-
-<template name="whosPlayingSummary">
-  <div class="whos-playing-summary">
-    <strong>{{players.length}} playing</strong>
-    <ul>
-    {{#each userPlayers}}
-      <li class="each-player">
-        {{name}}
-        {{#with friends ../players}}
-          + {{numFriends}}
-        {{/with}}
-      </li>
-    {{else}}
-      <li>Be the first to join and add friends :)</li>
-    {{/each}}
-    </ul>
-  </div>
-</template>
-
-<template name="comments">
-  <div class="comments">
-    <strong>{{numComments}}
-      {{pluralize comments 'Comment' 'Comments'}}</strong>
-    <ul>
-      {{#each comments}}
-        <li> {{> gameComment}} </li>
-      {{/each}}
-    </ul>
-  </div>
-</template>
-
-<template name="addComment">
-  <div class="add-comment">
-    {{#if SGet 'unauth-comment'}}
-      {{> authenticateAndComment}}
-    {{else}}
-      <form class="add-comment" role="form">
-        {{> alerts where="addComment"}}
-        <div class="form-group">
-          <input class="form-control comment"
-                 type="text"
-                 placeholder="Add comment or question">
-        </div>
-      </form>
-    {{/if}}
-  </div>
-</template>
-
-<template name="authenticateAndComment">
-  <div class="authenticate-and-comment">
-    <button type="button" class="close" aria-hidden="true">&times;</button>
-    <form class="authenticate-and-comment" role="form">
-      {{#unless currentUser}}
-        {{> addInfoOrSignIn action="comment"}}
-      {{/unless}}
-      <div class="form-group">
-        <input class="form-control comment"
-               type="text"
-               placeholder="Add comment or question"
-               value="{{SGet 'unauth-comment'}}">
-      </div>
-      {{> alerts where="authenticateAndComment"}}
-      <button type="submit" class="btn add-comment">Add Comment</button>
-    </form>
-  </div>
 </template>
 
 <template name="selectForm">
@@ -828,77 +473,6 @@
   </div>
 </template>
 
-<template name="settings">
-  <ul class="settings list-group">
-    {{> alerts where="settings"}}
-    {{#if currentUser}}
-      <li class="user-info list-group-item">
-        <div class="user-full-name">
-          {{currentUser.profile.name}}
-        </div>
-        <div class="user-email-address">
-          {{currentUser.emails.[0].address}}
-          {{#unless currentUser.emails.[0].verified}}
-            (<a class="send-verification-email text-info">verify</a>)
-          {{/unless}}
-        </div>
-      </li>
-      <!-- {{> settingsItem name="subscriptions"}} -->
-      {{> settingsItem name="change-email-address"}}
-      {{> settingsItem name="change-password"}}
-      {{> settingsItem name="change-location"}}
-      {{> settingsItem name="help-and-feedback"}}
-      <li class="list-group-item">
-        <!-- "Free" option requires this embedding and limits to four
-             "services"; luckily, we only collect personal data in
-             conjunction with the four services I selected (from all ~ 200
-             that Iubenda lists).
-             DW 2014/04/01
-          -->
-        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
-      </li>
-      <li class="sign-out trigger list-group-item">Sign Out</li>
-    {{else}}
-      {{> settingsItem name="sign-in"}}
-      {{> settingsItem name="sign-up"}}
-      {{#if SGet 'set-password-token'}}
-        {{> settingsItem name="set-password"}}
-      {{else}}
-        {{> settingsItem name="forgot-password"}}
-      {{/if}}
-      {{> settingsItem name="change-location"}}
-      {{> settingsItem name="help-and-feedback"}}
-
-      <!-- This is a hack. I intend to move this into a template, but need to take a little to do it correctly. - SM -->
-      <li class="list-group-item">
-        <!-- "Free" option requires this embedding and limits to four
-             "services"; luckily, we only collect personal data in
-             conjunction with the four services I selected (from all ~ 200
-             that Iubenda lists).
-             DW 2014/04/01
-          -->
-        <a href="https://www.iubenda.com/privacy-policy/142379" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
-      </li>
-    {{/if}}
-  </ul>
-</template>
-
-<template name="settingsItem">
-  <li class="{{name}} trigger list-group-item">
-    {{title}}
-    {{#if isSetting}}
-      <span class="ppicon-up-open"></span>
-    {{else}}
-      <span class="ppicon-down-open"></span>
-    {{/if}}
-  </li>
-  {{#if isSetting}}
-    <li class="{{name}} action list-group-item">
-      {{> action}}
-    </li>
-  {{/if}}
-</template>
-
 <template name="devHelpAndFeedback">
   <form class="dev-help-and-feedback" role="form">
     <p class="form-heading">What kind of feedback are you sending?</p>
@@ -955,8 +529,4 @@
       You have no subscriptions.
     {{/if}}
   {{/if}}
-</template>
-
-<template name="tinySpinner">
-  <i class="fa fa-refresh fa-spin"></i>
 </template>

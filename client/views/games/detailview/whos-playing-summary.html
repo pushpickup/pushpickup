@@ -1,0 +1,17 @@
+<template name="whosPlayingSummary">
+  <div class="whos-playing-summary">
+    <strong>{{players.length}} playing</strong>
+    <ul>
+    {{#each userPlayers}}
+      <li class="each-player">
+        {{name}}
+        {{#with friends ../players}}
+          + {{numFriends}}
+        {{/with}}
+      </li>
+    {{else}}
+      <li>Be the first to join and add friends :)</li>
+    {{/each}}
+    </ul>
+  </div>
+</template>

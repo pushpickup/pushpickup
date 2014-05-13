@@ -1,0 +1,10 @@
+<template name="copyGameLink">
+  <div class="copy-game-link">
+    {{#if SEql 'copy-game-link' _id}}
+      <input type="text"
+             id="copyGameLink"
+             value="{{baseURL}}{{pathFor 'devDetail'}}">
+      <button type="button" class="close" aria-hidden="true"><span class="app-header-icon ppicon-cancel"></span></button>
+    {{/if}}
+  </div>
+</template>

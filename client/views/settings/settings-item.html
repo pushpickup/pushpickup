@@ -1,0 +1,15 @@
+<template name="settingsItem">
+  <li class="{{name}} trigger list-group-item">
+    {{title}}
+    {{#if isSetting}}
+      <span class="ppicon-up-open"></span>
+    {{else}}
+      <span class="ppicon-down-open"></span>
+    {{/if}}
+  </li>
+  {{#if isSetting}}
+    <li class="{{name}} action list-group-item">
+      {{> action}}
+    </li>
+  {{/if}}
+</template>

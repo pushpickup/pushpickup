@@ -1,0 +1,9 @@
+<template name="gameWhen">
+  <div class="game-when">
+    {{#if past startsAt}}
+      Ended {{fromNow}}
+    {{else}}
+      <span class="day">{{displayDay}}</span> {{displayTime}}
+    {{/if}}
+  </div>
+</template>
