@@ -1,0 +1,26 @@
+<template name="listedGame">
+  <li class="list-group-item listed-game {{#if past startsAt}}past{{/if}}">
+    {{> gameTypeIndicator}}
+    {{> listedGameSummary}}
+    {{#unless past startsAt}}
+      {{#if organizingOrPlaying}}
+        {{> addFriendsLink}}
+      {{/if}}
+      {{> alerts where=_id}}
+      {{> addPlayers}}
+    {{/unless}}
+  </li>
+</template>
+
+<template name="listedGameSummary">
+  <div class="game-summary">
+    {{> gameWhen}}
+    {{> whoIsPlaying}}
+    <div class="place">
+      <div class="place-name">
+        {{placeName}}
+        <!-- <span class="place-distance">({{placeDistance}})</span> -->
+      </div>
+    </div>
+  </div>
+</template>
