@@ -16,6 +16,18 @@ Session.setDefault("max-distance", 100000); // 100,000 m => 62 miles
 var initialNumGamesRequested = 15;
 Session.setDefault("num-games-requested", initialNumGamesRequested);
 
+/* Set settings templates */
+_.each([
+  'sign-in', 'sign-up', 'forgot-password', 'set-password',
+  'subscriptions', 'change-email-address', 'change-password',
+  'change-location', 'help-and-feedback'
+], function (action) {
+  var key =  "click ."+action+".trigger";
+  var eventMap = {};
+  eventMap[key] = sessionToggler(action);
+  Template.settings.events(eventMap);
+});
+
 /* Autoruns */
 
 Deps.autorun(function () {
