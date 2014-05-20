@@ -92,7 +92,7 @@ Template.whosPlayingEditable.helpers(whosPlayingHelpers);
 // selector is either a String, e.g. "#name", or a [String, function] that
 // takes the value and then feeds it to the (one-argument) function for
 // a final value
-var selectorValuesFromTemplate = function (selectors, templ) {
+selectorValuesFromTemplate = function (selectors, templ) {
   var result = {};
   _.each(selectors, function (selector, key) {
     if (typeof selector === "string") {
@@ -103,14 +103,15 @@ var selectorValuesFromTemplate = function (selectors, templ) {
   });
   return result;
 };
-var asNumber = function (str) { return +str; };
+
+asNumber = function (str) { return +str; };
 
 // Set several Template.settings.events of the form:
 //
 // "click .sign-in.trigger": function () {
 //   Session.toggle("settings-sign-in");
 // }
-var sessionToggler = function (action) {
+sessionToggler = function (action) {
   return function () {
     Session.toggle("settings-"+action);
   };
