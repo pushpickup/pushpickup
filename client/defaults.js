@@ -26,7 +26,7 @@ Deps.autorun(function () {
       Session.set("get-user-location", null);
     }, 5000);
   } else if (Session.equals("get-user-location", "get")) {
-    getUserLocation();
+    Location.getUserLocation();
   }
 });
 
