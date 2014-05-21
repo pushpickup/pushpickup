@@ -1,4 +1,4 @@
-function Friends () {};
+Friends = {};
 
 // Return friends as [{name: XXX, email: XXX}, {name: YYY}, ...]
 // `email` is optional
