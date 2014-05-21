@@ -12,7 +12,7 @@ Template.joinOrLeave.helpers({
 Template.joinOrLeave.events({
   "click .join-game": function () {
     if (Meteor.userId()) {
-      addSelfToGame(this._id);
+      Game.addSelfToGame(this._id);
     } else {
       Session.set("unauth-join", this._id);
     }
@@ -25,7 +25,7 @@ Template.joinOrLeave.events({
   },
   "click .join-game-and-invite": function () {
     if (Meteor.userId()) {
-      addSelfToGame(this._id);
+      Game.addSelfToGame(this._id);
     } else {
       Session.set("unauth-join", this._id);
     }

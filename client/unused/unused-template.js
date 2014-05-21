@@ -7,7 +7,7 @@ Template.unauthInviteFriendsLink.events({
 Template.joinGameLink.events({
   "click .join-game-link a": function () {
     if (Meteor.userId()) {
-      addSelfToGame(this._id);
+      Game.addSelfToGame(this._id);
     } else {
       Session.set("unauth-join", this._id);
     }
