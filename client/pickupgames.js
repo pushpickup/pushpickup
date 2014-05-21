@@ -362,7 +362,10 @@ Template.locationSearchBox.rendered = function () {
     document.getElementById('locationSearchBox'),
     {});
   google.maps.event.addListener(
-    autocomplete, 'place_changed', onPlaceChanged);
+    autocomplete, 'place_changed', function () {
+        Location.onPlaceChanged(autocomplete);
+      }
+    );
 };
 
 Template.layout.helpers({

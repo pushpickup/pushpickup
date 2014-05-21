@@ -1,14 +1,14 @@
 Location = {
 
   // unused ?
-  // onPlaceChanged : function () {
-  //   var place = autocomplete.getPlace();
-  //   if (place.geometry) {
-  //     Session.set("selectedLocationPoint",
-  //                 geoUtils.toGeoJSONPoint(place.geometry.location));
-  //     Session.set("selectedLocationName", place.name);
-  //   }
-  // },
+  onPlaceChanged : function (autocomplete) {
+    var place = autocomplete.getPlace();
+    if (place.geometry) {
+      Session.set("selectedLocationPoint",
+                  geoUtils.toGeoJSONPoint(place.geometry.location));
+      Session.set("selectedLocationName", place.name);
+    }
+  },
 
   // If location name has more than two commas,
   // it's probably too long and complicated, so substitute with

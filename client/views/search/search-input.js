@@ -16,6 +16,9 @@ Template.searchInput.rendered = function () {
       template.find('.search-input'),
       {types: ['(cities)']});
     google.maps.event.addListener(
-      autocomplete, 'place_changed', onPlaceChanged);
+      autocomplete, 'place_changed', function () {
+        Location.onPlaceChanged(autocomplete);
+      }
+    );
   }
 };
