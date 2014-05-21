@@ -1,6 +1,6 @@
-var inputValue = function (element) { return element.value; };
+inputValue = function (element) { return element.value; };
 
-var inputValues = function (selector) {
+inputValues = function (selector) {
   return _.map($(selector).get(), inputValue);
 };
 
@@ -9,7 +9,7 @@ Deps.autorun(function () {
     Session.set("gameTypes", Session.get("game-types"));
 });
 
-var ppConjunction = function (array) {
+ppConjunction = function (array) {
   var out = "";
   for (var i=0, l=array.length; i<l; i++) {
     out = out + array[i];
@@ -24,12 +24,12 @@ var ppConjunction = function (array) {
   return out;
 };
 
-var ppRegion = function (formatted_address) {
+ppRegion = function (formatted_address) {
   return formatted_address;
 };
 
 
-var whosPlayingHelpers = {
+whosPlayingHelpers = {
   userPlayers: function () {
     var isUser = function (player) { return !! player.userId; };
     return _.select(this.players, isUser);
@@ -63,6 +63,3 @@ selectorValuesFromTemplate = function (selectors, templ) {
 };
 
 asNumber = function (str) { return +str; };
-
-
-
