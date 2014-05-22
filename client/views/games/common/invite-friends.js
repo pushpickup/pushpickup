@@ -10,7 +10,7 @@ Template.inviteFriends.events({
                     type: "danger", where: "inviteFriends"});
       return;
     }
-    if (! Alerts.test(alertables.inviteFriends(friends),
+    if (! Alerts.test(Alertables.inviteFriends(friends),
                       {type: "danger", where: "inviteFriends"})) {
       return;
     }
@@ -48,7 +48,7 @@ Template.inviteFriends.events({
 });
 
 Template.inviteFriends.destroyed = function () {
-  Alerts.collection.remove({where: "inviteFriends"});
+  Notifications.remove({where: "inviteFriends"});
 };
 
 Template.inviteFriends.helpers({

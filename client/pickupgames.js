@@ -398,7 +398,7 @@ Template.changePassword.helpers({
     return Template.meteorAlerts({where: "changePassword"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "changePassword"})) ?
+    return (Notifications.findOne({type: "danger", where: "changePassword"})) ?
       "has-error": "";
   }
 });
@@ -450,7 +450,7 @@ Template.setPassword.helpers({
     return Template.meteorAlerts({where: "setPassword"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "setPassword"})) ?
+    return (Notifications.findOne({type: "danger", where: "setPassword"})) ?
       "has-error": "";
   }
 });
@@ -507,7 +507,7 @@ Template.sendResetPasswordEmail.helpers({
     return Template.meteorAlerts({where: "sendResetPasswordEmail"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "sendResetPasswordEmail"})) ?
+    return (Notifications.findOne({type: "danger", where: "sendResetPasswordEmail"})) ?
       "has-error": "";
   }
 });
@@ -547,7 +547,7 @@ Template.sendVerificationEmail.helpers({
     return Template.meteorAlerts({where: "sendVerificationEmail"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "sendVerificationEmail"})) ?
+    return (Notifications.findOne({type: "danger", where: "sendVerificationEmail"})) ?
       "has-error": "";
   }
 });
@@ -608,7 +608,7 @@ Template.signIn.helpers({
     return Template.meteorAlerts({where: "signIn"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "signIn"})) ?
+    return (Notifications.findOne({type: "danger", where: "signIn"})) ?
       "has-error": "";
   }
 });
@@ -893,7 +893,7 @@ Template.editableComment.helpers({
     return Template.meteorAlerts({where: "editableComment"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "editableComment"})) ?
+    return (Notifications.findOne({type: "danger", where: "editableComment"})) ?
       "has-error": "";
   }
 });
@@ -989,7 +989,7 @@ Template.gameComment.helpers({
 });
 
 Template.editablePlayer.destroyed = function () {
-  Alerts.collection.remove({where: "editablePlayer"});
+  Notifications.remove({where: "editablePlayer"});
 };
 
 Template.editablePlayer.helpers({
@@ -1001,7 +1001,7 @@ Template.editablePlayer.helpers({
     return Template.meteorAlerts({where: "editablePlayer"});
   },
   error: function () {
-    return (Alerts.collection.findOne({type: "danger", where: "editablePlayer"})) ?
+    return (Notifications.findOne({type: "danger", where: "editablePlayer"})) ?
       "has-error": "";
   }
 });

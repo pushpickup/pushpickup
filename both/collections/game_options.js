@@ -1,9 +1,3 @@
-Games = new Meteor.Collection("games");
-UserSubs = new Meteor.Collection("user_subs");
-Invitees = new Meteor.Collection("invitees");
-
-
-
 GameOptions = new Meteor.Collection(null);
 
 var types = ["ultimate", "basketball", "soccer"];
@@ -20,12 +14,3 @@ _.forEach(days, function (day, i) {
   // value used for sorting and used by moment()
   GameOptions.insert({option: "day", value: i, name: day});
 });
-
-
-
-
-PastGames = new Meteor.Collection(null);
-setPastGames = function (arr) {
-  PastGames.remove({});
-  _.forEach(arr, function (doc) { PastGames.insert(doc); });
-};

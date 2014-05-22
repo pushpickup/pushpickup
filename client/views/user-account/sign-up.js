@@ -5,7 +5,7 @@ Template.devSignUp.events({
     var fullName = template.find("input.full-name").value;
     var email = template.find("input.email").value;
     var password = template.find("input.password").value;
-    if (! Alerts.test(alertables.signUp(email, fullName, password),
+    if (! Alerts.test(Alertables.signUp(email, fullName, password),
                       {type: "danger", where: "devSignUp"})) {
       return;
     }

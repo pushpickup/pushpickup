@@ -4,7 +4,7 @@ Template.addComment.events({
     var self = this;
     Alerts.clearSeen({where: "addComment"});
     var comment = template.find("input.comment").value;
-    if (! Alerts.test(alertables.comment(comment),
+    if (! Alerts.test(Alertables.comment(comment),
                       {type: "danger", where: "addComment"})) {
       return;
     }

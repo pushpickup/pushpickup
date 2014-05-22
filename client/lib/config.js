@@ -1,1 +1,0 @@
-GEONAMES_USERNAME = "pushpickup";

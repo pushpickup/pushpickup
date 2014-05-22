@@ -89,7 +89,7 @@ Template.findingsMap.rendered = function () {
     }
     // asynchronous Session.set('selectedLocationName',...)
     locationName.sync();
-    Alerts.collection.remove({where: "subscribe"});
+    Notifications.remove({where: "subscribe"});
   });
 
   self._syncMapWithSearch = Deps.autorun(function () {

@@ -1,3 +1,4 @@
+// TODO: Use App.helpers for this.
 var handlebarsHelperMap = {
   SGet: function (key) { return Session.get(key); },
   SEql: function (key, val) { return Session.equals(key, val); },

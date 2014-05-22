@@ -1,0 +1,1 @@
+FriendsToAdd = new Meteor.Collection(null);

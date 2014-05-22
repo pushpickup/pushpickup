@@ -10,7 +10,7 @@ Template.addSelfAndFriends.events({
     // rejects "empty" friends
     var friends = Friends.makeFriends(template.findAll("input.friend-name"),
                               template.findAll("input.friend-email"));
-    if (! Alerts.test(alertables.inviteFriends(friends),
+    if (! Alerts.test(Alertables.inviteFriends(friends),
                       {type: "danger", where: "addSelfAndFriends"})) {
       return;
     }
@@ -18,7 +18,7 @@ Template.addSelfAndFriends.events({
     var fullNameInput = template.find("input.full-name");
     if (fullNameInput) { // new user
       var fullName = fullNameInput.value;
-      if (! Alerts.test(alertables.signUp(email, fullName),
+      if (! Alerts.test(Alertables.signUp(email, fullName),
                         {type: "danger", where: "addSelfAndFriends"})) {
         return;
       }
@@ -67,7 +67,7 @@ Template.addSelfAndFriends.events({
         });
     } else { // attempt to sign in, join game, and possibly add friends
       var password = template.find("input.password").value;
-      if (! Alerts.test(alertables.signIn(email, password),
+      if (! Alerts.test(Alertables.signIn(email, password),
                         {type: "danger", where: "addSelfAndFriends"})) {
         return;
       }
@@ -130,5 +130,5 @@ Template.addSelfAndFriends.events({
 });
 
 Template.addSelfAndFriends.destroyed = function () {
-  Alerts.collection.remove({where: "addSelfAndFriends"});
+  Notifications.remove({where: "addSelfAndFriends"});
 };

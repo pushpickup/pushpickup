@@ -1,37 +1,38 @@
-Location = {
+Location = (function() {
+  var locationModule = {};
 
   // unused ?
-  onPlaceChanged : function (autocomplete) {
+  locationModule.onPlaceChanged = function (autocomplete) {
     var place = autocomplete.getPlace();
     if (place.geometry) {
       Session.set("selectedLocationPoint",
                   geoUtils.toGeoJSONPoint(place.geometry.location));
       Session.set("selectedLocationName", place.name);
     }
-  },
+  };
 
   // If location name has more than two commas,
   // it's probably too long and complicated, so substitute with
   // autocomplete result's "`place.name`,  `place.vicinity`"
-  simplifyLocation : function (given) {
+    locationModule.simplifyLocation = function (given) {
     if (_.string.count(given,',') > 2) {
       return Session.get("selectedLocationName") || given.split(",", 3).join(",");
     } else {
       return given;
     }
-  },
+  };
 
   // Set default location to Berkeley
-  defaultLocation : {
+    locationModule.defaultLocation = {
     "geo" : {
       "type" : "Point", 
       "coordinates" : [-122.284786, 37.855271],  
     },
     "city" : "Berkeley",
     "state" : "CA"
-  },
+  };
 
-  getUserLocation : function (onSuccess /* optional */) {
+  locationModule.getUserLocation = function (onSuccess /* optional */) {
 
     Session.set("get-user-location", "pending");
     if(navigator.geolocation) {    
@@ -108,6 +109,7 @@ Location = {
       Session.set("get-user-location", "failure");
       console.log('Error: Your browser doesn\'t support geolocation.');
     }
-  },
+  };
 
-}
+  return locationModule;
+})();

@@ -1,5 +1,3 @@
-// Meteor.Collection declarations are in lib/collections.js
-
 DateRange = Match.Where(function (x) {
     check(x, {gte: Date, lt: Date});
     return (x.gte < x.lt);

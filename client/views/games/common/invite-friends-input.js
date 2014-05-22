@@ -1,5 +1,4 @@
 // used exclusively by Template.addFriendsInput
-FriendsToAdd = new Meteor.Collection(null);
 
 Template.inviteFriendsInput.created = function () {
   FriendsToAdd.insert({name: "", email: ""});

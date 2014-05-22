@@ -4,7 +4,7 @@ Template.devSignIn.events({
     Alerts.clearSeen({where: "devSignIn"});
     var email = template.find("input.email").value;
     var password = template.find("input.password").value;
-    if (! Alerts.test(alertables.signIn(email, password),
+    if (! Alerts.test(Alertables.signIn(email, password),
                       {type: "danger", where: "devSignIn"})) {
       return;
     }

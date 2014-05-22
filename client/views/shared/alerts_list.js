@@ -11,7 +11,7 @@
 //   return Template.meteorAlerts({where: self._id});
 // };
 //
-// You can use Alerts.collection to highlight invalid inputs.
+// You can use Notifications to highlight invalid inputs.
 // For example:
 //
 // <template name="signIn">
@@ -28,13 +28,13 @@
 // </template>
 //
 // Template.signIn.error = function () {
-//   return (Alerts.collection.findOne({where: "signIn"})) ? "has-error": "";
+//   return (Notifications.findOne({where: "signIn"})) ? "has-error": "";
 // };
 //
 // You can tidy up after a template has been destroyed:
 //
 // Template.editablePlayer.destroyed = function () {
-//   Alerts.collection.remove({where: "editablePlayer"});
+//   Notifications.remove({where: "editablePlayer"});
 // };
 //
 // and tidy up whenever a new route is rendered, e.g. using iron-router:
@@ -48,18 +48,18 @@
 // including, for example, the following line at the top of a "submit form"
 // event:
 //
-// Alerts.collection.remove({where: "signIn", seen: true});
+// Notifications.remove({where: "signIn", seen: true});
 
 Template.meteorAlerts.helpers({
   alerts: function(where) {
-    return Alerts.collection.find({where: where});
+    return Notifications.find({where: where});
   }
 });
 
 Template.meteorAlerts.events({
   'click button.close': function (event) {
     var self = this;
-    Alerts.collection.remove(self._id);
+    Notifications.remove(self._id);
   }
 });
 
@@ -77,10 +77,10 @@ Template.meteorAlert.helpers({
 Template.meteorAlert.rendered = function() {
   var alert = this.data;
   Meteor.defer(function() {
-    Alerts.collection.update(alert._id, {$set: {seen: true}});
+    Notifications.update(alert._id, {$set: {seen: true}});
     if (alert.autoremove) {
       Meteor.setTimeout(function () {
-        Alerts.collection.remove(alert._id);
+        Notifications.remove(alert._id);
       }, alert.autoremove);
     }
   });
