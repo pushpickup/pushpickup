@@ -25,13 +25,13 @@ Alerts = (function() {
   // Return a list of applicable Alerts,
   // using optionally provided default values for Alert properties.
   alertsModule.gather = function(alertables, options) {
-    check(Alertables, [{value: Match.Any, pattern: Match.Any, alert: Object}]);
+    check(alertables, [{value: Match.Any, pattern: Match.Any, alert: Object}]);
     check(options, Match.Optional({
       type: Match.Optional(String),
       where: Match.Optional(String)
     }));
 
-    return _.compact(_.map(Alertables, function (alertable) {
+    return _.compact(_.map(alertables, function (alertable) {
       if (Match.test(alertable.value, alertable.pattern)) {
         return null; // no Alert needed
       } else {
@@ -43,7 +43,7 @@ Alerts = (function() {
   // Gather alerts and throw them. Return true if no alerts were gathered,
   // false otherwise.
   alertsModule.test = function(alertables, options) {
-    var alerts = Alerts.gather(Alertables, options);
+    var alerts = Alerts.gather(alertables, options);
     _.forEach(alerts, function (alert) { Alerts.throw(alert); });
     return alerts.length === 0;
   };
