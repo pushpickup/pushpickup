@@ -1,0 +1,12 @@
+<template name="addSelfAndFriends">
+  <div class="add-self-and-friends well">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="add-self-and-friends" role="form">
+      {{#unless currentUser}}
+        {{> addInfoOrSignIn action="join"}}
+      {{/unless}}
+      {{> alerts where="addSelfAndFriends"}}
+      <button type="submit" class="btn join-game">Join Game</button>
+    </form>
+  </div>
+</template>

@@ -1,0 +1,20 @@
+<template name="whosPlayingEditable">
+  <div class="whos-playing-editable">
+    <strong>{{players.length}} playing</strong>
+    <ul>
+      {{#each userPlayers}}
+        <li class="each-player">
+          <input type="checkbox" class="hidden" id="{{userId}}"
+                 value="{{userId}}">
+          <label for="{{userId}}">
+            {{name}}
+            {{#with friends ../players}}
+              + {{numFriends}}
+            {{/with}}
+            <span class="text-danger">remove</span>
+          </label>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</template>

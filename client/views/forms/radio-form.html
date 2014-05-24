@@ -1,0 +1,11 @@
+<template name="radioForm">
+  <div id="{{id}}">
+  {{#each options}}
+    <input type="radio" id="{{text}}" value="{{value}}" name="{{name}}" checked={{checked}} required>
+    <label for="{{text}}">
+      <span class="hidden">{{text}}</span>
+      <span class="ppicon-{{text}}"></span>
+    </label>
+  {{/each}}
+  </div>
+</template>

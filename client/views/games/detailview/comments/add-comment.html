@@ -1,0 +1,16 @@
+<template name="addComment">
+  <div class="add-comment">
+    {{#if SGet 'unauth-comment'}}
+      {{> authenticateAndComment}}
+    {{else}}
+      <form class="add-comment" role="form">
+        {{> alerts where="addComment"}}
+        <div class="form-group">
+          <input class="form-control comment"
+                 type="text"
+                 placeholder="Add comment or question">
+        </div>
+      </form>
+    {{/if}}
+  </div>
+</template>

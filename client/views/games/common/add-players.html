@@ -1,0 +1,12 @@
+<template name="addPlayers">
+  <div class="add-players">
+    {{#if SEql 'unauth-join' _id}}
+      {{> addSelfAndFriends}}
+    {{/if}}
+    <!-- 'unauth-join' and 'add-friends' should never both be non-null
+         because 'add-friends' is for authenticated users. -->
+    {{#if SEql 'invite-friends' _id}}
+      {{> inviteFriends}}
+    {{/if}}
+  </div>
+</template>

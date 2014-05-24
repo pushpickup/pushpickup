@@ -1,0 +1,15 @@
+<template name="selectGameTypes">
+  <div class="select-game-types">
+    {{#each options}}
+        <div class="each-game-type"><label>
+        {{#if shouldBeChecked value}}
+          <input id="js-game-type" type="checkbox" value="{{value}}" checked>
+          {{value}}
+        {{else}}
+          <input id="js-game-type" type="checkbox" value="{{value}}">
+          {{value}}
+        {{/if}}
+        </label></div>
+    {{/each}}
+  </div>
+</template>

@@ -1,0 +1,28 @@
+<template name="adminView">
+  <div class="admin-view">
+    <h3>Upcoming games</h3>
+    {{#spinnerIfWaiting toComplete='all-games-snapshot'}}
+      <ol>
+        {{#each upcomingGames}}
+          <li>
+            <a href="g/{{_id}}">{{type}} {{fromNow}}</a> at {{location.name}}
+          </li>
+        {{/each}}
+      </ol>
+    {{/spinnerIfWaiting}}
+    <h3>User info</h3>
+    {{#spinnerIfWaiting toComplete='all-users-snapshot'}}
+      <ol>
+        {{#each allUsers}}
+          <li>
+            <ul>
+              <li>{{name}}, {{email.address}}</li>
+              <li>registered: {{whenRegistered}}, verified email: {{email.verified}}</li>
+              <li>games added: {{gamesAdded}}, games joined: {{gamesJoined}}</li>
+            </ul>
+          </li>
+        {{/each}}
+      </ol>
+    {{/spinnerIfWaiting}}
+  </div>
+</template>

@@ -1,0 +1,21 @@
+<template name="addInfoOrSignIn">
+  <p class="add-info-or-sign-in form-heading">
+    {{#unless SGet 'sign-in'}}
+      Add your info or <a class="sign-in">sign in</a>
+    {{else}}
+      Sign in or <a class="add-info">add your info</a>
+    {{/unless}}
+    to {{action}}.
+  </p>
+  <div class="tight form-group">
+    <input type="email" class="form-control email"
+           placeholder="Your email" value="{{email}}" required autofocus>
+    {{#unless SGet 'sign-in'}}
+      <input type="text" class="form-control full-name"
+             placeholder="Your full name" required>
+    {{else}}
+      <input type="password" class="form-control password"
+             placeholder="Your password" required>
+    {{/unless}}
+  </div>
+</template>

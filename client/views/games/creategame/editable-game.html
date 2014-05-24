@@ -1,0 +1,88 @@
+<template name="devEditableGame">
+  <div id="{{action}}Game">
+    <div class="app-header">
+      <div class="container">
+        <div class="close">
+          <a href="{{#if editingGame}}/g/{{_id}}{{else}}/{{/if}}">
+            <span class="app-header-icon ppicon-cancel"></span>
+          </a>
+        </div>
+        <h1 class="title">{{title}}</h1>
+      </div>
+    </div>
+    <div class="container">
+      <div class="game-form">
+        <form id="{{action}}GameForm" role="form">
+          {{#unless currentUser}}
+            {{> addInfoOrSignIn action='add this game'}}
+          {{/unless}}
+          <div class="form-group">
+            {{> radioForm selectType}}
+          </div>
+          <div class="form-group">
+            {{> devSelectWhen}}
+          </div>
+          <div class="form-group">
+            {{> devSelectLocation}}
+          </div>
+          <div class="form-group">
+            {{> editableGameMap}}
+          </div>
+          <div class="form-group requested">
+            {{> selectForm selectPlayersRequested}}
+          </div>
+          {{#if atLeastOnePlayer}}
+            <div class="form-group gamePlayers">
+                <p class="form-control-static">
+                  {{> whosPlayingEditable}}
+                </p>
+            </div>
+          {{/if}}
+          <div class="form-group">
+            <label for="gameNote" class="control-label">Details</label>
+            <textarea class="form-control game-note" id="gameNote"
+                      placeholder="e.g. Don’t forget to bring your equipment and the $5 field fee"
+                      maxlength="500">{{note}}</textarea>
+          </div>
+          {{#unless editingGame}}
+            <div class="form-group">
+              <p class="form-control-static">
+                <strong>Note:</strong> You'll get an email invite
+                to forward to your friends.
+              </p>
+            </div>
+          {{/unless}}
+          {{#if editingGame}}
+            <span class="help-block">
+              <strong>Note:</strong>
+              Any changes you make will send an update to all players.
+            </span>
+          {{/if}}
+          <!-- <p class="form-control-static"> -->
+          <!--   Please let players contact you (your email address -->
+          <!--   will not be visible to them; we will forward messages -->
+          <!--   to you). Your game will not be visible to others until -->
+          <!--   you verify your email address (confirmation sent from -->
+          <!--   support@pushpickup.com). Thanks! -->
+          <!-- </p> -->
+          {{#unless editingGame}}
+            <div class="form-group">
+              <label>
+                <input type="checkbox" class="playing" value="playing" checked>
+                <span class="label-add-player">Add me as a player</span>
+              </label>
+            </div>
+          {{/unless}}
+          {{> alerts where="editableGame"}}
+          <button for="{{action}}GameForm" type="submit"
+                  class="btn {{action}}-game">
+            {{> submitAndWait}}
+          </button>
+          {{#if editingGame}}
+            <div class="cancel-game text-center"><a class="text-danger remove">Cancel game</a></div>
+          {{/if}}
+        </form>
+      </div>
+    </div>
+  </div>
+</template>

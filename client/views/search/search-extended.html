@@ -1,0 +1,17 @@
+<template name="searchExtended">
+  {{#if SEql 'searching' 'during'}}
+    {{#if SGet 'search-results'}}
+      <div class="background">
+        <div class="container extended-search-container">
+          {{> selectGameTypes}}
+          {{> runSearch}}
+        </div>
+      </div>
+    {{else}}
+      <div class="container">
+        {{> selectGameTypes}}
+        {{> runSearch}}
+      </div>
+    {{/if}}
+  {{/if}}
+</template>

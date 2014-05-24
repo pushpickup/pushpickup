@@ -1,0 +1,12 @@
+<template name="settingsCog">
+  <div class="settings-cog">
+    {{#if SGet 'viewing-settings'}}
+      <a><span class="app-header-icon ppicon-cancel"></span></a>
+    {{else}}
+      <a><span class="app-header-icon ppicon-cog"></span></a>
+    {{/if}}
+  </div>
+  {{#if SGet 'viewing-settings'}}
+    <h1 class="title">Settings</h1>
+  {{/if}}
+</template>

@@ -21,7 +21,7 @@ This project uses [Meteor](http://www.meteor.com) and [Meteorite](http://oortclo
     # Install nodejs first if `which npm` returns nothing
     npm install -g meteorite # or `sudo -H npm install -g meteorite` if permissions error
     mrt install # Meteorite installs third-party smart packages
-    meteor --settings settings.json.example # load example data for development
+    meteor --settings ./config/development/settings.json # load example data for development
 
 Load `http://localhost:3000/` in your browser and play around.
 

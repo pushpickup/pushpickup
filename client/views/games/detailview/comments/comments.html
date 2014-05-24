@@ -1,0 +1,11 @@
+<template name="comments">
+  <div class="comments">
+    <strong>{{numComments}}
+      {{pluralize comments 'Comment' 'Comments'}}</strong>
+    <ul>
+      {{#each comments}}
+        <li> {{> gameComment}} </li>
+      {{/each}}
+    </ul>
+  </div>
+</template>

@@ -1,0 +1,1 @@
+Invitees = new Meteor.Collection("invitees");

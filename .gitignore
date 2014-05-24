@@ -1,8 +1,6 @@
 *.tar.gz
 *.tgz
 *.org
-config/
-settings.json
 *.log
 *.png
 *.sh

@@ -1,0 +1,8 @@
+<template name="optionsExtended">
+  <div class="options-extended row">
+    {{> alerts where="top"}}
+    {{#if SGet 'viewing-settings'}}
+      {{> settings}}
+    {{/if}}
+  </div>
+</template>

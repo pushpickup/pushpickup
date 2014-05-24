@@ -1,0 +1,1 @@
+UserSubs = new Meteor.Collection("user_subs");

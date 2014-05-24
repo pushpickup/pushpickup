@@ -1,0 +1,18 @@
+<template name="authenticateAndComment">
+  <div class="authenticate-and-comment">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    <form class="authenticate-and-comment" role="form">
+      {{#unless currentUser}}
+        {{> addInfoOrSignIn action="comment"}}
+      {{/unless}}
+      <div class="form-group">
+        <input class="form-control comment"
+               type="text"
+               placeholder="Add comment or question"
+               value="{{SGet 'unauth-comment'}}">
+      </div>
+      {{> alerts where="authenticateAndComment"}}
+      <button type="submit" class="btn add-comment">Add Comment</button>
+    </form>
+  </div>
+</template>

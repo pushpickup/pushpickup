@@ -1,0 +1,13 @@
+<template name="listedGame">
+  <li class="list-group-item listed-game {{#if past startsAt}}past{{/if}}">
+    {{> gameTypeIndicator}}
+    {{> listedGameSummary}}
+    {{#unless past startsAt}}
+      {{#if organizingOrPlaying}}
+        {{> addFriendsLink}}
+      {{/if}}
+      {{> alerts where=_id}}
+      {{> addPlayers}}
+    {{/unless}}
+  </li>
+</template>
