@@ -407,17 +407,31 @@ Meteor.methods({
                 where: "settings", autoremove: 3000});
             Session.set("settings-help-and-feedback", false);
         } else {
-            this.unblock();
             check(options, {type: String, message: String});
+
+            this.unblock();
+
             var user = this.userId && Meteor.users.findOne(this.userId);
-            var name = user && user.profile && user.profile.name;
-            var email = user && user.emails && user.emails[0].address;
+            var name;
+            var email;
+
+            if (user) {
+              name = user.profile && user.profile.name;
+              email = user.emails && user.emails[0].address;
+
+            } else {
+              name = "Anonymous";
+              email = "support@pushpickup.com";
+            }
+
             sendEmail({
-                from: (name || "Anonymous") + " <" +
-                    (email || "support@pushpickup.com") + ">",
-                to: "support@pushpickup.com",
-                subject: "Push Pickup feedback: " + options.type,
-                text: options.message
+              from: name + " <" + email + ">",
+              to: "support@pushpickup.com",
+              subject: "Push Pickup feedback: " + options.type,
+              text: options.message
+            },
+            {
+              sendingToSystemUser: true
             });
         }
     }
