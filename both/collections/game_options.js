@@ -1,9 +1,3 @@
-Games = new Meteor.Collection("games");
-UserSubs = new Meteor.Collection("user_subs");
-Invitees = new Meteor.Collection("invitees");
-
-
-
 GameOptions = new Meteor.Collection(null);
 
 var types = ["ultimate", "basketball", "soccer"];
