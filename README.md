@@ -12,16 +12,11 @@ For my original thinking on app design, check out: [PlayMakers Pickup Sports App
 
 ## Development
 
-This project uses [Meteor](http://www.meteor.com) and [Meteorite](http://oortcloud.github.io/meteorite/). To start hacking,
+This project uses Meteor, http://www.meteor.com, an awesome open-source platform for developing web apps. To start hacking,
 
-    curl https://install.meteor.com/ | sh
-    # fork this repo if you want to contribute commits, but you can also just...
-    git clone https://github.com/dwinston/pushpickup.git
+    git clone https://github.com/pushpickup/pushpickup.git
     cd pushpickup
-    # Install nodejs first if `which npm` returns nothing
-    npm install -g meteorite # or `sudo -H npm install -g meteorite` if permissions error
-    mrt install # Meteorite installs third-party smart packages
-    meteor --settings ./config/development/settings.json # load example data for development
+    sudo bash ./config/development/env.setup
 
 Load `http://localhost:3000/` in your browser and play around.
 
