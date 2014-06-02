@@ -24,6 +24,9 @@ Template.devEditableGame.helpers({
   editingGame: function () {
     return this.title === "Edit game";
   },
+  addingGame: function() {
+    return this.action === 'add';
+  },
   atLeastOnePlayer: function () {
     return this.players && (! _.isEmpty(this.players));
   }
@@ -36,6 +39,10 @@ Template.devEditableGame.events({
   },
   "change #gameTime": function (evt, templ) {
     Session.set("newGameTime", +evt.currentTarget.value);
+  },
+  "click #invite-players-link": function (evt, templ) {
+    evt.preventDefault();
+    Session.set("invite-previous-players", true);
   },
   "submit #editGameForm": function (evt, templ) {
     var self = this;

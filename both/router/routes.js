@@ -287,6 +287,12 @@ Meteor.startup(function () {
             }
         });
 
+        this.route('invitePreviousPlayers', {
+            path: 'invitePlayers',
+            template: 'invitePreviousPlayers',
+            layoutTemplate: 'devLayout'
+        });
+
         this.route('devEditGame', {
             path: '/editGame/:_id',
             template: 'devEditableGame',

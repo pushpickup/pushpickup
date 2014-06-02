@@ -1,4 +1,9 @@
 <template name="devEditableGame">
+  
+  {{#if SGet 'invite-previous-players'}}
+    {{> invitePreviousPlayers}}
+  {{/if}}
+  
   <div id="{{action}}Game">
     <div class="app-header">
       <div class="container">
@@ -28,15 +33,17 @@
           <div class="form-group">
             {{> editableGameMap}}
           </div>
-          <div class="form-group">
 
-            <a class="invite-friends-link">
-              <i class="ppicon-add-friend"></i>
-              Invite players
-              <i class="fa fa-angle-right"></i>
-            </a>
+          {{#if addingGame}}
+            <div class="form-group">
+              <a id="invite-players-link" href="#">
+                <i class="ppicon-add-friend"></i>
+                Invite players
+                <i class="fa fa-angle-right"></i>
+              </a>
+            </div>
+          {{/if}}
 
-          </div>
           <div class="form-group requested">
             {{> selectForm selectPlayersRequested}}
           </div>
@@ -94,4 +101,6 @@
       </div>
     </div>
   </div>
+
+
 </template>
