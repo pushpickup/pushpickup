@@ -11,12 +11,33 @@
       </div>
     </div>
     <div class="container">
-			<ul class="list-group">
+			<ul class="list-group" id="previous-players">
 				<li class="list-group-item">
 					This is where you'll be able to invite players that have previously joined games you've organized.
 				</li>
+				<li class="list-group-item" id="invite-all">
+					<input type="checkbox">
+					<span class="main-text">Invite all</span>
+					<p>Send invitations to all players who previously played in one of my games</p>
+				</li>
+				
+				{{> previousPlayerListItem}}
+				{{> previousPlayerListItem}}
+				{{> previousPlayerListItem}}
+				{{> previousPlayerListItem}}
+				{{> previousPlayerListItem}}
+				{{> previousPlayerListItem}}
+				
 			</ul>
     	
     </div>
 	</div>
+</template>
+
+<template name="previousPlayerListItem">
+	<li class="list-group-item player-list-item">
+    <input type="checkbox">
+    <span class="playerName">Player name</span>
+    <span class="playerEmail">player@email.com</span>
+</li>
 </template>
