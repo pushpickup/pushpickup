@@ -279,9 +279,17 @@ button {
   right: 0;
   background: #fff;
   z-index: 9000;
-  height: 100%;
+  min-height: 750px;
+
+  .overlay {
+    margin-top: 62px;
+  }
 
   ul#previous-players {
+    #intro {
+      height: 62px;
+    }
+
     #invite-all {
       height: 90px;
 
@@ -296,7 +304,7 @@ button {
         position: absolute;
         left: 45px;
         top: 15px;
-        font-size: 15px;
+        // font-size: 15px;
       }
 
       p {
@@ -309,7 +317,7 @@ button {
     }
 
     .player-list-item {
-      height: 75px;
+      height: 70px;
 
       input[type="checkbox"] {
         position: absolute;
@@ -321,7 +329,7 @@ button {
         position: absolute;
         left: 45px;
         top: 15px;
-        font-size: 15px;
+        // font-size: 15px;
       }
 
       .playerEmail {
