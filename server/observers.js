@@ -71,22 +71,6 @@ var userSubQuery = function (game) {
 };
 
 observers = {
-  gameOnObserver: function () {
-    var handler = Games.find({status: "proposed"}).observeChanges({
-      removed: function (id) {
-        // likely a status update from "proposed" to "on",
-        // but could be a game cancellation
-        var game = Games.findOne(id);
-        if (! game) {
-          return; // game cancelled
-        } else if (game.players.length < 2) {
-          return; // fewer than two players, so don't send email
-        } else { // status has changed to "on"
-          sendGameOnEmails(game);
-        }
-      }
-    });
-  },
   gameAddedNotifier: function () {
     var handler = Games.find({notificationsSent: {$exists: false}})
           .observeChanges({

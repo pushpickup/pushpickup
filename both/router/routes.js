@@ -121,27 +121,22 @@ Meteor.startup(function () {
                 var self = this;
                 var token = self.params.hash;
                 Meteor.call("gameOnViaToken", token, function (err, res) {
-                    if (!err) {
-                        Accounts.verifyEmail(token);
-                        if (res.error) {
-                            Alerts.throw({
-                                message: res.error.reason, type: "danger", where: "main"
-                            });
-                            Router.go("home");
-                        } else {
-                            Alerts.throw({
-                                message: "Woohoo! Players will be notified.",
-                                type: "success", where: res.gameId
-                            });
-                            Router.go("devDetail", {_id: res.gameId});
-                        }
-                    } else {
-                        Alerts.throw({
-                            message: "Hmm, something went wrong: \""+err.reason + "\".",
-                            type: "danger", where: "main"
-                        });
-                        Router.go("home");
-                    }
+                  if (err || (res && res.error)) {
+                    errorMessage = err ? "Hmm, something went wrong: \"" + err.reason + "\"." : res.error.reason;
+
+                    Alerts.throw({
+                      message: errorMessage, type: "danger", where: "main"
+                    });
+
+                    Router.go("home");
+                  } else {
+                    Alerts.throw({
+                      message: "Woohoo! Players will be notified.",
+                      type: "success", where: res.gameId
+                    });
+
+                    Router.go("devDetail", {_id: res.gameId, token: token });
+                  }
                 });
             }
         });
@@ -239,7 +234,7 @@ Meteor.startup(function () {
 
         // typical user interaction with a single game
         this.route('devDetail', {
-            path: '/g/:_id',
+            path: '/g/:_id/:token?',
             layoutTemplate: 'devLayout',
             onRun: function () {
                 Session.set("joined-game", null);
@@ -251,21 +246,50 @@ Meteor.startup(function () {
                 Session.set("soloGame", this.params._id);
             },
             data: function () {
-                return Games.findOne(this.params._id);
+              var game = Games.findOne(this.params._id);
+
+              if (game) {
+                Session.set("gameExists", true);
+              }
+
+              return game;
             },
             action: function () {
-                if (this.data()) {
-                    this.render();
-                } else {
-                    Router.go('home');
+              var token = this.params.token;
+
+              if (Session.get("gameExists")) {
+                this.render();
+
+              } else {
+                Router.go('home');
+
+                Alerts.throw({
+                  message: "Game not found",
+                  type: "warning", where: "top"
+                });
+              }
+
+              if (token) {
+                Meteor.call("sendReminderEmailsViaToken", token, function (err, res) {
+                  var errorMessage;
+
+                  Accounts.verifyEmail(token);
+
+                  if (err || (res && res.error)) {
+                    errorMessage = err ? "Hmm, something went wrong: \"" + err.reason + "\"." : res.error.reason;
+
                     Alerts.throw({
-                        message: "Game not found",
-                        type: "warning", where: "top"
+                      message: errorMessage, type: "danger", where: "main"
                     });
-                }
+
+                    Router.go("home");
+                  }
+                });
+              }
             },
             onStop: function () {
-                Session.set("soloGame", null);
+              Session.set("soloGame", null);
+              Session.set("gameExists", null);
             }
         });
 
