@@ -24,10 +24,10 @@
 				</li>
 				
 				{{#each previousPlayers}}
-					{{> previousPlayerListItem}}
+					{{> previousPlayerListItem player}}
 				{{/each}}
 				
-				{{#if isFakeData}}
+				{{#if fake}}
 					<div class="overlay"></div>
 				{{/if}}
 

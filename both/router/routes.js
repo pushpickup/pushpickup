@@ -278,6 +278,9 @@ Meteor.startup(function () {
                 Session.set("newGameDay", null);
                 Session.set("newGameTime", null);
             },
+            waitOn: function() {
+                Meteor.subscribe('recently-played');
+            },
             data: function () {
                 return {
                     action: 'add',

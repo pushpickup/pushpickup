@@ -24,11 +24,13 @@ Meteor.methods({
 
       RecentlyPlayed.upsert({
         "organizerId" : organizerId,
-        "playerId"    : userId
+        "playerId"    : userId,
       },
       {
         $set: {
-          "timeJoined"  : new Date(),  
+          "timeJoined"  : new Date(),
+          "player.name"  : Meteor.user().profile.name,
+          "player.email" : Meteor.user().emails[0].address,
         } 
       });
 
