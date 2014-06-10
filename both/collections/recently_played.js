@@ -1,0 +1,1 @@
+RecentlyPlayed = new Meteor.Collection('recently_played');

@@ -1,4 +1,32 @@
 Meteor.methods({
+  addPlayerToRecentList : function(gameId, player) {
+    // Validate user, validate game
+    check(gameId, String);
+
+    // Check player is current user
+    check(player, Player);
+    var userId = this.userId;
+    if (!userId || player.userId !== userId) return false;
+
+    var game = Games.findOne({_id: gameId, 'players.userId': userId});
+    if (game) {
+      var organizerId = game.creator.userId;
+      // make sure user is not organizer id
+      if(organizerId === userId)
+        return false;
+
+      // add user id and game’s organizer to recently placed with list.
+      // add current time for recently played sort.
+      RecentlyPlayed.insert({
+        organizerId: organizerId,
+        userId: userId,
+        timeJoined: new Date()
+      });
+
+    } else {
+      return false;
+    }
+  },
   saveUserLocation: function (location) {
     Meteor.users.upsert(Meteor.userId(), {$set: {"profile.location": location}});
   },
