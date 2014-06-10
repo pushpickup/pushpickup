@@ -14,7 +14,7 @@ Template.invitePreviousPlayers.helpers({
 			playerList = fakePlayerList;
 
 		return playerList;
-		
+
 	}
 });
 
@@ -91,4 +91,5 @@ Template.invitePreviousPlayers.events({
 });
 
 Template.invitePreviousPlayers.rendered = function() {
+	$(window).scrollTop(0);
 }
