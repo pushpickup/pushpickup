@@ -284,7 +284,8 @@ Meteor.methods({
             Meteor.isServer && notifyOrganizer(gameId, {
                 joined: {userId: userId, name: name}
             });
-            Meteor.isServer && addPlayerToRecentList(gameId, player);
+            
+            Meteor.call('addPlayerToRecentList', gameId);
             return true;
         }
     },

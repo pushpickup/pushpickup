@@ -1,12 +1,14 @@
 Meteor.methods({
-  addPlayerToRecentList : function(gameId, player) {
+  addPlayerToRecentList : function(gameId) {
+    console.log("adding player to recent list");
+
     // Validate user, validate game
     check(gameId, String);
 
     // Check player is current user
-    check(player, Player);
-    var userId = this.userId;
-    if (!userId || player.userId !== userId) return false;
+    var userId = Meteor.userId();
+    if (!userId) return false;
+
 
     var game = Games.findOne({_id: gameId, 'players.userId': userId});
     if (game) {
@@ -15,12 +17,19 @@ Meteor.methods({
       if(organizerId === userId)
         return false;
 
-      // add user id and game’s organizer to recently placed with list.
-      // add current time for recently played sort.
-      RecentlyPlayed.insert({
-        organizerId: organizerId,
-        userId: userId,
-        timeJoined: new Date()
+      console.log("inserting..."
+        + "\norganizerId: " + organizerId
+        + "\nplayerId   : " + userId
+        + "\ntimeJoined : " + new Date());
+
+      RecentlyPlayed.upsert({
+        "organizerId" : organizerId,
+        "playerId"    : userId
+      },
+      {
+        $set: {
+          "timeJoined"  : new Date(),  
+        } 
       });
 
     } else {
