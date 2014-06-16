@@ -1,26 +1,10 @@
 Template.invitePreviousPlayers.helpers({
-
-	fake: function() {
-		if(RecentlyPlayed.find().count())
-			return false;
-		else
-			return true;
-	},
-
-	previousPlayers : function() {
-		if(RecentlyPlayed.find().count())
-			playerList = RecentlyPlayed.find();
-		else
-			playerList = fakePlayerList;
-
-		return playerList;
-
-	}
 });
 
 Template.invitePreviousPlayers.created = function() {
+
 	if (!RecentlyPlayed.find().count()) {
-		fakePlayerList = [
+		playerList = [
 			{
 				checked : false,
 				player: {
@@ -64,7 +48,15 @@ Template.invitePreviousPlayers.created = function() {
 				}
 			}
 		];
+		this.data.fake = true;
+	} else {
+
+		playerList = RecentlyPlayed.find()
+
+		this.data.fake = false;
 	}
+
+	this.data.previousPlayers = playerList;
 }
 
 Template.invitePreviousPlayers.events({
@@ -73,20 +65,16 @@ Template.invitePreviousPlayers.events({
 		Session.set("invite-previous-players", false);
 	},
 	"click #invite-all-checkbox" : function(evt, tmpl) {
-		
 		// check invite all
 		if($('#invite-all-checkbox').is(":checked")) {
-
-			console.log(tmpl);
+			console.log('invite all checked');
+			tmpl.data.previousPlayers[0].player.checked = true;
+			console.log(tmpl.data.previousPlayers);
 
 		} else // invite all unchecked
 		{
-
-
-
+			console.log('invite all unchecked');
 		}
-
-
 	}
 });
 

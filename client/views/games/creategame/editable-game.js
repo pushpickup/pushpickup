@@ -11,6 +11,12 @@ Template.devEditableGame.helpers({
     });
     return {id: 'gameType', options: them};
   },
+
+  playerInviteCount : function() {
+    console.log(InviteList.find().count());
+    return InviteList.find().count();
+  },
+
   selectPlayersRequested: function () {
     var self = this;
     var numRequested = self.requested && self.requested.players || 10;

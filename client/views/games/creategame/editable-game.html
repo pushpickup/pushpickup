@@ -38,7 +38,11 @@
             <div class="form-group">
               <a id="invite-players-link" href="#">
                 <i class="ppicon-add-friend"></i>
-                Invite players
+                {{#if playerInviteCount}}
+                  {{playerInviteCount}} will be invited
+                {{else}}
+                  Invite players
+                {{/if}}
                 <i class="fa fa-angle-right"></i>
               </a>
             </div>
