@@ -1,4 +1,10 @@
 Template.invitePreviousPlayers.helpers({
+	inviteAllChecked : function() {
+		if(RecentlyPlayed.find().count() === InviteList.find().count())
+			return "checked";
+		else
+			return "";
+	}
 });
 
 Template.invitePreviousPlayers.created = function() {
@@ -67,13 +73,13 @@ Template.invitePreviousPlayers.events({
 	"click #invite-all-checkbox" : function(evt, tmpl) {
 		// check invite all
 		if($('#invite-all-checkbox').is(":checked")) {
-			console.log('invite all checked');
-			tmpl.data.previousPlayers[0].player.checked = true;
-			console.log(tmpl.data.previousPlayers);
-
+			// Insert all players into InsertList collection
+			RecentlyPlayed.find().forEach(function(doc) {
+				InviteList.insert(doc.player);
+			})
 		} else // invite all unchecked
 		{
-			console.log('invite all unchecked');
+			InviteList.remove({});
 		}
 	}
 });
