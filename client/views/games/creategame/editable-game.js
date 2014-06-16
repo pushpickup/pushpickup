@@ -13,7 +13,6 @@ Template.devEditableGame.helpers({
   },
 
   playerInviteCount : function() {
-    console.log(InviteList.find().count());
     return InviteList.find().count();
   },
 
