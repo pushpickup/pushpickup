@@ -73,6 +73,9 @@ Template.invitePreviousPlayers.events({
 	"click #invite-all-checkbox" : function(evt, tmpl) {
 		// check invite all
 		if($('#invite-all-checkbox').is(":checked")) {
+			// First empty out the list
+			InviteList.remove({});
+
 			// Insert all players into InsertList collection
 			RecentlyPlayed.find().forEach(function(doc) {
 				InviteList.insert(doc.player);

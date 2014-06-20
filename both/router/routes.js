@@ -277,6 +277,7 @@ Meteor.startup(function () {
                 Session.set("selectedLocationPoint", null);
                 Session.set("newGameDay", null);
                 Session.set("newGameTime", null);
+                InviteList.remove({});
             },
             waitOn: function() {
                 Meteor.subscribe('recently-played');
