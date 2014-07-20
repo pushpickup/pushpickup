@@ -14,7 +14,7 @@ Template.devSelectLocation.rendered = function () {
       var timeStamp, timeZoneApiRequestUrl;
       var timeZoneApiErrorCallback;
 
-      if (place.utc_offset) {
+      if (place.utc_offset !== void 0) {
         Session.set("selectedLocationUTCOffset", place.utc_offset / 60);
       }
       else {
@@ -36,7 +36,7 @@ Template.devSelectLocation.rendered = function () {
           url: timeZoneApiRequestUrl
         }).done(function(data) {
           try {
-            var utcOffset = (data.rawOffset + data.dstOffset || 0) / 3600; // data.rawOffset
+            var utcOffset = (data.rawOffset + data.dstOffset || 0) / 3600;
             Session.set("selectedLocationUTCOffset", utcOffset);
           }
           catch(e) {
