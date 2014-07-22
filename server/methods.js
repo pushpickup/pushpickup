@@ -75,7 +75,7 @@ Meteor.methods({
 
     var inviteeId = Invitees.insert({inviterEmail: adder.emails[0].address, 
       inviterName: adder.profile.name});
-    
+
     sendInvitationEmail({
       from: emailTemplates.from,
       to: addedEmail,
@@ -244,40 +244,66 @@ Meteor.methods({
     return {userId: user._id};
   },
   gameOnViaToken: function (token) {
-    var self = this;
     check(token, String);
 
     var user = Meteor.users.findOne(
       {'services.email.verificationTokens.token': token});
-    if (!user)
+
+    if (!user) {
       throw new Meteor.Error(403, "Game-on trigger expired");
+    }
 
     var tokenRecord = _.find(user.services.email.verificationTokens,
                              function (t) {
                                return t.token == token;
                              });
-    if (!tokenRecord)
+
+    if (!tokenRecord) {
       return {
         userId: user._id,
         error: new Meteor.Error(403, "Game-on trigger expired for user")
       };
+    }
 
-    var game = Games.findOne(tokenRecord.gameId);
-    if (!game)
+    return {userId: user._id, gameId: tokenRecord.gameId};
+  },
+  sendReminderEmailsViaToken: function(token) {
+    this.unblock();
+
+    check(token, String);
+
+    var user = Meteor.users.findOne(
+      {'services.email.verificationTokens.token': token});
+    var game;
+
+    if (!user) {
+      throw new Meteor.Error(403, "Game-on trigger expired");
+    }
+
+    var tokenRecord = _.find(user.services.email.verificationTokens,
+      function (t) {
+        return t.token == token;
+      });
+
+    if (!tokenRecord) {
+      return {
+        error: new Meteor.Error(403, "Game-on trigger expired for user")
+      };
+    }
+
+    game = Games.findOne(tokenRecord.gameId);
+
+    if (!game) {
       return {
         userId: user._id,
         error: new Meteor.Error(403, "That game was canceled, so we can't send a reminder.")
       };
-
-    if (game.status === "proposed") {
-      // update game to trigger `gameOnObserver`
-      Games.update(game._id, {$set: {status: "on"}});
-    } else {
-      Meteor.isServer && sendGameOnEmails(game);
     }
 
-    return {userId: user._id, gameId: game._id};
+    Games.update(game._id, {$set: {status: "on"}});
+    Meteor.isServer && sendGameOnEmails(game);
   },
+
   cancelGameViaToken: function (token) {
     var self = this;
     check(token, String);
