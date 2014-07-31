@@ -14,16 +14,17 @@ Template.inviteFriends.events({
                       {type: "danger", where: "inviteFriends"})) {
       return;
     }
+
+    Alerts.throw({
+      message: "Your friend has been sent an invitation :)",
+      type: "success", where: game._id
+    });
+    Session.set("invite-friends", null);
+    window.scrollTo(0,0);
+
     Meteor.call(
       "dev.inviteFriends", game._id, friends, function (error, result) {
-        if (!error) {
-          Alerts.throw({
-            message: "Your friend has been sent an invitation :)",
-            type: "success", where: game._id
-          });
-          Session.set("invite-friends", null);
-          window.scrollTo(0,0);
-        } else {
+        if (error) {
           // typical error: email in use
           // BUT we're currently allowing users to add friends
           // that are existing users...
@@ -31,12 +32,12 @@ Template.inviteFriends.events({
           if (error instanceof Meteor.Error) {
             Alerts.throw({
               message: error.reason,
-              type: "danger", where: "inviteFriends"
+              type: "danger", where: game._id
             });
           } else {
             Alerts.throw({
-              message: "Hmm, something went wrong. Try again?",
-              type: "danger", where: "inviteFriends"
+              message: "Hmm, something went wrong while inviting a friend. Try again?",
+              type: "danger", where: game._id
             });
           }
         }

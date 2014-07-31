@@ -40,7 +40,6 @@ Meteor.startup(function () {
   // start observers
   ////
 
-  observers.gameOnObserver();
   // TODO: initialize process to send daily digest of upcoming games of
   // interest to user, based on UserSubs.
   //observers.gameAddedNotifier();
