@@ -17,5 +17,11 @@ Template.devDetail.events({
   },
   "click .subscribe-after-joined .close": function () {
     Session.set("joined-game", null);
+  },
+  "click .invite-friends-link input": function () {
+    var inviteFriendsLink = document.getElementById("inviteFriendsLink");
+    inviteFriendsLink.selectionStart = 0;
+    inviteFriendsLink.selectionEnd = 999;
+    inviteFriendsLink.readOnly = true;
   }
 });

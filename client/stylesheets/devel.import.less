@@ -812,10 +812,7 @@ footer {
 }
 
 .copy-game-link {
-  &.header {
-    background: @brand-primary;
-  }
-
+  background: @brand-primary;
   padding: 0 0 @grid-gutter-width/2 @grid-gutter-width/2;
   width: 100%;
   @media (min-width: @screen-sm-min) {
@@ -836,6 +833,25 @@ footer {
 
   .app-header-icon {
     padding: 5px;
+  }
+}
+
+.invite-friends-link {
+  width: 100%;
+  @media (min-width: @screen-sm-min) {
+    margin-left: 0;
+  }
+
+  input {
+    background: @brand-secondary;
+    border: 0;
+    border-radius: @border-radius-small;
+    color: @white;
+    padding: 6px 12px;
+    width: 100%;
+    @media (min-width: @screen-sm-min) {
+      width: 94%;
+    }
   }
 }
 

@@ -1,8 +1,9 @@
 <template name="inviteFriendsInput">
   <p class="form-heading"><strong>Invite friends</strong></p>
   <p>Text, email, or share this link on Twitter and Facebook:</p>
-    <div class="copy-game-link">
-    <input type="text"
-           value="{{baseURL}}{{pathFor 'devDetail'}}">
+    <div class="invite-friends-link">
+      <input type="text"
+             id="inviteFriendsLink"
+             value="{{baseURL}}{{pathFor 'devDetail'}}">
     </div>
 </template>
