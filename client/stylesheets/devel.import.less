@@ -812,7 +812,10 @@ footer {
 }
 
 .copy-game-link {
-  background: @brand-primary;
+  &.header {
+    background: @brand-primary;
+  }
+
   padding: 0 0 @grid-gutter-width/2 @grid-gutter-width/2;
   width: 100%;
   @media (min-width: @screen-sm-min) {

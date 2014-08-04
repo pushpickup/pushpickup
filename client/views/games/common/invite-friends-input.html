@@ -1,21 +1,8 @@
 <template name="inviteFriendsInput">
-  {{#each friends}}
-    <p class="form-heading">Invite friends</p>
-    <div class="tight form-group">
-      <input type="text" class="form-control friend-name"
-             placeholder="Friend's name"
-             value="{{name}}" id="{{_id}}"
-             required autofocus>
-      <input type="email" class="form-control friend-email"
-             placeholder="Friend's email"
-             value="{{email}}" id="{{_id}}">
+  <p class="form-heading"><strong>Invite friends</strong></p>
+  <p>Text, email, or share this link on Twitter and Facebook:</p>
+    <div class="copy-game-link">
+    <input type="text"
+           value="{{baseURL}}{{pathFor 'devDetail'}}">
     </div>
-  {{/each}}
-  <div class="form-group">
-    <p class="form-control-static">
-      <a class="add-another-friend">
-        <span class="glyphicon glyphicon-plus-sign"></span>
-        Add friend to invite</a>
-    </p>
-  </div>
 </template>
