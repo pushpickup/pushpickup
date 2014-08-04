@@ -1,14 +1,14 @@
-# Push Pickup
+# PushPickup
 
-A passion project by [Donny Winston](http://www.linkedin.com/pub/donny-winston/8/951/552) and Stewart McCoy [@stewartmccoy](http://twitter.com/stewartmccoy).
+The best way to find and organize pickup games. We currently support Soccer, Basketball, and Ultimate Frisbee. 
 
-This is an open source project and we'd love to talk with you if you're interested in contributing. Be sure to check out our issue tracker and see more below.
+This is currently passion project by [Donny Winston](http://www.linkedin.com/pub/donny-winston/8/951/552) and Stewart McCoy [@stewartmccoy](http://twitter.com/stewartmccoy).
 
-Stewart would love if you emailed him at mccoy dot stewart at gmail dot com.
+The project is open source and we'd love to talk with you if you're interested in contributing. Be sure to check out our issue tracker and see more below.
+
+Stewart is the primary owner of the project as of July 2014, and would love if you emailed him at mccoy dot stewart at gmail dot com.
 
 For more background on the motivation for this project, read: [A better way to organize pickup sports](http://stewartmccoy.com/a-better-way-to-organize-pickup-sports/)
-
-For my original thinking on app design, check out: [PlayMakers Pickup Sports App](http://stewartmccoy.com/playmakers-pickup-sports-app/)
 
 ## Development
 
