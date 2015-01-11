@@ -17,7 +17,7 @@ Template.devSelectWhen.helpers({
           720; // noon is 720 minutes into day
 
     var them =  _.map(_.range(96), function (i) {
-      var t = moment(dayStart).add('minutes', 15 * i);
+      var t = moment(dayStart).add(15 * i, 'minutes');
       return {
         value: +t,
         text: t.format('h:mmA'),
@@ -26,7 +26,7 @@ Template.devSelectWhen.helpers({
     });
 
     them = _.reject(them, function (t) {
-      return t.value < +moment() || t.value > +moment().add('weeks', 1);
+      return t.value < +moment() || t.value > +moment().add(1, 'weeks');
     });
     return {label: 'Time', id: 'gameTime', containerClass: "game-time-container", options: them};
   },
@@ -35,7 +35,7 @@ Template.devSelectWhen.helpers({
     var selfDayStart = self.startsAt &&
           moment(self.startsAt).startOf('day');
     var them =  _.map(_.range(7), function (i) {
-      var dayStart = moment().startOf('day').add('days', i);
+      var dayStart = moment().startOf('day').add(i, 'days');
       return {
         value: dayStart.valueOf(),
         text: dayStart.format('dddd'),

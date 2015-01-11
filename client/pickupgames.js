@@ -20,10 +20,10 @@ var toggleInclusion = function (set, val) {
 
 Session.setDefault("startsAtRange", [
     +moment().startOf('hour'),
-    +moment().startOf('hour').add('weeks',1)]);
+    +moment().startOf('hour').add(1, 'weeks')]);
 Session.setDefault("dateRanges", [{
   gte: moment().startOf('hour').toDate(),
-  lt: moment().startOf('hour').add('weeks', 1).toDate()
+  lt: moment().startOf('hour').add(1, 'weeks').toDate()
 }]);
 // Polymer coordinates is an array of
 // LinearRing coordinate arrays. Confusing as fuck.
@@ -1148,7 +1148,7 @@ Template.editableGame.helpers({
           720; // noon is 720 minutes into day
 
     var them =  _.map(_.range(96), function (i) {
-      var t = moment(dayStart).add('minutes', 15 * i);
+      var t = moment(dayStart).add(15 * i, 'minutes');
       return {
         value: +t,
         text: t.format('h:mmA'),
@@ -1157,7 +1157,7 @@ Template.editableGame.helpers({
     });
 
     them = _.reject(them, function (t) {
-      return t.value < +moment() || t.value > +moment().add('weeks', 1);
+      return t.value < +moment() || t.value > +moment().add(1, 'weeks');
     });
     return Template.selectForm({label: 'Time', id: 'gameTime',
                                 options: them});
@@ -1179,7 +1179,7 @@ Template.editableGame.helpers({
     var selfDayStart = self.startsAt &&
           moment(self.startsAt).startOf('day');
     var them =  _.map(_.range(8), function (i) {
-      var dayStart = moment().startOf('day').add('days', i);
+      var dayStart = moment().startOf('day').add(i, 'days');
       return {
         value: dayStart.valueOf(),
         text: dayStart.format('dddd'),
@@ -1378,7 +1378,7 @@ var dateRangesFromNow = function () {
   var startOfDay = moment().startOf('day');
   var thisWeekDayRanges = _.times(7, function () {
     // Already got today, so increment day immediately
-    startOfDay = moment(startOfDay).add('days', 1);
+    startOfDay = moment(startOfDay).add(1, 'days');
     (d === 6) ? d = 0 : d += 1; // and increment day index
 
     return {
@@ -1451,7 +1451,7 @@ Template.dayFilter.events({
 });
 
 
-moment.lang('en', {
+moment.locale('en', {
   calendar : {
     lastDay : '[Yesterday] h:mmA',
     sameDay : '[Today] h:mmA',

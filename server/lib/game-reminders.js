@@ -22,7 +22,7 @@ _.extend(GameReminders.prototype, {
         var numHours = Meteor.settings.DEVELOPMENT ? 4 : 3;
 
         this.cron.addScheduleJob(
-            moment(game.startsAt).subtract('hours', numHours).unix(),
+            moment(game.startsAt).subtract(numHours, 'hours').unix(),
             function () {
                 remindOrganizer(gameId);
             },
