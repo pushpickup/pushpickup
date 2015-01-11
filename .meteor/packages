@@ -3,21 +3,21 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-standard-app-packages
+meteor-platform
+iron:router
 accounts-password
-less
-iron-router
-nprogress
+mrt:nprogress
 email
-spin
+sacha:spin
 coffeescript
 underscore
 random
-font-awesome
-bootstrap3-less
-moment
+natestrauser:font-awesome
+mrt:moment
 geojson-utils
 showdown
-jquery
 http
 amplify
+nemo64:bootstrap
+less
+bootstrap3-less
