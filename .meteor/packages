@@ -18,6 +18,5 @@ geojson-utils
 showdown
 http
 amplify
-nemo64:bootstrap
 less
-bootstrap3-less
+nemo64:bootstrap
