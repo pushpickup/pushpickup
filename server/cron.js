@@ -73,7 +73,7 @@ var cron = new Cron(/* ticks every 1 second by default */);
 gameReminders = new GameReminders(cron);
 
 Meteor.startup(function () {
-    Games.find({startsAt: {$gt: moment().add('hours', 3).toDate()}})
+    Games.find({startsAt: {$gt: moment().add(3, 'hours').toDate()}})
         .forEach(function (game) {
             gameReminders.scheduleReminderForOrganizer(game._id);
         });

@@ -30,14 +30,14 @@ var asMoments = function (relativeStartsAts) {
     var startsAt = moment(moment().week() +" "+ relativeStartsAt,
                           "ww dddd hh:mm A");
     return (startsAt.isBefore(moment())) ?
-      startsAt.add('weeks', 1) : startsAt;
+      startsAt.add(1, 'weeks') : startsAt;
   });
 };
 
 // flips a coin to return the same moment or one shifted a week earlier.
 var randomlyPastOrFuture = function (m) {
   return (Random.fraction() < 0.5) ?
-    m : moment(m).subtract('weeks', 1);
+    m : moment(m).subtract(1, 'weeks');
 };
 
 // Populate users db from names above, and populate games db from Assets

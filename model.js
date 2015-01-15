@@ -53,7 +53,7 @@ WithinAWeekFromNow = Match.Where(function (x) {
     check(x, Date);
     var then = moment(x);
     var now = moment();
-    var aWeekFromNow = moment().add('weeks', 1);
+    var aWeekFromNow = moment().add(1, 'weeks');
     return now.isBefore(then) && then.isBefore(aWeekFromNow);
 });
 
