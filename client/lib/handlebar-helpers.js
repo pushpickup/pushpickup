@@ -22,7 +22,7 @@ var handlebarsHelperMap = {
     return Meteor.absoluteUrl().slice(0,-1);
   },
   old: function (date) {
-    return date < moment().subtract('weeks',1).toDate();
+    return date < moment().subtract(1, 'weeks').toDate();
   },
   past: function (date) {
     return date < new Date();

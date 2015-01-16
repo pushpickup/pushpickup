@@ -23,5 +23,39 @@ Friends = (function() {
     });
   };
 
+  friendsModule.inviteFriends = function(gameId, inviteList ) {
+
+    var filteredInviteList = _.map(inviteList, function(friend) {
+      return _.pick(friend, 'name', 'email');
+    });
+
+    Meteor.call(
+      "dev.inviteFriends", gameId, filteredInviteList, function (error, result) {
+        if (!error) {
+          Alerts.throw({
+            message: "Your friend(s) has been sent an invitation :)",
+            type: "success", where: gameId
+          });
+        } else {
+          // typical error: email in use
+          // BUT we're currently allowing users to add friends
+          // that are existing users...
+          console.log(error);
+          if (error instanceof Meteor.Error) {
+            Alerts.throw({
+              message: error.reason,
+              type: "danger", where: "inviteFriends"
+            });
+          } else {
+            Alerts.throw({
+              message: "Hmm, something went wrong. Try again?",
+              type: "danger", where: "inviteFriends"
+            });
+          }
+        }
+      });
+
+  }
+
   return friendsModule;
 })();

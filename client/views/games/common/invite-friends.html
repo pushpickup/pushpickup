@@ -1,10 +1,6 @@
 <template name="inviteFriends">
   <div class="add-friends well">
     <button type="button" class="close" aria-hidden="true">&times;</button>
-    <form class="add-friends" role="form">
-      {{> inviteFriendsInput}}
-      {{> alerts where="addjoinFriends"}}
-      <button type="submit" class="btn join-game"> Invite {{pluralize numFriends "friend" "friends"}}</button>
-    </form>
+    {{> inviteFriendsInput}}
   </div>
 </template>

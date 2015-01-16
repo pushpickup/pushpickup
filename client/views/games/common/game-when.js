@@ -7,7 +7,7 @@ Template.gameWhen.helpers({
     var day = m.format('ddd');
     if (m.isSame(moment(), 'day')) {
       day = "Today";
-    } else if (m.isSame(moment().add('days', 1), 'day')) {
+    } else if (m.isSame(moment().add(1, 'days'), 'day')) {
       day = "Tomorrow";
     }
     return day;

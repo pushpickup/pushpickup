@@ -36,6 +36,10 @@ Template.addSelfAndFriends.events({
                   type: "success", where: game._id,
                   autoremove: 5000
                 });
+
+                // Add to recently played list
+                Meteor.call("addPlayerToRecentList", game._id);
+
                 if (inviteeId) {
                   Meteor.call(
                     "dev.notifyInviter", game._id, email, fullName, inviteeId,

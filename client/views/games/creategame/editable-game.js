@@ -11,6 +11,11 @@ Template.devEditableGame.helpers({
     });
     return {id: 'gameType', options: them};
   },
+
+  playerInviteCount : function() {
+    return InviteList.find().count();
+  },
+
   selectPlayersRequested: function () {
     var self = this;
     var numRequested = self.requested && self.requested.players || 10;
@@ -24,6 +29,9 @@ Template.devEditableGame.helpers({
   editingGame: function () {
     return this.title === "Edit game";
   },
+  addingGame: function() {
+    return this.action === 'add';
+  },
   atLeastOnePlayer: function () {
     return this.players && (! _.isEmpty(this.players));
   }
@@ -36,6 +44,10 @@ Template.devEditableGame.events({
   },
   "change #gameTime": function (evt, templ) {
     Session.set("newGameTime", +evt.currentTarget.value);
+  },
+  "click #invite-players-link": function (evt, templ) {
+    evt.preventDefault();
+    Session.set("invite-previous-players", true);
   },
   "submit #editGameForm": function (evt, templ) {
     var self = this;
@@ -74,6 +86,8 @@ Template.devEditableGame.events({
 
     Meteor.call("editGame", self._id, game);
     Router.go('devDetail', {_id: self._id});
+
+    
   },
   "keypress .select-location input": function (event, template) {
     if (event.which === 13) { // <RET> pressed
@@ -264,10 +278,20 @@ Template.devEditableGame.events({
               Session.set("joined-game", result.gameId);
             }
           });
+
+          // invite friends
+          Friends.inviteFriends(result.gameId, InviteList.find().fetch());
+          // InviteList.find().forEach(function(doc) {
+          //   console.log("INVITE " + doc.name + " " + doc.email);
+          // })
+          
+
           Router.go('devDetail', {_id: result.gameId});
           Meteor.call("sendForwardableInvite", result.gameId);
           Alerts.throw(_.extend({where: result.gameId}, addedAlert));
+
           window.scrollTo(0,0);
+
         } else {
           console.log(error);
           Alerts.throw({

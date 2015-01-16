@@ -14,6 +14,17 @@ Meteor.publish("user-upcoming-games", function () {
                            {'creator.userId': this.userId}]});
 });
 
+Meteor.publish("recently-played", function() {
+  check(this.userId, String);
+  return RecentlyPlayed.find({
+    'organizerId' : this.userId
+  }, 
+  {
+    sort: {timeJoined: -1},
+    limit: 50
+  });
+})
+
 var nearbyGamesQuery = function (location, options) {
   check(location, GeoJSONPoint);
   check(options, Match.Optional({
