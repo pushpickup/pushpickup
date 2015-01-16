@@ -311,7 +311,7 @@ Meteor.startup(function () {
                 this.next();
             },
             waitOn: function() {
-                Meteor.subscribe('recently-played');
+                Meteor.user() !== null && Meteor.subscribe('recently-played');
             },
             data: function () {
                 return {
