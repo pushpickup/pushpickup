@@ -1,8 +1,7 @@
 Template.addSelfAndFriends.events({
   "submit form": function (event, template) {
-    
-    var path = Router.current().path
-    var inviteeId = path.split('?')[1]
+    var path = Iron.Location.get().path;
+    var inviteeId = path.split('?')[1];
 
     var game = this;
     event.preventDefault();
@@ -88,7 +87,8 @@ Template.addSelfAndFriends.events({
                     type: "success", where: game._id,
                     autoremove: 5000
                   });
-                var path = Router.current().path;
+
+                var path = Iron.Location.get().path;
                 var inviteeId = path.split('?')[1];
                 var email = Meteor.user().emails[0].address;
                 var fullName = Meteor.user.profile.name;
