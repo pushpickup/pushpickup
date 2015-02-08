@@ -5,8 +5,9 @@ Game = (function() {
     if (!gameId) {
       return;
     }
-    var path = Router.current().path;
-    var inviteeId = path.split('?')[1]
+
+    var path = Iron.Location.get().path;
+    var inviteeId = path.split('?')[1];
 
     Meteor.call("addSelf", {
       gameId: gameId,
