@@ -31,7 +31,10 @@ input, button, select, textarea {
   }
 }
 
-.form-control {
+.form-control:focus {
+  border-color: #cccccc;
+  box-shadow: none;
+  font-size: 14px;
   outline: none;
 }
 
@@ -289,7 +292,7 @@ button {
   }
 
   ul#previous-players {
-  
+
     #invite-all {
       height: 90px;
 
@@ -1156,7 +1159,7 @@ form > .form-group:first-child { margin-top: 5px; }
     @media (min-width: @screen-sm-min) {
       display: inline-block;
       margin-right: 2em;
-    }  
+    }
   }
 
   label {
