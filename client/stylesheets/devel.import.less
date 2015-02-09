@@ -971,14 +971,35 @@ footer {
 }
 
 .place {
-  .place-name {
-    width: 240px;
-    .text-overflow();
+  @media (max-width: @screen-xs) {
+    .place-name {
+      width: 240px;
+      .text-overflow();
+    }
   }
 }
 
-.who-is-playing .text-info {
-  color: @brand-primary;
+.dev-detail-body {
+  .who-is-playing .text-info {
+    color: #333333;
+    font-weight: normal;
+  }
+
+  .game-type,
+  .game-when {
+    font-weight: bold;
+  }
+}
+
+.list-of-games {
+  .who-is-playing .text-info {
+    color: #333333;
+    font-weight: normal;
+  }
+
+  .game-when {
+    font-weight: bold;
+  }
 }
 
 .whos-playing-summary, .whos-playing-editable, .comments {

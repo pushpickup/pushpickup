@@ -1,6 +1,6 @@
 <template name="soloGameSummary">
   <div class="game-summary">
-    <strong>{{type}}</strong> {{> gameWhen}}
+    <span class="game-type">{{type}}</span> {{> gameWhen}}
     {{> whoIsPlaying}}
     <div class="place">
       <div class="place-name">
@@ -8,10 +8,5 @@
       </div>
       <div class="place-location">{{placeLocation}}</div>
     </div>
-    {{#unless organizing}}
-      <div class="organizer-info">
-        Added by {{creator.name}}
-      </div>
-    {{/unless}}
   </div>
 </template>

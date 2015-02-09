@@ -12,7 +12,7 @@
     {{else}}
       {{#if playing}}
         <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
-          {{participle startsAt past='Played' present='Playing'}}
+          {{participle startsAt past='You Played' present='You\'re Playing'}}
         </strong>
         {{#unless past startsAt}}
           + {{numNeeded}} needed
