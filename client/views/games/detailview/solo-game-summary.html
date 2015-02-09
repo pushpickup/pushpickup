@@ -8,8 +8,10 @@
       </div>
       <div class="place-location">{{placeLocation}}</div>
     </div>
-    <div class="organizer-info">
-      Added by {{creator.name}}
-    </div>
+    {{#unless organizing}}
+      <div class="organizer-info">
+        Added by {{creator.name}}
+      </div>
+    {{/unless}}
   </div>
 </template>
