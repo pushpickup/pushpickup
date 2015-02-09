@@ -17,9 +17,6 @@ Template.joinOrLeave.events({
       Session.set("unauth-join", this._id);
     }
   },
-  "click .leave-game": function () {
-    Meteor.call("leaveGame", this._id);
-  },
   "click .invite-friends": function() {
     Session.set("invite-friends", this._id);
   },
