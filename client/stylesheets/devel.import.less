@@ -29,12 +29,31 @@ input, button, select, textarea {
       font-size: 16px; // prevent Auto Zoom.
     }
   }
+
+  .cover-photo,
+  .headline-container {
+    display: none;
+  }
 }
 
-.form-control {
+.form-control:focus {
+  border-color: #cccccc;
+  box-shadow: none;
+  font-size: 14px;
   outline: none;
 }
 
+.form-control {
+  box-shadow: none;
+  outline: none;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+}
 
 h1 {
     font-size: 3em;
@@ -244,16 +263,28 @@ button {
     .btn-lg;
     .btn-block;
   }
+
   &.invite-friends {
     .btn-lg;
     .btn-block;
     background-color: rgba(0, 0, 0, 0.25);
     color: @white;
+    &:active,
+    &:hover {
+      border-color: #e5e5e5;
+      box-shadow: none;
+    }
   }
-&.leave-game{
-  text-align: center;
-  width: 100%;
-}
+
+  &.join-game:active {
+    background-color: #43828f;
+  }
+
+  &.leave-game{
+    text-align: center;
+    width: 100%;
+  }
+
   &.find-games {
     .btn-header;
     .btn-lg;
@@ -289,7 +320,7 @@ button {
   }
 
   ul#previous-players {
-  
+
     #invite-all {
       height: 90px;
 
@@ -940,14 +971,39 @@ footer {
 }
 
 .place {
-  .place-name {
-    width: 240px;
-    .text-overflow();
+  @media (max-width: @screen-xs) {
+    .place-name {
+      width: 240px;
+      .text-overflow();
+    }
   }
 }
 
-.who-is-playing .text-info {
-  color: @brand-primary;
+.dev-detail-body {
+  .who-is-playing .text-info {
+    color: #333333;
+    font-weight: normal;
+  }
+
+  .game-type,
+  .game-when {
+    font-weight: bold;
+  }
+}
+
+.list-of-games {
+  .who-is-playing .text-info {
+    color: #333333;
+    font-weight: normal;
+  }
+
+  .who-is-playing .text-muted {
+    font-weight: normal;
+  }
+
+  .game-when {
+    font-weight: bold;
+  }
 }
 
 .whos-playing-summary, .whos-playing-editable, .comments {
@@ -1156,7 +1212,7 @@ form > .form-group:first-child { margin-top: 5px; }
     @media (min-width: @screen-sm-min) {
       display: inline-block;
       margin-right: 2em;
-    }  
+    }
   }
 
   label {
