@@ -627,7 +627,8 @@ Template.signIn.events({
             message: err.reason, type: "danger", where: "signIn"
           });
         }
-      });
+      }
+    );
   }
 });
 
