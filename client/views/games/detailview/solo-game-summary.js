@@ -3,6 +3,10 @@ Template.soloGameSummary.helpers({
     var game = this;
     return _.string.capitalize(game.type);
   },
+  organizing: function () {
+    debugger;
+    return this.creator.userId == Meteor.userId();
+  },
   placeName: function () {
     var game = this;
     // return everything before first comma (if no comma, return everything)
