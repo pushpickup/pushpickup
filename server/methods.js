@@ -1,4 +1,10 @@
 Meteor.methods({
+  findUserLocation: function (position) {
+
+    return Meteor.http.call('GET', 'http://api.geonames.org/findNearbyPlaceNameJSON?lat=' +
+       position.coords.latitude + '&lng=' + position.coords.longitude + '&radius=5&cities=cities1000&style=medium&username=' + GEONAMES_USERNAME);
+  },
+
   addPlayerToRecentList : function(gameId) {
     console.log("adding player to recent list");
 

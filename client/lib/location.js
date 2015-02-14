@@ -14,7 +14,7 @@ Location = (function() {
   // If location name has more than two commas,
   // it's probably too long and complicated, so substitute with
   // autocomplete result's "`place.name`,  `place.vicinity`"
-    locationModule.simplifyLocation = function (given) {
+  locationModule.simplifyLocation = function (given) {
     if (_.string.count(given,',') > 2) {
       return Session.get("selectedLocationName") || given.split(",", 3).join(",");
     } else {
@@ -23,83 +23,56 @@ Location = (function() {
   };
 
   // Set default location to Berkeley
-    locationModule.defaultLocation = {
+  locationModule.defaultLocation = {
     "geo" : {
-      "type" : "Point", 
-      "coordinates" : [-122.284786, 37.855271],  
+      "type" : "Point",
+      "coordinates" : [-122.284786, 37.855271],
     },
     "city" : "Berkeley",
     "state" : "CA"
   };
 
   locationModule.getUserLocation = function (onSuccess /* optional */) {
-
     Session.set("get-user-location", "pending");
-    if(navigator.geolocation) {    
+
+    if(navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
 
         var location = {
           "geo" : {
             "type": "Point",
-            "coordinates": [position.coords.longitude,
-                          position.coords.latitude]
+            "coordinates": [
+              position.coords.longitude,
+              position.coords.latitude
+            ]
           }
         };
 
-        // console.log(position.coords.longitude + ", " + position.coords.latitude);
-        // console.log("https://maps.googleapis.com/maps/api/geocode/json?latlng="+point.coordinates[1]+","+point.coordinates[0]+"&sensor=true");
-        
-        HTTP.get("http://api.geonames.org/findNearbyPlaceNameJSON?lat="+position.coords.latitude+"&lng="+position.coords.longitude+"&radius=5&cities=cities1000&style=medium&username="+GEONAMES_USERNAME,
-          {}, function(err, res) {
-            if(err)
-            {
-              // console.log(err);
+        Meteor.call("findUserLocation", position, function(err, res) {
+          if(!err && res.data.geonames && res.data.geonames.length > 0) {
+            res.data.geonames.sort(function(a, b) {
+              var keyA = a.population,
+                  keyB = b.population;
 
-              // This set of three lines is repeated in the code, needs to be put in a function.
-              AmplifiedSession.set("current-location", location);
-              AmplifiedSession.set("user-location-set", true);
-              Session.set("get-user-location", "success");
-
-            } else {
-
-              if(!res.data.geonames)
-              {
-                // console.log("register an account on geonames.com, activate it, and set the username in client/config.js");
-                // console.log(res.data.status.message);
-
-                AmplifiedSession.set("current-location", location);
-                AmplifiedSession.set("user-location-set", true);
-                Session.set("get-user-location", "success");
-
-              } else {
-                res.data.geonames.sort(function(a, b) {
-                  var keyA = a.population,
-                      keyB = b.population;
-
-                  if(keyA < keyB) return 1;
-                  if(keyA > keyB) return -1;
-                  return 0;
-                });
-
-                // console.log(res.data.geonames);
-
-                location.city = res.data.geonames[0].name;
-                location.state = res.data.geonames[0].adminCode1;
-
-                AmplifiedSession.set("current-location", location);
-                AmplifiedSession.set("user-location-set", true);
-                Session.set("get-user-location", "success");
+              if(keyA < keyB) {
+                return 1;
               }
-              // Save to user account
-              // if(Meteor.user()) {
-              //   Meteor.call('saveUserLocation', location, function (err, res) {
-              //     // handle error
-              //     if(err)
-              //       console.log(err);
-              //   });
-              // }
-            }
-          });
+
+              if(keyA > keyB) {
+                return -1;
+              }
+
+              return 0;
+            });
+
+            location.city = res.data.geonames[0].name;
+            location.state = res.data.geonames[0].adminCode1;
+          }
+
+          AmplifiedSession.set("current-location", location);
+          AmplifiedSession.set("user-location-set", true);
+          Session.set("get-user-location", "success");
+        });
 
         onSuccess && onSuccess(location);
       }, function() {
