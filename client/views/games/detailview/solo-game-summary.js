@@ -4,7 +4,6 @@ Template.soloGameSummary.helpers({
     return _.string.capitalize(game.type);
   },
   organizing: function () {
-    debugger;
     return this.creator.userId == Meteor.userId();
   },
   placeName: function () {

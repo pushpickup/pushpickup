@@ -1142,11 +1142,18 @@ form > .form-group:first-child { margin-top: 5px; }
     border-top: none;
   }
 
-  .join-or-leave, .game-summary, .organizers-note, .whos-playing-summary {
+  .join-or-leave,
+  .game-summary,
+  .organizers-note,
+  .whos-playing-summary {
     margin: @grid-gutter-width/2 0;
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
     position: relative;
+  }
+
+  .game-summary .text-info {
+    color: #333;
   }
 
   .organizers-note > div {

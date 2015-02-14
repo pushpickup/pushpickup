@@ -1,17 +1,17 @@
 <template name="soloGameSummary">
   <div class="game-summary">
     {{#if organizing}}
-      <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
-        {{participle startsAt past='Organized' present='Organizing'}}
+      <strong class="text-info">
+        {{participle startsAt past='You Organized' present='You\'re Organizing'}}
       </strong>
     {{else}}
       {{#if playing}}
-        <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
+        <strong class="text-info">
           {{participle startsAt past='You Played' present='You\'re Playing'}}
         </strong>
       {{/if}}
     {{/if}}
-    <span class="game-type">{{type}}</span> {{> gameWhen}}
+    <span class="game-type">{{type}}</span> {{#unless past startsAt}}{{> gameWhen}}{{/unless}}
     {{> whoIsPlaying}}
     <div class="place">
       <div class="place-name">

@@ -1,28 +1,23 @@
 <template name="whoIsPlaying">
   <div class="who-is-playing">
     {{#if organizing}}
-      <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
-        {{participle startsAt past='Organized' present='Organizing'}}
-      </strong>
         {{#unless past startsAt}}
-          + {{numNeeded}} needed
+          {{numNeeded}} needed
         {{else}}
-          for {{numOthers}} others
+          {{numOthers}} played {{#if past startsAt}}{{fromNow}}{{/if}}
         {{/unless}}
     {{else}}
       {{#if playing}}
-        <strong class="text-{{#if past startsAt}}muted{{else}}info{{/if}}">
-          {{participle startsAt past='You Played' present='You\'re Playing'}}
-        </strong>
         {{#unless past startsAt}}
-          + {{numNeeded}} needed
+          {{numNeeded}} needed
         {{else}}
-          with {{numOthers}} others
+          {{numOthers}} played {{#if past startsAt}}{{fromNow}}{{/if}}
         {{/unless}}
       {{else}}
         {{players.length}}
         {{participle startsAt past='played' present='playing'}}
         {{#unless past startsAt}}({{numNeeded}} needed){{/unless}}
+        {{#if past startsAt}}{{fromNow}}{{/if}}
       {{/if}}
     {{/if}}
   </div>

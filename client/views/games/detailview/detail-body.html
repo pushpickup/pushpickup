@@ -18,7 +18,7 @@
         {{> addComment}}
       {{/unless}}
       {{#if userInGame}}
-        <a class="btn leave-game" style="width:100%">Leave game</a>
+        {{#unless past startsAt}}<a class="btn leave-game" style="width:100%">Leave game</a>{{/unless}}
       {{/if}}
     </div>
   </div>

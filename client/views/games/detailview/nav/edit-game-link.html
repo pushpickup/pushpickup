@@ -1,7 +1,7 @@
 <template name="editGameLink">
   {{#if canEdit}}
-    <div class="edit-game-link">
+    {{#unless past startsAt}}<div class="edit-game-link">
       <a href="{{pathFor 'devEditGame'}}">Edit</a>
-    </div>
+    </div>{{/unless}}
   {{/if}}
 </template>
