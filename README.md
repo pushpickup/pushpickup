@@ -2,7 +2,7 @@
 
 Find other players and organize pickup games for soccer, basketball and ultimate frisbee.
 
-This project is actively being developed by [Stewart McCoy](www.linkedin.com/in/stewartmccoy), [Nick Taylor](ca.linkedin.com/in/nickytonline/en), and [Donny Winston](http://www.linkedin.com/pub/donny-winston/8/951/552).
+This project is actively being developed by [Stewart McCoy](http://www.linkedin.com/in/stewartmccoy), [Nick Taylor](http://ca.linkedin.com/in/nickytonline/en), and [Donny Winston](http://www.linkedin.com/pub/donny-winston/8/951/552).
 
 PushPickup is open source and we'd love to talk with you if you're interested in contributing. Be sure to check out our issue tracker and see more below.
 
