@@ -1,9 +1,9 @@
 <template name="devEditableGame">
-  
+
   {{#if SGet 'invite-previous-players'}}
     {{> invitePreviousPlayers}}
   {{/if}}
-  
+
   <div id="{{action}}Game">
     <div class="app-header">
       <div class="container">
@@ -65,14 +65,14 @@
                       placeholder="e.g. Don’t forget to bring your equipment and the $5 field fee"
                       maxlength="500">{{note}}</textarea>
           </div>
-          {{#unless editingGame}}
+<!--           {{#unless editingGame}}
             <div class="form-group">
               <p class="form-control-static">
                 <strong>Note:</strong> You'll get an email invite
                 to forward to your friends.
               </p>
             </div>
-          {{/unless}}
+          {{/unless}} -->
           {{#if editingGame}}
             <span class="help-block">
               <strong>Note:</strong>
