@@ -1,7 +1,7 @@
 <template name="soloGameSummary">
   {{> gameTypeIndicator}}
   <div class="game-summary">
-    {{#if organizing}}
+    <span class="game-type">{{#if organizing}}
       <strong class="text-info">
         {{participle startsAt past='You Organized' present='You\'re Organizing'}}
       </strong>
@@ -12,7 +12,7 @@
         </strong>
       {{/if}}
     {{/if}}
-    <span class="game-type">{{type}}</span> {{#unless past startsAt}}{{> gameWhen}}{{/unless}}
+    {{type}}</span> {{#unless past startsAt}}{{> gameWhen}}{{/unless}}
     {{> whoIsPlaying}}
     <div class="place">
       <div class="place-name">
