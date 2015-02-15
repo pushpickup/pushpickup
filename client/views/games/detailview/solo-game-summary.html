@@ -1,19 +1,21 @@
 <template name="soloGameSummary">
   {{> gameTypeIndicator}}
   <div class="game-summary">
-    {{#if organizing}}
-      <strong class="text-info">
-        {{participle startsAt past='You Organized' present='You\'re Organizing'}}
-      </strong>
-    {{else}}
-      {{#if playing}}
+    <div class="essential-game-details">
+      <span class="game-type">{{#if organizing}}
         <strong class="text-info">
-          {{participle startsAt past='You Played' present='You\'re Playing'}}
+          {{participle startsAt past='You Organized' present='You\'re Organizing'}}
         </strong>
+      {{else}}
+        {{#if playing}}
+          <strong class="text-info">
+            {{participle startsAt past='You Played' present='You\'re Playing'}}
+          </strong>
+        {{/if}}
       {{/if}}
-    {{/if}}
-    <span class="game-type">{{type}}</span> {{#unless past startsAt}}{{> gameWhen}}{{/unless}}
-    {{> whoIsPlaying}}
+      {{type}}</span> {{#unless past startsAt}}{{> gameWhen}}{{/unless}}
+      {{> whoIsPlaying}}
+    </div>
     <div class="place">
       <div class="place-name">
         {{placeName}}
