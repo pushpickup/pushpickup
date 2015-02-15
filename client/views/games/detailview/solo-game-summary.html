@@ -1,4 +1,5 @@
 <template name="soloGameSummary">
+  {{> gameTypeIndicator}}
   <div class="game-summary">
     {{#if organizing}}
       <strong class="text-info">
@@ -19,5 +20,8 @@
       </div>
       <div class="place-location">{{placeLocation}}</div>
     </div>
+  </div>
+  <div class="game-location-icon">
+    <span class="ppicon-location"></span>
   </div>
 </template>

@@ -856,6 +856,7 @@ footer {
     border-radius: @border-radius-small;
     color: @white;
     padding: 6px 12px;
+    outline: none;
     width: 86%;
     @media (min-width: @screen-sm-min) {
       width: 94%;
@@ -950,6 +951,43 @@ footer {
   left: 10px;
   z-index: 1;
 }
+
+.dev-detail-body {
+  .game-type-indicator {
+    position: relative;
+    top: 20px;
+    left: 20px;
+  }
+
+  .game-location-icon {
+
+  }
+
+  .game-summary {
+    left: 35px;
+
+    .game-type {
+      margin-left: -3px;
+    }
+  }
+
+  .place {
+    margin-top: 20px;
+  }
+
+  .game-location-icon {
+    font-size: 24px;
+    color: @brand-primary;
+    position: relative;
+    left: 17px;
+    top: -53px;
+  }
+
+  .cta-and-additional-info {
+    margin-top: -40px;
+  }
+}
+
 
 
 .listed-game .game-summary {
@@ -1549,4 +1587,8 @@ label[for="requestedNumPlayers"] {
 
 .btn.leave-game {
   margin-top: 8px;
+
+  &:active {
+      box-shadow: none;
+  }
 }
