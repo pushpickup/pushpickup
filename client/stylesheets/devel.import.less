@@ -856,6 +856,7 @@ footer {
     border-radius: @border-radius-small;
     color: @white;
     padding: 6px 12px;
+    outline: none;
     width: 86%;
     @media (min-width: @screen-sm-min) {
       width: 94%;
@@ -878,6 +879,7 @@ footer {
     border: 0;
     border-radius: @border-radius-small;
     color: @white;
+    outline: none;
     padding: 6px 12px;
     width: 100%;
     @media (min-width: @screen-sm-min) {
@@ -950,6 +952,43 @@ footer {
   left: 10px;
   z-index: 1;
 }
+
+.dev-detail-body {
+  .game-type-indicator {
+    position: relative;
+    top: 20px;
+    left: 12px;
+  }
+
+  .game-summary {
+    .game-type {
+      margin-left: -3px;
+      padding-left: 30px;
+    }
+
+    .who-is-playing,
+    .place {
+      padding-left: 30px,
+    }
+  }
+
+  .place {
+    margin-top: 20px;
+  }
+
+  .game-location-icon {
+    font-size: 24px;
+    color: @brand-primary;
+    position: relative;
+    padding-left: 10px;
+    top: -53px;
+  }
+
+  .cta-and-additional-info {
+    margin-top: -40px;
+  }
+}
+
 
 
 .listed-game .game-summary {
@@ -1142,11 +1181,18 @@ form > .form-group:first-child { margin-top: 5px; }
     border-top: none;
   }
 
-  .join-or-leave, .game-summary, .organizers-note, .whos-playing-summary {
+  .join-or-leave,
+  .game-summary,
+  .organizers-note,
+  .whos-playing-summary {
     margin: @grid-gutter-width/2 0;
     padding-left: (@grid-gutter-width / 2);
     padding-right: (@grid-gutter-width / 2);
     position: relative;
+  }
+
+  .game-summary .text-info {
+    color: #333;
   }
 
   .organizers-note > div {
@@ -1542,4 +1588,8 @@ label[for="requestedNumPlayers"] {
 
 .btn.leave-game {
   margin-top: 8px;
+
+  &:active {
+      box-shadow: none;
+  }
 }

@@ -2,6 +2,9 @@ Template.whoIsPlaying.helpers({
   organizing: function () {
     return this.creator.userId == Meteor.userId();
   },
+  fromNow: function () {
+    return moment(this.startsAt).fromNow();
+  },
   playing: function () {
     return _.contains(_.pluck(this.players, 'userId'), Meteor.userId());
   },
