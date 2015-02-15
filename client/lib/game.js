@@ -17,7 +17,7 @@ Game = (function() {
         Session.set("joined-game", gameId);
         Session.set("unauth-join", null);
         Alerts.throw({
-          message: "You've joined this game -- be sure to invite your friends!",
+          message: "You joined this game. Be sure to invite friends!",
           type: "success", where: gameId,
           autoremove: 5000
         });

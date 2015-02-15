@@ -5,21 +5,23 @@
       <!-- {{> subscribeAfterJoined}} -->
       {{> soloGameMap}}
       {{> soloGameSummary}}
-      {{#unless past startsAt}}
-        {{> addPlayers}}
-        {{> joinOrLeave}}
-      {{/unless}}
-      {{> organizersNote}}
-      {{#unless past startsAt}}
-        {{> whosPlayingSummary}}
-      {{/unless}}
-      {{> comments}}
-      {{#unless old startsAt}}
-        {{> addComment}}
-      {{/unless}}
-      {{#if userInGame}}
-        <a class="btn leave-game" style="width:100%">Leave game</a>
-      {{/if}}
+      <div class="cta-and-additional-info">
+        {{#unless past startsAt}}
+          {{> addPlayers}}
+          {{> joinOrLeave}}
+        {{/unless}}
+        {{> organizersNote}}
+        {{#unless past startsAt}}
+          {{> whosPlayingSummary}}
+        {{/unless}}
+        {{> comments}}
+        {{#unless old startsAt}}
+          {{> addComment}}
+        {{/unless}}
+        {{#if userInGame}}
+          {{#unless past startsAt}}<a class="btn leave-game" style="width:100%">Leave game</a>{{/unless}}
+        {{/if}}
+      </div>
     </div>
   </div>
 </template>
