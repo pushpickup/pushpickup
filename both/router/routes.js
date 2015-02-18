@@ -307,7 +307,6 @@ Meteor.startup(function () {
                 Session.set("selectedLocationPoint", null);
                 Session.set("newGameDay", null);
                 Session.set("newGameTime", null);
-                InviteList.remove({});
                 this.next();
             },
             waitOn: function() {
@@ -320,12 +319,6 @@ Meteor.startup(function () {
                     submit: 'Add game'
                 };
             }
-        });
-
-        this.route('invitePreviousPlayers', {
-            path: 'invitePlayers',
-            template: 'invitePreviousPlayers',
-            layoutTemplate: 'devLayout'
         });
 
         this.route('devEditGame', {

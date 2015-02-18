@@ -12,10 +12,6 @@ Template.devEditableGame.helpers({
     return {id: 'gameType', options: them};
   },
 
-  playerInviteCount : function() {
-    return InviteList.find().count();
-  },
-
   selectPlayersRequested: function () {
     var self = this;
     var numRequested = self.requested && self.requested.players || 10;
@@ -44,10 +40,6 @@ Template.devEditableGame.events({
   },
   "change #gameTime": function (evt, templ) {
     Session.set("newGameTime", +evt.currentTarget.value);
-  },
-  "click #invite-players-link": function (evt, templ) {
-    evt.preventDefault();
-    Session.set("invite-previous-players", true);
   },
   "submit #editGameForm": function (evt, templ) {
     var self = this;
@@ -98,6 +90,7 @@ Template.devEditableGame.events({
     return true;
   },
   "submit #addGameForm": function (event, template) {
+
     event.preventDefault();
     if (Session.equals("waiting-on", "add")) {
       return;
@@ -278,13 +271,6 @@ Template.devEditableGame.events({
               Session.set("joined-game", result.gameId);
             }
           });
-
-          // invite friends
-          Friends.inviteFriends(result.gameId, InviteList.find().fetch());
-          // InviteList.find().forEach(function(doc) {
-          //   console.log("INVITE " + doc.name + " " + doc.email);
-          // })
-          
 
           Router.go('devDetail', {_id: result.gameId});
           Meteor.call("sendForwardableInvite", result.gameId);
