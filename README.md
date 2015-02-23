@@ -22,6 +22,8 @@ Load `http://localhost:3000/` in your browser and play around.
 
 The `devel` branch is the "stable" edge, from which feature branches (such as `new-mobile-rough`) are created and merged, and corresponds to what is (or should be) up at [pushpickup.meteor.com](http://pushpickup.meteor.com)
 
+The `version-2` branch -- which should be (re)based on `devel` -- is the "stable" edge for the *next iteration* of the site design, from which feature branches (such as `add-fb-auth`) are created and merged, and corresponds to what is (or should be) up at [pushpickup2.meteor.com](http://pushpickup2.meteor.com)
+
 The `master` branch corresponds to what is (or should be) up at [pushpickup.com](http://pushpickup.com).
 
 If you have an issue with the code, please [let us know](https://github.com/pushpickup/pushpickup/issues/new) :)
