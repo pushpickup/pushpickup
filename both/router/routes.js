@@ -252,18 +252,13 @@ Meteor.startup(function () {
                 this.next();
             },
             data: function () {
-              var game = Games.findOne(this.params._id);
-
-              if (game) {
-                Session.set("gameExists", true);
-              }
-
-              return game;
+              return Games.findOne(this.params._id);
             },
             action: function () {
-              var token = this.params.token;
+              var token = this.params.token,
+                game = this.data();
 
-              if (Session.get("gameExists")) {
+              if (game !== void 0) {
                 this.render();
 
               } else {
@@ -295,7 +290,6 @@ Meteor.startup(function () {
             },
             onStop: function () {
               Session.set("soloGame", null);
-              Session.set("gameExists", null);
             }
         });
 
