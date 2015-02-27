@@ -75,10 +75,10 @@ underscore@1.0.2
 url@1.0.3
 velocity:core@0.4.5
 velocity:html-reporter@0.4.1
-velocity:node-soft-mirror@0.2.8
+velocity:node-soft-mirror@0.3.1
 velocity:shim@0.1.0
 velocity:test-proxy@0.0.4
 webapp@1.1.6
 webapp-hashing@1.0.2
-xolvio:cucumber@0.3.8
-xolvio:webdriver@0.1.8
+xolvio:cucumber@0.5.1
+xolvio:webdriver@0.3.1
