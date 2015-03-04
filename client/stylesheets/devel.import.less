@@ -1518,6 +1518,30 @@ form > .form-group:first-child { margin-top: 5px; }
   }
 }
 
+.pac-container {
+  border: 1px solid #d9d9d9;
+  border-top: none;
+  border-radius: none;
+  box-shadow: none;
+  width: 418px !important;
+  @media (max-width: @screen-xs) {
+    width: 91% !important;
+  }
+
+  &:after {
+    display: none;
+  }
+
+  .pac-item {
+    height: 50px;
+    padding-top: 10px;
+
+    &:first-child {
+      border-top: none;
+    }
+  }
+}
+
 label[for="requestedNumPlayers"] {
   display: inline-block;
   float: left;
